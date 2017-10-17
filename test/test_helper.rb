@@ -8,6 +8,7 @@ require 'pry'
 require 'flt'
 require 'flt/d'
 
+require_relative '../lib/finance/config.rb'
 require_relative '../lib/finance/amortization.rb'
 require_relative '../lib/finance/cashflows.rb'
 require_relative '../lib/finance/rates.rb'

@@ -32,6 +32,23 @@ describe 'Cashflows' do
     end
   end
 
+  describe 'guess with business days' do
+    before(:all) do
+      @transactions = []
+      @transactions << Transaction.new(-2906071.23, date: Time.new(2017, 8, 31))
+      @transactions << Transaction.new(8000.00, date: Time.new(2017, 9, 4))
+      @transactions << Transaction.new(2876570.16, date: Time.new(2017, 9, 29))
+    end
+
+    it 'should fail to calculate with default guess (1.0)' do
+      assert_equal 0, @transactions.xirr.apr.to_i
+    end
+
+    it 'should calculate correct rate with new guess (0.5)' do
+      assert_equal D('-0.00742'), @transactions.xirr(0.5).effective.round(5)
+    end
+  end
+
   describe 'guess' do
     before(:all) do
       @transactions = []

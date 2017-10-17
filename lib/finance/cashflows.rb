@@ -5,6 +5,7 @@ require_relative 'rates'
 
 require 'bigdecimal'
 require 'bigdecimal/newton'
+require 'business_time'
 include Newton
 
 module Finance
@@ -121,10 +122,13 @@ module Finance
     # @api public
     def xnpv(rate)
       rate  = Flt::DecNum.new(rate.to_s)
-      start = self[0].date
+      start = self[0].date.to_date
+      stop = self[-1].date.to_date
 
       inject(0) do |sum, t|
-        n = t.amount / ((1 + rate)**((t.date - start) / Flt::DecNum.new(31_536_000.to_s))) # 365 * 86400
+        n = t.amount / ((1 + rate)**((start.business_days_until(t.date)) / start.business_days_until(stop).to_f))
+        # n = t.amount / ((1 + rate)**((t.date - start) / Flt::DecNum.new(31_536_000.to_s))) # 365 * 86400
+
         sum + n
       end
     end

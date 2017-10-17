@@ -77,11 +77,11 @@ module Finance
     # @see http://en.wikipedia.org/wiki/Net_present_value
     # @api public
     def npv(rate)
-      cashflow = collect { |entry| Flt::DecNum.new(entry.to_s) }
+      cashflows = collect { |entry| Flt::DecNum.new(entry.to_s) }
 
       rate = Flt::DecNum.new(rate.to_s)
       total = Flt::DecNum.new(0.to_s)
-      cashflow.each_with_index do |cashflow, index|
+      cashflows.each_with_index do |cashflow, index|
         total += cashflow / (1 + rate)**index
       end
 
@@ -121,26 +121,38 @@ module Finance
     #   @transactions.xnpv(0.6).round(2) #=> -937.41
     # @api public
     def xnpv(rate)
-      rate  = Flt::DecNum.new(rate.to_s)
-      start = self[0].date
-      stop  = self[-1].date.to_date
-
-      days_in_period = if Finance.config.periodic_compound && Finance.config.business_days
-        start.to_date.business_days_until(stop).to_f
-      else
-        Flt::DecNum.new(365.days.to_s)
-      end
+      rate = Flt::DecNum.new(rate.to_s)
 
       sum do |t|
-        if Finance.config.business_days
-          t.amount / ((1 + rate)**((start.to_date.business_days_until(t.date)) / days_in_period))
-        else
-          t.amount / ((1 + rate)**((t.date - start) / days_in_period))
-        end
+        t.amount / ((1 + rate)**(date_diff(start, t.date) / days_in_period))
       end
     end
 
     private
+
+    def date_diff(from, to)
+      if Finance.config.business_days
+        from.to_date.business_days_until(to)
+      else
+        to - from
+      end
+    end
+
+    def days_in_period
+      if Finance.config.periodic_compound && Finance.config.business_days
+        start.to_date.business_days_until(stop).to_f
+      else
+        Flt::DecNum.new(365.days.to_s)
+      end
+    end
+
+    def start
+      @start ||= self[0].date
+    end
+
+    def stop
+      @stop ||= self[-1].date.to_date
+    end
 
     def valid(guess)
       if guess.nil?

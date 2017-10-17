@@ -108,7 +108,7 @@ module Finance
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]
       nlsolve(func, rate)
-      Rate.new(rate[0], :apr, compounds: :annually)
+      Rate.new(rate[0], :apr, compounds: Finance.config.periodic_compound ? :continuously : :annually)
     end
 
     # calculate the net present value of a sequence of cash flows

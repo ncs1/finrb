@@ -6,7 +6,8 @@ module Finance
   default_values = {
     eps: '1.0e-16',
     guess: 1.0,
-    use_business_days: false
+    use_business_days: false,
+    periodic_compound: true
   }
 
   default_values.each do |key, value|

@@ -37,9 +37,9 @@ describe 'Cashflows' do
       Finance.config.business_days = true
       Finance.config.periodic_compound = true
       @transactions = []
-      @transactions << Transaction.new(-2906071.23, date: Time.new(2017, 8, 31))
-      @transactions << Transaction.new(8000.00, date: Time.new(2017, 9, 4))
-      @transactions << Transaction.new(2876570.16, date: Time.new(2017, 9, 29))
+      @transactions << Transaction.new(-2_906_071.23, date: Date.new(2017, 8, 31))
+      @transactions << Transaction.new(8000.00, date: Date.new(2017, 9, 4))
+      @transactions << Transaction.new(2_876_570.16, date: Date.new(2017, 9, 29))
     end
 
     after(:all) do

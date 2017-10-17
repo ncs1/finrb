@@ -39,6 +39,8 @@ In `config/initializers/finance.rb` Finance allows to set tolerance (eps) and de
 Finance.configure do |config|
   config.eps = '1.0e-12'
   config.guess = 0.5
+  config.business_days = false # only relevant when using Transaction object, skips weekends
+  config.periodic_compound = false # only relevant when using Transaction object
 end
 ```
 

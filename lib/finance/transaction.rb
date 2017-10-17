@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'decimal'
 
 module Finance
@@ -48,7 +50,7 @@ module Finance
     # @example a transaction with a period number
     #   t = Transaction.new(400, :period => 3)
     # @api public
-    def initialize(amount, opts={})
+    def initialize(amount, opts = {})
       @amount = amount
       @original = amount
 
@@ -66,7 +68,7 @@ module Finance
     #   int.interest? #=> True
     # @api public
     def interest?
-      self.instance_of? Interest
+      instance_of? Interest
     end
 
     # @api public
@@ -100,7 +102,7 @@ module Finance
     #   int.payment? #=> False
     # @api public
     def payment?
-      self.instance_of? Payment
+      instance_of? Payment
     end
   end
 

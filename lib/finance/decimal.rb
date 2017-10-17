@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rubygems'
 require 'flt'
 include Flt
 
-DecNum.context.define_conversion_from(BigDecimal) do |x, context|
+DecNum.context.define_conversion_from(BigDecimal) do |x, _context|
   DecNum(x.to_s)
 end
 
@@ -12,10 +14,10 @@ end
 
 class Numeric
   def to_d
-    if self.instance_of? DecNum
+    if instance_of? DecNum
       self
     else
-      DecNum self.to_s
+      DecNum to_s
     end
   end
 end

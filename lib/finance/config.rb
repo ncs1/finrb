@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Finance
   include ActiveSupport::Configurable
 
@@ -7,6 +9,6 @@ module Finance
   }
 
   default_values.each do |key, value|
-    self.config.send("#{key.to_sym}=", value)
+    config.send("#{key.to_sym}=", value)
   end
 end

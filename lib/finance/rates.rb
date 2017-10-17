@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'decimal'
 
 module Finance
@@ -8,11 +10,10 @@ module Finance
     include Comparable
 
     # Accepted rate types
-    TYPES = { :apr       => "effective",
-              :apy       => "effective",
-              :effective => "effective",
-              :nominal   => "nominal"
-            }
+    TYPES = { apr: 'effective',
+              apy: 'effective',
+              effective: 'effective',
+              nominal: 'nominal' }.freeze
 
     # @return [Integer] the duration for which the rate is valid, in months
     # @api public
@@ -39,13 +40,13 @@ module Finance
     # (see #effective)
     # @api public
     def apr
-      self.effective
+      effective
     end
 
     # (see #effective)
     # @api public
     def apy
-      self.effective
+      effective
     end
 
     # a convenience method which sets the value of @periods
@@ -87,9 +88,9 @@ module Finance
     # @see http://en.wikipedia.org/wiki/Effective_interest_rate
     # @see http://en.wikipedia.org/wiki/Nominal_interest_rate
     # @api public
-    def initialize(rate, type, opts={})
+    def initialize(rate, type, opts = {})
       # Default monthly compounding.
-      opts = { :compounds => :monthly }.merge opts
+      opts = { compounds: :monthly }.merge opts
 
       # Set optional attributes..
       opts.each do |key, value|
@@ -105,7 +106,7 @@ module Finance
     end
 
     def inspect
-      "Rate.new(#{self.apr.round(6)}, :apr)"
+      "Rate.new(#{apr.round(6)}, :apr)"
     end
 
     # @return [DecNum] the monthly effective interest rate
@@ -115,7 +116,7 @@ module Finance
     #   rate.monthly.round(6) #=> DecNum('0.013396')
     # @api public
     def monthly
-      (self.effective / 12).round(15)
+      (effective / 12).round(15)
     end
 
     # set the nominal interest rate
@@ -134,13 +135,14 @@ module Finance
     # @example
     #   Rate.to_effective(0.05, 4) #=> DecNum('0.05095')
     # @api public
-    def Rate.to_effective(rate, periods)
-      rate, periods = Flt::DecNum.new(rate.to_s), Flt::DecNum.new(periods.to_s)
+    def self.to_effective(rate, periods)
+      rate = Flt::DecNum.new(rate.to_s)
+      periods = Flt::DecNum.new(periods.to_s)
 
       if periods.infinite?
         rate.exp - 1
       else
-        (1 + rate / periods) ** periods - 1
+        (1 + rate / periods)**periods - 1
       end
     end
 
@@ -152,13 +154,14 @@ module Finance
     #   Rate.to_nominal(0.06, 365) #=> DecNum('0.05827')
     # @see http://www.miniwebtool.com/nominal-interest-rate-calculator/
     # @api public
-    def Rate.to_nominal(rate, periods)
-      rate, periods = Flt::DecNum.new(rate.to_s), Flt::DecNum.new(periods.to_s)
+    def self.to_nominal(rate, periods)
+      rate = Flt::DecNum.new(rate.to_s)
+      periods = Flt::DecNum.new(periods.to_s)
 
       if periods.infinite?
         (rate + 1).log
       else
-        periods * ((1 + rate) ** (1 / periods) - 1)
+        periods * ((1 + rate)**(1 / periods) - 1)
       end
     end
 

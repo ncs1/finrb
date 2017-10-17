@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'decimal'
 require_relative 'rates'
 
@@ -14,11 +16,11 @@ module Finance
     class Function
       values = {
         eps: Finance.config.eps,
-        one: "1.0",
-        two: "2.0",
-        ten: "10.0",
-        zero: "0.0"
-        }
+        one: '1.0',
+        two: '2.0',
+        ten: '10.0',
+        zero: '0.0'
+      }
 
       values.each do |key, value|
         define_method key do
@@ -34,7 +36,7 @@ module Finance
       def values(x)
         value = @transactions.send(@function, Flt::DecNum.new(x[0].to_s))
         begin
-        [ BigDecimal.new(value.to_s) ]
+          [BigDecimal.new(value.to_s)]
         rescue ArgumentError
           [0]
         end
@@ -50,9 +52,9 @@ module Finance
     # @api public
     def irr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
-      positives, negatives = self.partition{ |i| i >= 0 }
+      positives, negatives = partition { |i| i >= 0 }
       if positives.empty? || negatives.empty?
-        raise ArgumentError, "Calculation does not converge."
+        raise ArgumentError, 'Calculation does not converge.'
       end
 
       func = Function.new(self, :npv)
@@ -62,7 +64,7 @@ module Finance
     end
 
     def method_missing(name, *args, &block)
-      return self.inject(:+) if name.to_s == "sum"
+      return inject(:+) if name.to_s == 'sum'
       super
     end
 
@@ -74,11 +76,12 @@ module Finance
     # @see http://en.wikipedia.org/wiki/Net_present_value
     # @api public
     def npv(rate)
-      cashflow = self.collect { |entry| Flt::DecNum.new(entry.to_s) }
+      cashflow = collect { |entry| Flt::DecNum.new(entry.to_s) }
 
-      rate, total = Flt::DecNum.new(rate.to_s), Flt::DecNum.new(0.to_s)
+      rate = Flt::DecNum.new(rate.to_s)
+      total = Flt::DecNum.new(0.to_s)
       cashflow.each_with_index do |cashflow, index|
-        total += cashflow / (1 + rate) ** index
+        total += cashflow / (1 + rate)**index
       end
 
       total
@@ -96,7 +99,7 @@ module Finance
     # @api public
     def xirr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
-      positives, negatives = self.partition{ |t| t.amount >= 0 }
+      positives, negatives = partition { |t| t.amount >= 0 }
       if positives.empty? || negatives.empty?
         raise ArgumentError, 'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.'
       end
@@ -104,7 +107,7 @@ module Finance
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]
       nlsolve(func, rate)
-      Rate.new(rate[0], :apr, :compounds => :annually)
+      Rate.new(rate[0], :apr, compounds: :annually)
     end
 
     # calculate the net present value of a sequence of cash flows
@@ -120,8 +123,8 @@ module Finance
       rate  = Flt::DecNum.new(rate.to_s)
       start = self[0].date
 
-      self.inject(0) do |sum, t|
-        n = t.amount / ( (1 + rate) ** ((t.date-start) / Flt::DecNum.new(31536000.to_s))) # 365 * 86400
+      inject(0) do |sum, t|
+        n = t.amount / ((1 + rate)**((t.date - start) / Flt::DecNum.new(31_536_000.to_s))) # 365 * 86400
         sum + n
       end
     end

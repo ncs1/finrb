@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 SPEC = Gem::Specification.new do |s|
-  s.name = "finance"
-  s.version = "2.0.1"
-  s.author = "Bill Kranec"
-  s.license = "LGPL-3.0"
-  s.email = "wkranec@gmail.com"
+  s.name = 'finance'
+  s.version = '2.0.1'
+  s.author = 'Bill Kranec'
+  s.license = 'LGPL-3.0'
+  s.email = 'wkranec@gmail.com'
   s.platform = Gem::Platform::RUBY
-  s.summary = "a library for financial modelling in Ruby."
-  s.description = "The finance library provides a Ruby interface for working with interest rates, mortgage amortization, and cashflows (NPV, IRR, etc.)."
-  s.homepage = "https://rubygems.org/gems/finance"
+  s.summary = 'a library for financial modelling in Ruby.'
+  s.description = 'The finance library provides a Ruby interface for working with interest rates, mortgage amortization, and cashflows (NPV, IRR, etc.).'
+  s.homepage = 'https://rubygems.org/gems/finance'
 
   s.required_ruby_version = '>=1.9'
   s.add_dependency 'flt', '>=1.3.0'

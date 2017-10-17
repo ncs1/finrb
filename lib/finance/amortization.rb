@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'cashflows'
 require_relative 'decimal'
 require_relative 'transaction'
@@ -37,7 +39,7 @@ module Finance
     # @param [Amortization]
     # @api public
     def ==(amortization)
-      self.principal == amortization.principal and self.rates == amortization.rates and self.payments == amortization.payments
+      (principal == amortization.principal) && (rates == amortization.rates) && (payments == amortization.payments)
     end
 
     # @return [Array] the amount of any additional payments in each period
@@ -47,7 +49,7 @@ module Finance
     #   amt.additional_payments #=> [DecNum('-100.00'), DecNum('-100.00'), ... ]
     # @api public
     def additional_payments
-      @transactions.find_all(&:payment?).collect{ |p| p.difference }
+      @transactions.find_all(&:payment?).collect(&:difference)
     end
 
     # amortize the balance of loan with the given interest rate
@@ -61,21 +63,21 @@ module Finance
       periods = @periods - @period
       amount = Amortization.payment @balance, rate.monthly, periods
 
-      pmt = Payment.new(amount, :period => @period)
-      if @block then pmt.modify(&@block) end
+      pmt = Payment.new(amount, period: @period)
+      pmt.modify(&@block) if @block
 
       rate.duration.to_i.times do
         # Do this first in case the balance is zero already.
-        if @balance.zero? then break end
+        break if @balance.zero?
 
         # Compute and record interest on the outstanding balance.
         int = (@balance * rate.monthly).round(2)
-        interest = Interest.new(int, :period => @period)
+        interest = Interest.new(int, period: @period)
         @balance += interest.amount
         @transactions << interest.dup
 
         # Record payment.  Don't pay more than the outstanding balance.
-        if pmt.amount.abs > @balance then pmt.amount = -@balance end
+        pmt.amount = -@balance if pmt.amount.abs > @balance
         @transactions << pmt.dup
         @balance += pmt.amount
 
@@ -100,11 +102,7 @@ module Finance
         @balance = 0
       end
 
-      if @rates.length == 1
-        @payment = self.payments[0]
-      else
-        @payment = nil
-      end
+      @payment = (payments[0] if @rates.length == 1)
 
       @transactions.freeze
     end
@@ -120,7 +118,7 @@ module Finance
     #   amt.duration #=> 319
     # @api public
     def duration
-      self.payments.length
+      payments.length
     end
 
     # create a new Amortization instance
@@ -135,7 +133,7 @@ module Finance
       @block     = block
 
       # compute the total duration from all of the rates.
-      @periods = (rates.collect { |r| r.duration }).sum
+      @periods = rates.collect(&:duration).sum
       @period  = 0
 
       compute
@@ -157,7 +155,7 @@ module Finance
     #   amt.interest[0,6].sum #=> DecNum('5603.74')
     # @api public
     def interest
-      @transactions.find_all(&:interest?).collect{ |p| p.amount }
+      @transactions.find_all(&:interest?).collect(&:amount)
     end
 
     # @return [DecNum] the periodic payment due on a loan
@@ -171,12 +169,12 @@ module Finance
     #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
     # @see http://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
-    def Amortization.payment(principal, rate, periods)
+    def self.payment(principal, rate, periods)
       if rate.zero?
         # simplified formula to avoid division-by-zero when interest rate is zero
-        return -(principal / periods).round(2)
+        -(principal / periods).round(2)
       else
-        return -(principal * (rate + (rate / ((1 + rate) ** periods - 1)))).round(2)
+        -(principal * (rate + (rate / ((1 + rate)**periods - 1)))).round(2)
       end
     end
 
@@ -187,7 +185,7 @@ module Finance
     #   amt.payments.sum #=> DecNum('-500163.94')
     # @api public
     def payments
-      @transactions.find_all(&:payment?).collect{ |p| p.amount }
+      @transactions.find_all(&:payment?).collect(&:amount)
     end
   end
 end

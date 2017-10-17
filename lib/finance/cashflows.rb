@@ -122,14 +122,21 @@ module Finance
     # @api public
     def xnpv(rate)
       rate  = Flt::DecNum.new(rate.to_s)
-      start = self[0].date.to_date
-      stop = self[-1].date.to_date
+      start = self[0].date
+      stop  = self[-1].date.to_date
 
-      inject(0) do |sum, t|
-        n = t.amount / ((1 + rate)**((start.business_days_until(t.date)) / start.business_days_until(stop).to_f))
-        # n = t.amount / ((1 + rate)**((t.date - start) / Flt::DecNum.new(31_536_000.to_s))) # 365 * 86400
+      days_in_period = if Finance.config.periodic_compound && Finance.config.business_days
+        start.to_date.business_days_until(stop).to_f
+      else
+        Flt::DecNum.new(365.days.to_s)
+      end
 
-        sum + n
+      sum do |t|
+        if Finance.config.business_days
+          t.amount / ((1 + rate)**((start.to_date.business_days_until(t.date)) / days_in_period))
+        else
+          t.amount / ((1 + rate)**((t.date - start) / days_in_period))
+        end
       end
     end
 

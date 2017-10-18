@@ -73,7 +73,7 @@ module Finance
 
     # @api public
     def inspect
-      "Transaction(#{@amount})"
+      "Transaction(#{@amount.round(2)}, date: #{@date})"
     end
 
     # Modify a Transaction's amount by passing a block

@@ -25,7 +25,7 @@ module Finance
 
       values.each do |key, value|
         define_method key do
-          BigDecimal.new value
+          BigDecimal(value)
         end
       end
 
@@ -37,7 +37,7 @@ module Finance
       def values(x)
         value = @transactions.send(@function, Flt::DecNum.new(x[0].to_s))
         begin
-          [BigDecimal.new(value.to_s)]
+          [BigDecimal(value.to_s)]
         rescue ArgumentError
           [0]
         end

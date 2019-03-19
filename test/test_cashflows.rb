@@ -14,24 +14,6 @@ describe 'Cashflows' do
     end
   end
 
-  describe 'an array of Transactions' do
-    before(:all) do
-      @xactions = []
-      @xactions << Transaction.new(-1000, date: Time.new(1985, 1, 1))
-      @xactions << Transaction.new(600, date: Time.new(1990, 1, 1))
-      @xactions << Transaction.new(600, date: Time.new(1995, 1, 1))
-    end
-
-    it 'should have an Internal Rate of Return' do
-      assert_equal D('0.024851'), @xactions.xirr.effective.round(6)
-      assert_raises(ArgumentError) { @xactions[1, 2].xirr }
-    end
-
-    it 'should have a Net Present Value' do
-      assert_equal D('-937.41'), @xactions.xnpv(0.6).round(2)
-    end
-  end
-
   describe 'guess with business days' do
     before(:all) do
       Finance.config.business_days = true
@@ -48,7 +30,7 @@ describe 'Cashflows' do
     end
 
     it 'should fail to calculate with default guess (1.0)' do
-      assert_equal 0, @transactions.xirr.apr.to_i
+      assert_raises(Flt::Num::InvalidOperation) { @transactions.xirr.apr.to_i }
     end
 
     it 'should calculate correct rate with new guess (0.5)' do

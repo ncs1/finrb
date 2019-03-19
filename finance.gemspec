@@ -2,7 +2,7 @@
 
 SPEC = Gem::Specification.new do |s|
   s.name = 'finance'
-  s.version = '2.0.1'
+  s.version = '2.0.2'
   s.author = 'Bill Kranec'
   s.license = 'LGPL-3.0'
   s.email = 'wkranec@gmail.com'
@@ -20,6 +20,5 @@ SPEC = Gem::Specification.new do |s|
   s.add_development_dependency 'pry'
   s.files = `git ls-files`.split("\n")
 
-  s.has_rdoc = true
   s.extra_rdoc_files = ['README.md', 'COPYING', 'COPYING.LESSER', 'HISTORY']
 end

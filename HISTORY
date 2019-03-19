@@ -1,3 +1,9 @@
+= Version 2.0.2
+19 March 2019
+ * Fix BigDecimal deprecation warning
+ * Support Ruby 2.6.2
+ * Update dependencies
+
 = Version 2.0.1
 17 October 2017
  * Added Support for configuration file to set up default eps and guess for IRR & XIRR

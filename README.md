@@ -1,5 +1,5 @@
 # FINANCE
-[![Build Status](https://travis-ci.org/net-engine/finance.svg?branch=master)](https://travis-ci.org/net-engine/finance)
+[![Build Status](https://travis-ci.org/Edward-Intelligence/finance.svg?branch=master)](https://travis-ci.org/net-engine/finance)
 
 a library for financial modelling in Ruby.
 

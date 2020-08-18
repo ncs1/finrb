@@ -121,10 +121,10 @@ module Finance
     #   @transactions.xnpv(0.6).round(2) #=> -937.41
     # @api public
     def xnpv(rate)
-      rate = Flt::DecNum.new(rate.to_s)
+      rate = BigDecimal(rate.to_s)
 
       sum do |t|
-        t.amount / ((1 + rate)**(date_diff(start, t.date) / days_in_period))
+        BigDecimal(t.amount.to_s) / ((1 + rate)**(date_diff(start, t.date) / BigDecimal(days_in_period.to_s)))
       end
     end
 

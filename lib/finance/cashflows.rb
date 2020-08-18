@@ -124,7 +124,7 @@ module Finance
       rate = BigDecimal(rate.to_s)
 
       sum do |t|
-        BigDecimal(t.amount.to_s) / ((1 + rate)**(date_diff(start, t.date) / BigDecimal(days_in_period.to_s)))
+        BigDecimal(t.amount.to_s) / ((1 + rate)**(date_diff(start, t.date) / days_in_period))
       end
     end
 

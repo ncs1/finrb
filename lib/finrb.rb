@@ -5,14 +5,14 @@ require 'finrb/config'
 require 'finrb/decimal'
 require 'finrb/cashflows'
 
-# The *Finance* module adheres to the following conventions for
+# The *Finrb* module adheres to the following conventions for
 # financial calculations:
 #
 #  * Positive values represent cash inflows (money received); negative
 #    values represent cash outflows (payments).
 #  * *principal* represents the outstanding balance of a loan or annuity.
 #  * *rate* represents the interest rate _per period_.
-module Finance
+module Finrb
   autoload :Amortization, 'finrb/amortization'
   autoload :Rate,         'finrb/rates'
   autoload :Transaction,  'finrb/transaction'

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Finance
+module Finrb
   include ActiveSupport::Configurable
 
   default_values = {

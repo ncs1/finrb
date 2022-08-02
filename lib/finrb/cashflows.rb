@@ -8,7 +8,7 @@ require 'bigdecimal/newton'
 require 'business_time'
 include Newton
 
-module Finance
+module Finrb
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow
@@ -16,7 +16,7 @@ module Finance
     # @api private
     class Function
       values = {
-        eps: Finance.config.eps,
+        eps: Finrb.config.eps,
         one: '1.0',
         two: '2.0',
         ten: '10.0',
@@ -108,7 +108,7 @@ module Finance
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]
       nlsolve(func, rate)
-      Rate.new(rate[0], :apr, compounds: Finance.config.periodic_compound ? :continuously : :annually)
+      Rate.new(rate[0], :apr, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
     end
 
     # calculate the net present value of a sequence of cash flows
@@ -131,7 +131,7 @@ module Finance
     private
 
     def date_diff(from, to)
-      if Finance.config.business_days
+      if Finrb.config.business_days
         from.to_date.business_days_until(to)
       else
         to - from
@@ -139,7 +139,7 @@ module Finance
     end
 
     def days_in_period
-      if Finance.config.periodic_compound && Finance.config.business_days
+      if Finrb.config.periodic_compound && Finrb.config.business_days
         start.to_date.business_days_until(stop).to_f
       else
         Flt::DecNum.new(365.days.to_s)
@@ -156,8 +156,8 @@ module Finance
 
     def valid(guess)
       if guess.nil?
-        raise ArgumentError, 'Invalid Guess. Default guess should be a [Numeric] value.' unless Finance.config.guess.is_a? Numeric
-        Finance.config.guess
+        raise ArgumentError, 'Invalid Guess. Default guess should be a [Numeric] value.' unless Finrb.config.guess.is_a? Numeric
+        Finrb.config.guess
       else
         raise ArgumentError, 'Invalid Guess. Use a [Numeric] value.' unless guess.is_a? Numeric
         guess
@@ -167,5 +167,5 @@ module Finance
 end
 
 class Array
-  include Finance::Cashflow
+  include Finrb::Cashflow
 end

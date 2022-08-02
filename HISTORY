@@ -29,13 +29,13 @@
 
 * Added XNPV and XIRR functions, with basic testing.
 * Bugfix: Array#sum no longer collides with the Array#sum defined in Rails.
-* Bugfix: Numeric#amortize now correctly calls Finance::Amortization#new.
+* Bugfix: Numeric#amortize now correctly calls Finrb::Amortization#new.
 
 = Version 1.0.0
 20 Jul 2011
 
 * Moved to Ruby 1.9.
-* All classes are now contained within the +Finance+ namespace.
+* All classes are now contained within the +Finrb+ namespace.
 * LOTS of additional documentation and examples.
 * Introduced _shoulda_ for unit tests, to make things a little more readable.
 * Bugfix: The +amortize+ Numeric method now accepts a variable number of rates.

@@ -4,7 +4,7 @@ require_relative 'cashflows'
 require_relative 'decimal'
 require_relative 'transaction'
 
-module Finance
+module Finrb
   # the Amortization class provides an interface for working with loan amortizations.
   # @note There are _two_ ways to create an amortization.  The first
   #   example uses the amortize method for the Numeric class.  The second
@@ -194,6 +194,6 @@ class Numeric
   # @see Amortization#new
   # @api public
   def amortize(*rates, &block)
-    Finance::Amortization.new(self, *rates, &block)
+    Finrb::Amortization.new(self, *rates, &block)
   end
 end

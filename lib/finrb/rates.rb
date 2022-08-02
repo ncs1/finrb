@@ -2,7 +2,7 @@
 
 require_relative 'decimal'
 
-module Finance
+module Finrb
   # the Rate class provides an interface for working with interest rates.
   # {render:Rate#new}
   # @api public

@@ -15,4 +15,4 @@ require_relative '../lib/finrb/amortization.rb'
 require_relative '../lib/finrb/cashflows.rb'
 require_relative '../lib/finrb/rates.rb'
 require_relative '../lib/finrb/transaction.rb'
-include Finance
+include Finrb

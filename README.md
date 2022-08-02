@@ -25,18 +25,18 @@ Correspondingly, `finrb` has been bumped up to version 2.0.
     >> require 'finrb'
 
 *Note:* As of version 1.0.0, the entire library is contained under the
-Finance namespace.  Existing code will not work unless you add:
+Finrb namespace.  Existing code will not work unless you add:
 
-    >> include Finance
+    >> include Finrb
 
 for all of the examples below, we'll assume that you have done this.
 
 ### CONFIGURATION
 
-In `config/initializers/finrb.rb` Finance allows to set tolerance (eps) and default guess for IRR and XIRR calculations, such as:
+In `config/initializers/finrb.rb` Finrb allows to set tolerance (eps) and default guess for IRR and XIRR calculations, such as:
 
 ```ruby
-Finance.configure do |config|
+Finrb.configure do |config|
   config.eps = '1.0e-12'
   config.guess = 0.5
   config.business_days = false # only relevant when using Transaction object, skips weekends

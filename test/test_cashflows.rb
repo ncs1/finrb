@@ -16,8 +16,8 @@ describe 'Cashflows' do
 
   describe 'guess with business days' do
     before(:all) do
-      Finance.config.business_days = true
-      Finance.config.periodic_compound = true
+      Finrb.config.business_days = true
+      Finrb.config.periodic_compound = true
       @transactions = []
       @transactions << Transaction.new(-2_906_071.23, date: Date.new(2017, 8, 31))
       @transactions << Transaction.new(8000.00, date: Date.new(2017, 9, 4))
@@ -25,8 +25,8 @@ describe 'Cashflows' do
     end
 
     after(:all) do
-      Finance.config.business_days = false
-      Finance.config.periodic_compound = false
+      Finrb.config.business_days = false
+      Finrb.config.periodic_compound = false
     end
 
     it 'should fail to calculate with default guess (1.0)' do

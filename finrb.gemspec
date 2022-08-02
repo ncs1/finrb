@@ -12,12 +12,15 @@ SPEC = Gem::Specification.new do |s|
   s.homepage = 'https://rubygems.org/gems/finrb'
 
   s.required_ruby_version = '>=3.0'
-  s.add_dependency 'flt', '>=1.3.0'
-  s.add_dependency 'activesupport', '>= 3.2.0'
-  s.add_dependency 'rake'
-  s.add_dependency 'business_time', '>= 0.9.2'
-  s.add_development_dependency 'minitest', '>= 4.7.5'
+
+  s.add_dependency 'flt'
+  s.add_dependency 'activesupport'
+  s.add_dependency 'business_time'
+
+  s.add_development_dependency 'minitest'
   s.add_development_dependency 'pry'
+  s.add_development_dependency 'rake'
+
   s.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
 
   s.extra_rdoc_files = ['README.md', 'COPYING', 'COPYING.LESSER', 'HISTORY']

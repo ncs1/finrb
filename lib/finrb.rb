@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'active_support/configurable'
-require 'finance/config'
-require 'finance/decimal'
-require 'finance/cashflows'
+require 'finrb/config'
+require 'finrb/decimal'
+require 'finrb/cashflows'
 
 # The *Finance* module adheres to the following conventions for
 # financial calculations:
@@ -13,7 +13,7 @@ require 'finance/cashflows'
 #  * *principal* represents the outstanding balance of a loan or annuity.
 #  * *rate* represents the interest rate _per period_.
 module Finance
-  autoload :Amortization, 'finance/amortization'
-  autoload :Rate,         'finance/rates'
-  autoload :Transaction,  'finance/transaction'
+  autoload :Amortization, 'finrb/amortization'
+  autoload :Rate,         'finrb/rates'
+  autoload :Transaction,  'finrb/transaction'
 end

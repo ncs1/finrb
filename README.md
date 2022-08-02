@@ -1,28 +1,28 @@
 # FINANCE
-[![Build Status](https://travis-ci.org/Edward-Intelligence/finance.svg?branch=master)](https://travis-ci.org/net-engine/finance)
+[![Build Status](https://travis-ci.org/Edward-Intelligence/finrb.svg?branch=master)](https://travis-ci.org/net-engine/finrb)
 
 a library for financial modelling in Ruby.
 
 ## INSTALL
 
-    $ sudo gem install finance
+    $ sudo gem install finrb
 
 ## IMPORTANT CHANGES
 
 Contributions by [@thadd](https://github.com/thadd) and
-[@bramswenson](https://github.com/bramswenson) have made the `finance`
+[@bramswenson](https://github.com/bramswenson) have made the `finrb`
 library fully compatible with rails, at the cost of the `#years` and
 `#months` convenience methods on `Integer`, as well as the `#to_d` method for
 converting `Numerics` into `DecNums`.  These methods have been removed, due to
 conflicts with existing rails methods.
 
-Correspondingly, `finance` has been bumped up to version 2.0.
+Correspondingly, `finrb` has been bumped up to version 2.0.
 
 ## OVERVIEW
 
 ### GETTING STARTED
 
-    >> require 'finance'
+    >> require 'finrb'
 
 *Note:* As of version 1.0.0, the entire library is contained under the
 Finance namespace.  Existing code will not work unless you add:
@@ -33,7 +33,7 @@ for all of the examples below, we'll assume that you have done this.
 
 ### CONFIGURATION
 
-In `config/initializers/finance.rb` Finance allows to set tolerance (eps) and default guess for IRR and XIRR calculations, such as:
+In `config/initializers/finrb.rb` Finance allows to set tolerance (eps) and default guess for IRR and XIRR calculations, such as:
 
 ```ruby
 Finance.configure do |config|
@@ -134,7 +134,7 @@ transactions.xirr(guess)
 
 ## ABOUT
 
-I started developing `finance` while analyzing mortgages as a personal
+I started developing `finrb` while analyzing mortgages as a personal
 project.  Spreadsheets have convenient formulas for doing this type of
 work, until you want to do something semi-complex (like ARMs or extra
 payments), at which point you need to create your own amortization
@@ -144,12 +144,12 @@ tools, I am hoping to save other folks some time by releasing what I
 have as a gem.
 
 More broadly, I believe there are many calculations that are necessary
-for the effective management of personal finances, but are difficult
+for the effective management of personal finrbs, but are difficult
 (or impossible) to do with spreadsheets or other existing open source
-tools.  My hope is that the `finance` library will grow to provide a set
+tools.  My hope is that the `finrb` library will grow to provide a set
 of open, tested tools to fill this gap.
 
-If you have used `finance` and find it useful, I would enjoy hearing
+If you have used `finrb` and find it useful, I would enjoy hearing
 about it!
 
 ## FEATURES
@@ -165,10 +165,10 @@ Currently implemented features include:
 
 ## RESOURCES
 
-* [RubyGems Page](https://rubygems.org/gems/finance)
-* [Source Code](http://github.com/wkranec/finance)
-* [Bug Tracker](https://github.com/wkranec/finance/issues)
-* [Google Group](http://groups.google.com/group/finance-gem/topics?pli=1)
+* [RubyGems Page](https://rubygems.org/gems/finrb)
+* [Source Code](http://github.com/wkranec/finrb)
+* [Bug Tracker](https://github.com/wkranec/finrb/issues)
+* [Google Group](http://groups.google.com/group/finrb-gem/topics?pli=1)
 
 ## COPYRIGHT
 

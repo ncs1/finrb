@@ -18,7 +18,7 @@ SPEC = Gem::Specification.new do |s|
   s.add_dependency 'business_time', '>= 0.9.2'
   s.add_development_dependency 'minitest', '>= 4.7.5'
   s.add_development_dependency 'pry'
-  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  s.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
 
   s.extra_rdoc_files = ['README.md', 'COPYING', 'COPYING.LESSER', 'HISTORY']
 end

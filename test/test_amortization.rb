@@ -6,7 +6,7 @@ require_relative 'test_helper'
 #   examples in these unit tests.
 describe 'Amortization' do
   def ipmt(principal, rate, payment, period)
-    -(-rate * principal * (1 + rate)**(period - 1) - payment * ((1 + rate)**(period - 1) - 1)).round(2)
+    -((-rate * principal * ((1 + rate)**(period - 1))) - (payment * (((1 + rate)**(period - 1)) - 1))).round(2)
   end
 
   describe 'amortization with a 0% rate' do
@@ -28,7 +28,7 @@ describe 'Amortization' do
     end
 
     it 'should have a final balance of zero' do
-      assert @std.balance.zero?
+      assert_predicate @std.balance, :zero?
     end
 
     it 'should have a duration of 360 months' do
@@ -48,7 +48,7 @@ describe 'Amortization' do
     end
 
     it 'should have interest charges which agree with the standard formula' do
-      0.upto 359 do |period|
+      0.upto(359) do |period|
         assert_equal @std.interest[period], ipmt(@principal, @rate.monthly, @std.payment, period + 1)
       end
     end
@@ -61,7 +61,7 @@ describe 'Amortization' do
   describe 'an adjustable rate amortization of 200000 starting at 3.75% and increasing by 1% every 3 years' do
     before(:all) do
       @rates = []
-      0.upto 9 do |adj|
+      0.upto(9) do |adj|
         @rates << Rate.new(0.0375 + (D('0.01') * adj), :apr, duration: (3 * 12))
       end
       @principal = D(200_000)
@@ -73,7 +73,7 @@ describe 'Amortization' do
     end
 
     it 'should have a final balance of zero' do
-      assert @arm.balance.zero?
+      assert_predicate @arm.balance, :zero?
     end
 
     it 'should have a duration of 360 months' do
@@ -86,7 +86,7 @@ describe 'Amortization' do
 
     it 'should have payments which increase every three years' do
       values = %w[926.23 1033.73 1137.32 1235.39 1326.30 1408.27 1479.28 1537.03 1578.84 1601.66]
-      values.collect! { |v| -D(v) }
+      values.map! { |v| -D(v) }
 
       payments = []
       values[0, 9].each do |v|
@@ -127,7 +127,7 @@ describe 'Amortization' do
     end
 
     it 'should have a final balance of zero' do
-      assert @exp.balance.zero?
+      assert_predicate @exp.balance, :zero?
     end
 
     it 'should have a duration of 301 months' do

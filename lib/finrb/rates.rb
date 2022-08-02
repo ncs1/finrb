@@ -8,12 +8,37 @@ module Finrb
   # @api public
   class Rate
     include Comparable
+    # create a new Rate instance
+    # @return [Rate]
+    # @param [Numeric] rate the decimal value of the interest rate
+    # @param [Symbol] type a valid {TYPES rate type}
+    # @param [optional, Hash] opts set optional attributes
+    # @option opts [String] :duration a time interval for which the rate is valid
+    # @option opts [String] :compounds (:monthly) the number of compounding periods per year
+    # @example create a 3.5% APR rate
+    #   Rate.new(0.035, :apr) #=> Rate(0.035, :apr)
+    # @see http://en.wikipedia.org/wiki/Effective_interest_rate
+    # @see http://en.wikipedia.org/wiki/Nominal_interest_rate
+    # @api public
+    def initialize(rate, type, opts = {})
+      # Default monthly compounding.
+      opts = { compounds: :monthly }.merge(opts)
+
+      # Set optional attributes..
+      opts.each do |key, value|
+        send("#{key}=", value)
+      end
+
+      # Set the rate in the proper way, based on the value of type.
+      begin
+        send("#{TYPES.fetch(type)}=", Flt::DecNum.new(rate.to_s))
+      rescue KeyError
+        raise(ArgumentError, "type must be one of #{TYPES.keys.join(', ')}", caller)
+      end
+    end
 
     # Accepted rate types
-    TYPES = { apr: 'effective',
-              apy: 'effective',
-              effective: 'effective',
-              nominal: 'nominal' }.freeze
+    TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
 
     # @return [Integer] the duration for which the rate is valid, in months
     # @api public
@@ -33,8 +58,8 @@ module Finrb
     #   r2 = Rate.new(0.155, :nominal, :compounds => :semiannually) #=> Rate.new(0.161006, :apr)
     #   r1 <=> r2 #=> -1
     # @api public
-    def <=>(rate)
-      @effective <=> rate.effective
+    def <=>(other)
+      @effective <=> other.effective
     end
 
     # (see #effective)
@@ -55,16 +80,17 @@ module Finrb
     # @raise [ArgumentError] if input is not an accepted keyword or Numeric
     # @api private
     def compounds=(input)
-      @periods = case input
-                 when :annually     then Flt::DecNum.new(1)
-                 when :continuously then Flt::DecNum.infinity
-                 when :daily        then Flt::DecNum.new(365)
-                 when :monthly      then Flt::DecNum.new(12)
-                 when :quarterly    then Flt::DecNum.new(4)
-                 when :semiannually then Flt::DecNum.new(2)
-                 when Numeric       then Flt::DecNum.new(input.to_s)
-                 else raise ArgumentError
-                 end
+      @periods =
+        case input
+        when :annually     then Flt::DecNum.new(1)
+        when :continuously then Flt::DecNum.infinity
+        when :daily        then Flt::DecNum.new(365)
+        when :monthly      then Flt::DecNum.new(12)
+        when :quarterly    then Flt::DecNum.new(4)
+        when :semiannually then Flt::DecNum.new(2)
+        when Numeric       then Flt::DecNum.new(input.to_s)
+        else raise(ArgumentError)
+        end
     end
 
     # set the effective interest rate
@@ -74,35 +100,6 @@ module Finrb
     def effective=(rate)
       @effective = rate
       @nominal = Rate.to_nominal(rate, @periods)
-    end
-
-    # create a new Rate instance
-    # @return [Rate]
-    # @param [Numeric] rate the decimal value of the interest rate
-    # @param [Symbol] type a valid {TYPES rate type}
-    # @param [optional, Hash] opts set optional attributes
-    # @option opts [String] :duration a time interval for which the rate is valid
-    # @option opts [String] :compounds (:monthly) the number of compounding periods per year
-    # @example create a 3.5% APR rate
-    #   Rate.new(0.035, :apr) #=> Rate(0.035, :apr)
-    # @see http://en.wikipedia.org/wiki/Effective_interest_rate
-    # @see http://en.wikipedia.org/wiki/Nominal_interest_rate
-    # @api public
-    def initialize(rate, type, opts = {})
-      # Default monthly compounding.
-      opts = { compounds: :monthly }.merge opts
-
-      # Set optional attributes..
-      opts.each do |key, value|
-        send("#{key}=", value)
-      end
-
-      # Set the rate in the proper way, based on the value of type.
-      begin
-        send("#{TYPES.fetch(type)}=", Flt::DecNum.new(rate.to_s))
-      rescue KeyError
-        raise ArgumentError, "type must be one of #{TYPES.keys.join(', ')}", caller
-      end
     end
 
     def inspect
@@ -142,7 +139,7 @@ module Finrb
       if periods.infinite?
         rate.exp - 1
       else
-        (1 + rate / periods)**periods - 1
+        ((1 + (rate / periods))**periods) - 1
       end
     end
 
@@ -161,7 +158,7 @@ module Finrb
       if periods.infinite?
         (rate + 1).log
       else
-        periods * ((1 + rate)**(1 / periods) - 1)
+        periods * (((1 + rate)**(1 / periods)) - 1)
       end
     end
 

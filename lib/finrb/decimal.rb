@@ -14,10 +14,10 @@ end
 
 class Numeric
   def to_d
-    if instance_of? DecNum
+    if instance_of?(DecNum)
       self
     else
-      DecNum to_s
+      DecNum(to_s)
     end
   end
 end

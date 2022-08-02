@@ -7,8 +7,8 @@ describe 'Cashflows' do
     it 'should have default values' do
       assert_equal D('1.0'), D(Finrb.config.guess.to_s)
       assert_equal D('1.0e-16'), D(Finrb.config.eps)
-      assert_equal false, Finrb.config.business_days
-      assert_equal false, Finrb.config.periodic_compound
+      refute Finrb.config.business_days
+      refute Finrb.config.periodic_compound
     end
   end
 
@@ -28,10 +28,10 @@ describe 'Cashflows' do
     end
 
     it 'should be permanent' do
-      assert_equal 0.25, Finrb.config.guess
+      assert_in_delta(0.25, Finrb.config.guess)
       assert_equal '1.0e-9', Finrb.config.eps
-      assert_equal true, Finrb.config.business_days
-      assert_equal true, Finrb.config.periodic_compound
+      assert Finrb.config.business_days
+      assert Finrb.config.periodic_compound
     end
   end
 end

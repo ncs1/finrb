@@ -14,14 +14,14 @@ end
 namespace :docker do
   desc 'Build docker instance'
   task :build do
-    Dir.chdir __dir__.to_s do
+    Dir.chdir(__dir__.to_s) do
       exec 'docker build --target development -t finrb:1.0 -f Dockerfile .'
     end
   end
 
   desc 'Run test docker build'
   task :test do
-    Dir.chdir __dir__.to_s do
+    Dir.chdir(__dir__.to_s) do
       exec 'docker build --target testing -t finrb:1.0 -f Dockerfile .'
     end
   end

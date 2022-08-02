@@ -15,13 +15,7 @@ module Finrb
     # Base class for working with Newton's Method.
     # @api private
     class Function
-      values = {
-        eps: Finrb.config.eps,
-        one: '1.0',
-        two: '2.0',
-        ten: '10.0',
-        zero: '0.0'
-      }
+      values = { eps: Finrb.config.eps, one: '1.0', two: '2.0', ten: '10.0', zero: '0.0' }
 
       values.each do |key, value|
         define_method key do
@@ -54,9 +48,7 @@ module Finrb
     def irr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
       positives, negatives = partition { |i| i >= 0 }
-      if positives.empty? || negatives.empty?
-        raise ArgumentError, 'Calculation does not converge.'
-      end
+      raise(ArgumentError, 'Calculation does not converge.') if positives.empty? || negatives.empty?
 
       func = Function.new(self, :npv)
       rate = [valid(guess)]
@@ -65,7 +57,8 @@ module Finrb
     end
 
     def method_missing(name, *args, &block)
-      return inject(:+) if name.to_s == 'sum'
+      return sum if name.to_s == 'sum'
+
       super
     end
 
@@ -77,12 +70,12 @@ module Finrb
     # @see http://en.wikipedia.org/wiki/Net_present_value
     # @api public
     def npv(rate)
-      cashflows = collect { |entry| Flt::DecNum.new(entry.to_s) }
+      cashflows = map { |entry| Flt::DecNum.new(entry.to_s) }
 
       rate = Flt::DecNum.new(rate.to_s)
       total = Flt::DecNum.new(0.to_s)
       cashflows.each_with_index do |cashflow, index|
-        total += cashflow / (1 + rate)**index
+        total += cashflow / ((1 + rate)**index)
       end
 
       total
@@ -102,7 +95,10 @@ module Finrb
       # Make sure we have a valid sequence of cash flows.
       positives, negatives = partition { |t| t.amount >= 0 }
       if positives.empty? || negatives.empty?
-        raise ArgumentError, 'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.'
+        raise(
+          ArgumentError,
+          'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.'
+        )
       end
 
       func = Function.new(self, :xnpv)
@@ -156,10 +152,14 @@ module Finrb
 
     def valid(guess)
       if guess.nil?
-        raise ArgumentError, 'Invalid Guess. Default guess should be a [Numeric] value.' unless Finrb.config.guess.is_a? Numeric
+        unless Finrb.config.guess.is_a?(Numeric)
+          raise(ArgumentError, 'Invalid Guess. Default guess should be a [Numeric] value.')
+        end
+
         Finrb.config.guess
       else
-        raise ArgumentError, 'Invalid Guess. Use a [Numeric] value.' unless guess.is_a? Numeric
+        raise(ArgumentError, 'Invalid Guess. Use a [Numeric] value.') unless guess.is_a?(Numeric)
+
         guess
       end.to_f
     end

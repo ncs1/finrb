@@ -34,12 +34,30 @@ module Finrb
     # @api public
     attr_reader :rates
 
+    # create a new Amortization instance
+    # @return [Amortization]
+    # @param [DecNum] principal the initial amount of the loan or investment
+    # @param [Rate] rates the applicable interest rates
+    # @param [Proc] block
+    # @api public
+    def initialize(principal, *rates, &block)
+      @principal = Flt::DecNum.new(principal.to_s)
+      @rates     = rates
+      @block     = block
+
+      # compute the total duration from all of the rates.
+      @periods = rates.sum(&:duration)
+      @period  = 0
+
+      compute
+    end
+
     # compare two Amortization instances
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization]
     # @api public
-    def ==(amortization)
-      (principal == amortization.principal) && (rates == amortization.rates) && (payments == amortization.payments)
+    def ==(other)
+      (principal == other.principal) && (rates == other.rates) && (payments == other.payments)
     end
 
     # @return [Array] the amount of any additional payments in each period
@@ -49,7 +67,7 @@ module Finrb
     #   amt.additional_payments #=> [DecNum('-100.00'), DecNum('-100.00'), ... ]
     # @api public
     def additional_payments
-      @transactions.find_all(&:payment?).collect(&:difference)
+      @transactions.select(&:payment?).map(&:difference)
     end
 
     # amortize the balance of loan with the given interest rate
@@ -61,7 +79,7 @@ module Finrb
       # period is the remaining number of periods in the loan, not
       # necessarily the duration of the rate itself.
       periods = @periods - @period
-      amount = Amortization.payment @balance, rate.monthly, periods
+      amount = Amortization.payment(@balance, rate.monthly, periods)
 
       pmt = Payment.new(amount, period: @period)
       pmt.modify(&@block) if @block
@@ -98,7 +116,7 @@ module Finrb
 
       # Add any remaining balance due to rounding error to the last payment.
       unless @balance.zero?
-        @transactions.find_all(&:payment?)[-1].amount -= @balance
+        @transactions.reverse.find(&:payment?).amount -= @balance
         @balance = 0
       end
 
@@ -121,24 +139,6 @@ module Finrb
       payments.length
     end
 
-    # create a new Amortization instance
-    # @return [Amortization]
-    # @param [DecNum] principal the initial amount of the loan or investment
-    # @param [Rate] rates the applicable interest rates
-    # @param [Proc] block
-    # @api public
-    def initialize(principal, *rates, &block)
-      @principal = Flt::DecNum.new(principal.to_s)
-      @rates     = rates
-      @block     = block
-
-      # compute the total duration from all of the rates.
-      @periods = rates.collect(&:duration).sum
-      @period  = 0
-
-      compute
-    end
-
     # @api public
     def inspect
       "Amortization.new(#{@principal})"
@@ -155,7 +155,7 @@ module Finrb
     #   amt.interest[0,6].sum #=> DecNum('5603.74')
     # @api public
     def interest
-      @transactions.find_all(&:interest?).collect(&:amount)
+      @transactions.select(&:interest?).map(&:amount)
     end
 
     # @return [DecNum] the periodic payment due on a loan
@@ -174,7 +174,7 @@ module Finrb
         # simplified formula to avoid division-by-zero when interest rate is zero
         -(principal / periods).round(2)
       else
-        -(principal * (rate + (rate / ((1 + rate)**periods - 1)))).round(2)
+        -(principal * (rate + (rate / (((1 + rate)**periods) - 1)))).round(2)
       end
     end
 
@@ -185,7 +185,7 @@ module Finrb
     #   amt.payments.sum #=> DecNum('-500163.94')
     # @api public
     def payments
-      @transactions.find_all(&:payment?).collect(&:amount)
+      @transactions.select(&:payment?).map(&:amount)
     end
   end
 end

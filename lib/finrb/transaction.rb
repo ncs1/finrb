@@ -17,6 +17,26 @@ module Finrb
     # @api public
     attr_accessor :date
 
+    # create a new Transaction
+    # @return [Transaction]
+    # @param [Numeric] amount the cash value of the transaction
+    # @param [optional, Hash] opts sets optional attributes
+    # @option opts [String] :period the period number of the transaction
+    # @example a simple transaction
+    #   t = Transaction.new(400)
+    # @example a transaction with a period number
+    #   t = Transaction.new(400, :period => 3)
+    # @api public
+    def initialize(amount, opts = {})
+      @amount = amount
+      @original = amount
+
+      # Set optional attributes..
+      opts.each do |key, value|
+        send("#{key}=", value)
+      end
+    end
+
     # Set the cash value of the transaction
     # @return None
     # @param [Numeric] value the cash value
@@ -40,26 +60,6 @@ module Finrb
       @amount - @original
     end
 
-    # create a new Transaction
-    # @return [Transaction]
-    # @param [Numeric] amount the cash value of the transaction
-    # @param [optional, Hash] opts sets optional attributes
-    # @option opts [String] :period the period number of the transaction
-    # @example a simple transaction
-    #   t = Transaction.new(400)
-    # @example a transaction with a period number
-    #   t = Transaction.new(400, :period => 3)
-    # @api public
-    def initialize(amount, opts = {})
-      @amount = amount
-      @original = amount
-
-      # Set optional attributes..
-      opts.each do |key, value|
-        send("#{key}=", value)
-      end
-    end
-
     # @return [Boolean] whether or not the Transaction is an Interest transaction
     # @example
     #   pmt = Payment.new(500)
@@ -68,7 +68,7 @@ module Finrb
     #   int.interest? #=> True
     # @api public
     def interest?
-      instance_of? Interest
+      instance_of?(Interest)
     end
 
     # @api public
@@ -102,7 +102,7 @@ module Finrb
     #   int.payment? #=> False
     # @api public
     def payment?
-      instance_of? Payment
+      instance_of?(Payment)
     end
   end
 

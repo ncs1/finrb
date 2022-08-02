@@ -11,7 +11,7 @@ SPEC = Gem::Specification.new do |s|
   s.description = 'The finance library provides a Ruby interface for working with interest rates, mortgage amortization, and cashflows (NPV, IRR, etc.).'
   s.homepage = 'https://rubygems.org/gems/finance'
 
-  s.required_ruby_version = '>=1.9'
+  s.required_ruby_version = '>=3.0'
   s.add_dependency 'flt', '>=1.3.0'
   s.add_dependency 'activesupport', '>= 3.2.0'
   s.add_dependency 'rake'

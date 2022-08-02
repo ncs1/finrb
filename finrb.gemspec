@@ -12,7 +12,7 @@ SPEC =
     s.description = 'The finrb library (based on finance gem) provides a Ruby interface for working with interest rates, mortgage amortization, and cashflows (NPV, IRR, etc.)'
     s.homepage = 'https://rubygems.org/gems/finrb'
 
-    s.required_ruby_version = '>=3.0'
+    s.required_ruby_version = '>= 3.0'
 
     s.add_dependency('activesupport')
     s.add_dependency('business_time')

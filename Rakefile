@@ -19,6 +19,7 @@ namespace :docker do
     end
   end
 
+  desc 'Run test docker build'
   task :test do
     Dir.chdir __dir__.to_s do
       exec 'docker build --target testing -t finrb:1.0 -f Dockerfile .'

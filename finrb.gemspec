@@ -9,7 +9,7 @@ SPEC =
     s.email = ['me@martinbjeldbak.com', 'wkranec@gmail.com']
     s.platform = Gem::Platform::RUBY
     s.summary = 'Ruby gem for simple financial calculations'
-    s.description = 'The finrb library (based on finance gem) provides a Ruby interface for working with interest rates, mortgage amortization, and cashflows (NPV, IRR, etc.)'
+    s.description = 'The finrb library (based on finance gem) provides a Ruby interface for working with interest rates, mortgage amortization and cashflows (NPV, IRR, etc.)'
     s.homepage = 'https://rubygems.org/gems/finrb'
 
     s.required_ruby_version = '>= 3.0'

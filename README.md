@@ -1,5 +1,9 @@
 # finrb
 
+[![CI](https://github.com/ncs1/finrb/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/ncs1/finrb/actions/workflows/codeql.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/codeql.yml)
+[![RuboCop](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml)
+
 Ruby gem for financial calculations/modeling.
 
 finrb forked from the ruby [finance](https://github.com/Edward-Intelligence/finance) gem.

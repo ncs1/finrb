@@ -66,6 +66,8 @@ GEM
       parser (>= 3.1.1.0)
     rubocop-minitest (0.21.0)
       rubocop (>= 0.90, < 2.0)
+    rubocop-packaging (0.5.1)
+      rubocop (>= 0.89, < 2.0)
     rubocop-performance (1.14.3)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
@@ -107,6 +109,7 @@ DEPENDENCIES
   rake
   rubocop
   rubocop-minitest
+  rubocop-packaging
   rubocop-performance
   rubocop-rake
   semver

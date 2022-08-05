@@ -15,6 +15,7 @@ AllCops:
   Exclude:
     - '**/.git/**/*'
     - '**/tmp/**/*'
+    - '**/vendor/**/*'
   CacheRootDirectory: tmp
   MaxFilesInCache: 36000
 

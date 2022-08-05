@@ -5,6 +5,8 @@ require 'finrb/config'
 require 'finrb/decimal'
 require 'finrb/cashflows'
 
+class FinrbError < StandardError; end
+
 # The *Finrb* module adheres to the following conventions for
 # financial calculations:
 #

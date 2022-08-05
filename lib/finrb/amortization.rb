@@ -67,7 +67,7 @@ module Finrb
     #   amt.additional_payments #=> [DecNum('-100.00'), DecNum('-100.00'), ... ]
     # @api public
     def additional_payments
-      @transactions.select(&:payment?).map(&:difference)
+      @transactions.filter_map { |trans| trans.difference if trans.payment? }
     end
 
     # amortize the balance of loan with the given interest rate
@@ -155,7 +155,7 @@ module Finrb
     #   amt.interest[0,6].sum #=> DecNum('5603.74')
     # @api public
     def interest
-      @transactions.select(&:interest?).map(&:amount)
+      @transactions.filter_map { |trans| trans.amount if trans.interest? }
     end
 
     # @return [DecNum] the periodic payment due on a loan
@@ -185,7 +185,7 @@ module Finrb
     #   amt.payments.sum #=> DecNum('-500163.94')
     # @api public
     def payments
-      @transactions.select(&:payment?).map(&:amount)
+      @transactions.filter_map { |trans| trans.amount if trans.payment? }
     end
   end
 end

@@ -6,6 +6,116 @@ Utils is a static class providing basic financial functions for modeling.
 
 Utils is based on R's [FinCal](https://github.com/felixfan/FinCal) library (ported to Ruby).
 
+Provides the following functions:
+
+* Computing bank discount yield (BDY) for a T-bill
+
+* Computing money market yield (MMY) for a T-bill
+
+* Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+
+* Computing Coefficient of variation
+
+* Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
+
+* Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+
+* Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
+
+* Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+
+* Diluted Earnings Per Share
+
+* Computing the rate of return for each period
+
+* Convert stated annual rate to the effective annual rate
+
+* Convert stated annual rate to the effective annual rate with continuous compounding
+
+* Bond-equivalent yield (BEY), 2 x the semiannual discount rate
+
+* Computing HPR, the holding period return
+
+* Equivalent/proportional Interest Rates
+
+* Basic Earnings Per Share
+
+* Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+
+* Estimate future value (fv)
+
+* Estimate future value of an annuity
+
+* Estimate future value (fv) of a single sum
+
+* Computing the future value of an uneven cash flow series
+
+* Geometric mean return
+
+* Gross profit margin - Evaluate a company's financial performance
+
+* Harmonic mean, average price
+
+* Computing HPR, the holding period return
+
+* Bond-equivalent yield (BEY), 2 x the semiannual discount rate
+
+* Convert holding period return to the effective annual rate
+
+* Computing money market yield (MMY) for a T-bill
+
+* Computing IRR, the internal rate of return
+
+* Computing IRR, the internal rate of return
+
+* Calculate the net increase in common shares from the potential exercise of stock options or warrants
+
+* Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+
+* Computing HPR, the holding period return
+
+* Estimate the number of periods
+
+* Net profit margin - Evaluate a company's financial performance
+
+* Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
+
+* Estimate period payment
+
+* Estimate present value (pv)
+
+* Estimate present value (pv) of an annuity
+
+* Estimate present value of a perpetuity
+
+* Estimate present value (pv) of a single sum
+
+* Computing the present value of an uneven cash flow series
+
+* Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+
+* Convert a given norminal rate to a continuous compounded rate
+
+* Convert a given continuous compounded rate to a norminal rate
+
+* Rate of return for a perpetuity
+
+* Computing Sampling error
+
+* Computing Roy's safety-first ratio
+
+* Computing Sharpe Ratio
+
+* Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
+
+* Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+
+* Computing TWRR, the time-weighted rate of return
+
+* Calculate weighted average shares - weighted average number of common shares
+
+* Weighted mean as a portfolio return
+
 ### Computing bank discount yield (BDY) for a T-bill
 
 * Param - d - the dollar discount, which is equal to the difference between the face value of the bill and the purchase price
@@ -15,7 +125,6 @@ Utils is based on R's [FinCal](https://github.com/felixfan/FinCal) library (port
 * Param - t - number of days remaining until maturity
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.bdy(d=1500,f=100000,t=120)
@@ -29,12 +138,11 @@ Finrb::Utils.bdy(d=1500,f=100000,t=120)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.bdy2mmy(bdy=0.045,t=120)
 ```
 
-### cash ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+### Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
 
 * Param - cash - cash
 
@@ -43,7 +151,6 @@ Finrb::Utils.bdy2mmy(bdy=0.045,t=120)
 * Param - cl -   current liabilities
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.cash_ratio(cash=3000,ms=2000,cl=2000)
@@ -56,7 +163,6 @@ Finrb::Utils.cash_ratio(cash=3000,ms=2000,cl=2000)
 * Param - avg - average value
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
@@ -78,7 +184,6 @@ Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="FIFO")
 ```
@@ -91,7 +196,7 @@ Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="LIFO")
 Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="WAC")
 ```
 
-### current ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+### Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
 
 * Param - ca - current assets
 
@@ -99,12 +204,11 @@ Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="WAC")
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.current_ratio(ca=8000,cl=2000)
 ```
 
-### Depreciation Expense Recognition -- double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
+### Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance
 
 * Param - cost - cost of long-lived assets
 
@@ -114,12 +218,11 @@ Finrb::Utils.current_ratio(ca=8000,cl=2000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.ddb(cost=1200,rv=200,t=5)
 ```
 
-### debt ratio -- Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 * Param - td - total debt
 
@@ -127,12 +230,11 @@ Finrb::Utils.ddb(cost=1200,rv=200,t=5)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.debt_ratio(td=6000,ta=20000)
 ```
 
-### diluted Earnings Per Share
+### Diluted Earnings Per Share
 
 * Param - ni -     net income
 
@@ -153,7 +255,6 @@ Finrb::Utils.debt_ratio(td=6000,ta=20000)
 * Param - iss -    shares issuable from stock options
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.diluted_eps(ni=115600,pd=10000,cdi=42000,tax=0.4,w=200000,cds=60000)
@@ -190,7 +291,6 @@ Finrb::Utils.diluted_eps(ni=115600,pd=10000,cpd=10000,cdi=42000,tax=0.4,w=200000
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
 ```
@@ -202,7 +302,6 @@ Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
 * Param - m - number of compounding periods per year
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.ear(r=0.12,m=12)
@@ -218,7 +317,6 @@ Finrb::Utils.ear(0.04,365)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.ear_continuous(r=0.1)
 ```
@@ -227,12 +325,11 @@ Finrb::Utils.ear_continuous(r=0.1)
 Finrb::Utils.ear_continuous(0.03)
 ```
 
-### bond-equivalent yield (BEY), 2 x the semiannual discount rate
+### Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
 * Param - ear - effective annual rate
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.ear2bey(ear=0.08)
@@ -246,12 +343,12 @@ Finrb::Utils.ear2bey(ear=0.08)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.ear2hpr(ear=0.05039,t=150)
 ```
 
 ### Equivalent/proportional Interest Rates
+
 @description An interest rate to be applied n times p.a. can be converted to an equivalent rate to be applied p times p.a.
 
 * Param - r - interest rate to be applied n times per year (r is annual rate!)
@@ -263,7 +360,6 @@ Finrb::Utils.ear2hpr(ear=0.05039,t=150)
 * Param - type - equivalent interest rates ('e',default) or proportional interest rates ('p')
 
 Examples:
-
 
 * monthly interest rat equivalent to 5% compounded per year
 
@@ -320,19 +416,17 @@ Finrb::Utils.eir(r=0.05,p=12,type='p')
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.eps(ni=10000,pd=1000,w=11000)
 ```
 
-### financial leverage -- Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 * Param - te - total equity
 
 * Param - ta - total assets
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.financial_leverage(te=16000,ta=20000)
@@ -352,7 +446,6 @@ Finrb::Utils.financial_leverage(te=16000,ta=20000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.fv(r=0.07,n=10,pv=1000,pmt=10)
 ```
@@ -368,7 +461,6 @@ Finrb::Utils.fv(r=0.07,n=10,pv=1000,pmt=10)
 * Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.fv_annuity(0.03,12,-1000)
@@ -388,7 +480,6 @@ Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.fv_simple(0.08,10,-300)
 ```
@@ -405,7 +496,6 @@ Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.fv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
 ```
@@ -416,12 +506,11 @@ Finrb::Utils.fv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.geometric_mean(r=c(-0.0934, 0.2345, 0.0892))
 ```
 
-### gross profit margin -- Evaluate a company's financial performance
+### Gross profit margin - Evaluate a company's financial performance
 
 * Param - gp - gross profit, equal to revenue minus cost of goods sold (cogs)
 
@@ -429,17 +518,15 @@ Finrb::Utils.geometric_mean(r=c(-0.0934, 0.2345, 0.0892))
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.gpm(gp=1000,rv=20000)
 ```
 
-### harmonic mean, average price
+### Harmonic mean, average price
 
 * Param - p - price over multiple periods
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.harmonic_mean(p=c(8,9,10))
@@ -455,19 +542,17 @@ Finrb::Utils.harmonic_mean(p=c(8,9,10))
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.hpr(ev=33,bv=30,cfr=0.5)
 ```
 
-### bond-equivalent yield (BEY), 2 x the semiannual discount rate
+### Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
 * Param - hpr - holding period return
 
 * Param - t - number of month remaining until maturity
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.hpr2bey(hpr=0.02,t=3)
@@ -481,7 +566,6 @@ Finrb::Utils.hpr2bey(hpr=0.02,t=3)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.hpr2ear(hpr=0.015228,t=120)
 ```
@@ -494,7 +578,6 @@ Finrb::Utils.hpr2ear(hpr=0.015228,t=120)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.hpr2mmy(hpr=0.01523,t=120)
 ```
@@ -506,12 +589,12 @@ Finrb::Utils.hpr2mmy(hpr=0.01523,t=120)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.irr(cf=c(-5, 1.6, 2.4, 2.8))
 ```
 
 ### Computing IRR, the internal rate of return
+
 @description This function is the same as irr but can calculate negative value. This function may take a very long time. You can use larger cutoff and larger step to get a less precision irr first. Then based on the result, change from and to, to narrow down the interval, and use a smaller step to get a more precision irr.
 
 * Param - cf - cash flow,the first cash flow is the initial outlay
@@ -526,7 +609,6 @@ Finrb::Utils.irr(cf=c(-5, 1.6, 2.4, 2.8))
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.irr2(cf=c(-5, 1.6, 2.4, 2.8))
 ```
@@ -535,7 +617,7 @@ Finrb::Utils.irr2(cf=c(-5, 1.6, 2.4, 2.8))
 Finrb::Utils.irr2(cf=c(-200, 50, 60, -70, 30, 20))
 ```
 
-### calculate the net increase in common shares from the potential exercise of stock options or warrants
+### Calculate the net increase in common shares from the potential exercise of stock options or warrants
 
 * Param - amp - average market price over the year
 
@@ -545,19 +627,17 @@ Finrb::Utils.irr2(cf=c(-200, 50, 60, -70, 30, 20))
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.iss(amp=20,ep=15,n=10000)
 ```
 
-### long-term debt-to-equity -- Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 * Param - ltd - long-term debt
 
 * Param - te -  total equity
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.lt_d2e(ltd=8000,te=20000)
@@ -570,7 +650,6 @@ Finrb::Utils.lt_d2e(ltd=8000,te=20000)
 * Param - t - number of days remaining until maturity
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.mmy2hpr(mmy=0.04898,t=150)
@@ -590,7 +669,6 @@ Finrb::Utils.mmy2hpr(mmy=0.04898,t=150)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.n_period(0.1,-10000,60000000,-50000,0)
 ```
@@ -599,14 +677,13 @@ Finrb::Utils.n_period(0.1,-10000,60000000,-50000,0)
 Finrb::Utils.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
 ```
 
-### net profit margin -- Evaluate a company's financial performance
+### Net profit margin - Evaluate a company's financial performance
 
 * Param - ni - net income
 
 * Param - rv - revenue (sales)
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.npm(ni=8000,rv=20000)
@@ -619,7 +696,6 @@ Finrb::Utils.npm(ni=8000,rv=20000)
 * Param - cf - cash flow,the first cash flow is the initial outlay
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.npv(r=0.12, cf=c(-5, 1.6, 2.4, 2.8))
@@ -638,7 +714,6 @@ Finrb::Utils.npv(r=0.12, cf=c(-5, 1.6, 2.4, 2.8))
 * Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.pmt(0.08,10,-1000,10)
@@ -666,7 +741,6 @@ Finrb::Utils.pmt(0.08,10,-1000,10,1)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.pv(0.07,10,1000,10)
 ```
@@ -687,7 +761,6 @@ Finrb::Utils.pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.pv_annuity(0.03,12,1000)
 ```
@@ -707,7 +780,6 @@ Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
 * Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,g=0.02)
@@ -731,7 +803,6 @@ Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.pv_simple(0.07,10,100)
 ```
@@ -748,12 +819,11 @@ Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.pv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
 ```
 
-### quick ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+### Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
 
 * Param - cash - cash
 
@@ -764,7 +834,6 @@ Finrb::Utils.pv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
 * Param - cl -   current liabilities
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
@@ -778,7 +847,6 @@ Finrb::Utils.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.r_continuous(r=0.03,m=4)
 ```
@@ -790,7 +858,6 @@ Finrb::Utils.r_continuous(r=0.03,m=4)
 * Param - m - number of desired times compounded each year
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.r_norminal(0.03,1)
@@ -808,7 +875,6 @@ Finrb::Utils.r_norminal(rc=0.03,m=4)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
 ```
@@ -820,7 +886,6 @@ Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
 * Param - mu - population mean
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.sampling_error(sm=0.45, mu=0.5)
@@ -836,7 +901,6 @@ Finrb::Utils.sampling_error(sm=0.45, mu=0.5)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
 ```
@@ -851,12 +915,11 @@ Finrb::Utils.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
 ```
 
-### Depreciation Expense Recognition -- Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
+### Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
 
 * Param - cost - cost of long-lived assets
 
@@ -866,19 +929,17 @@ Finrb::Utils.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.slde(cost=1200,rv=200,t=5)
 ```
 
-### total debt-to-equity -- Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 * Param - td - total debt
 
 * Param - te - total equity
 
 Examples:
-
 
 ```ruby
 Finrb::Utils.total_d2e(td=6000,te=20000)
@@ -894,12 +955,11 @@ Finrb::Utils.total_d2e(td=6000,te=20000)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.twrr(ev=c(120,260),bv=c(100,240),cfr=c(2,4))
 ```
 
-### calculate weighted average shares -- weighted average number of common shares
+### Calculate weighted average shares - weighted average number of common shares
 
 * Param - ns - n x 1 vector vector of number of shares
 
@@ -908,10 +968,13 @@ Finrb::Utils.twrr(ev=c(120,260),bv=c(100,240),cfr=c(2,4))
 Examples:
 
 s=c(10000,2000);m=c(12,6);
+
 ```ruby
 Finrb::Utils.was(ns=s,nm=m)
 ```
+
 s=c(11000,4400,-3000);m=c(12,9,4);
+
 ```ruby
 Finrb::Utils.was(ns=s,nm=m)
 ```
@@ -924,11 +987,9 @@ Finrb::Utils.was(ns=s,nm=m)
 
 Examples:
 
-
 ```ruby
 Finrb::Utils.wpr(r=c(0.12, 0.07, 0.03),w=c(0.5,0.4,0.1))
 ```
-
 
 ## Amortization
 

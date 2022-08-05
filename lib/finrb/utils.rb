@@ -5,6 +5,8 @@ require 'active_support/core_ext/array/wrap'
 module Finrb
   class Utils
     class NlFunctionStub
+      attr_accessor :func
+
       values = { eps: Finrb.config.eps, one: '1.0', two: '2.0', ten: '10.0', zero: '0.0' }
 
       values.each do |key, value|
@@ -13,8 +15,8 @@ module Finrb
         end
       end
 
-      def values(_x)
-        raise(FinrbError, 'Implement me')
+      def values(x)
+        @func.call(x)
       end
     end
 
@@ -307,7 +309,14 @@ module Finrb
       lower = lower.to_d
       upper = upper.to_d
 
-      # TODO: uniroot fix uniroot.(function(r) Finrb::Utils.fv_simple(r,n,pv) + Finrb::Utils.fv_annuity(r,n,pmt,type)-fv, lower=lower, upper = upper)$root
+      nlfunc = NlFunctionStub.new
+      nlfunc.func = lambda do |x|
+        BigDecimal((Finrb::Utils.fv_simple(x[0],n,pv) + Finrb::Utils.fv_annuity(x[0],n,pmt,type) - fv).to_s)
+      end
+
+      root = [(upper - lower) / 2]
+      nlsolve(nlfunc, root)
+      root[0]
     end
 
     # Convert stated annual rate to the effective annual rate
@@ -638,7 +647,15 @@ module Finrb
 
       n = cf.size
       subcf = cf.drop(1)
-      # TODO: uniroot fix uniroot.(function(r) -1 * Finrb::Utils.pv_uneven(r, subcf) + cf[0], interval=c(1e-10,1e10),extendInt="yes")$root
+
+      nlfunc = NlFunctionStub.new
+      nlfunc.func = lambda do |x|
+        BigDecimal((-1 * Finrb::Utils.pv_uneven(x[0], subcf) + cf[0]).to_s)
+      end
+
+      root = [0]
+      nlsolve(nlfunc, root)
+      root[0]
     end
 
     # Computing IRR, the internal rate of return

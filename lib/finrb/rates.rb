@@ -17,8 +17,8 @@ module Finrb
     # @option opts [String] :compounds (:monthly) the number of compounding periods per year
     # @example create a 3.5% APR rate
     #   Rate.new(0.035, :apr) #=> Rate(0.035, :apr)
-    # @see http://en.wikipedia.org/wiki/Effective_interest_rate
-    # @see http://en.wikipedia.org/wiki/Nominal_interest_rate
+    # @see https://en.wikipedia.org/wiki/Effective_interest_rate
+    # @see https://en.wikipedia.org/wiki/Nominal_interest_rate
     # @api public
     def initialize(rate, type, opts = {})
       # Default monthly compounding.
@@ -149,7 +149,7 @@ module Finrb
     # @param [Numeric] periods the number of compounding periods per year
     # @example
     #   Rate.to_nominal(0.06, 365) #=> DecNum('0.05827')
-    # @see http://www.miniwebtool.com/nominal-interest-rate-calculator/
+    # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
     # @api public
     def self.to_nominal(rate, periods)
       rate = Flt::DecNum.new(rate.to_s)

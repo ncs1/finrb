@@ -167,7 +167,7 @@ module Finrb
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   rate.duration #=> 360
     #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
-    # @see http://en.wikipedia.org/wiki/Amortization_calculator
+    # @see https://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
     def self.payment(principal, rate, periods)
       if rate.zero?

@@ -2,7 +2,7 @@
 
 require_relative "test_helper"
 
-# @see http://tinyurl.com/6zroqvd for detailed calculations for the
+# @see https://tinyurl.com/6zroqvd for detailed calculations for the
 #   examples in these unit tests.
 describe "Amortization" do
   def ipmt(principal, rate, payment, period)

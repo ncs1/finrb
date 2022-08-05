@@ -43,7 +43,7 @@ module Finrb
     # @param [Numeric] Initial guess rate, Defaults to 1.0
     # @example
     #   [-4000,1200,1410,1875,1050].irr #=> 0.143
-    # @see http://en.wikipedia.org/wiki/Internal_rate_of_return
+    # @see https://en.wikipedia.org/wiki/Internal_rate_of_return
     # @api public
     def irr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
@@ -67,7 +67,7 @@ module Finrb
     # @param [Numeric] rate the discount rate to be applied
     # @example
     #   [-100.0, 60, 60, 60].npv(0.1) #=> 49.211
-    # @see http://en.wikipedia.org/wiki/Net_present_value
+    # @see https://en.wikipedia.org/wiki/Net_present_value
     # @api public
     def npv(rate)
       cashflows = map { |entry| Flt::DecNum.new(entry.to_s) }

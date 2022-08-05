@@ -95,7 +95,7 @@ See [api.md](docs/api.md)
 ## Resources
 
 * [RubyGems Page](https://rubygems.org/gems/finrb)
-* [Source Code](http://github.com/ncs1/finrb)
+* [Source Code](https://github.com/ncs1/finrb)
 * [Bug Tracker](https://github.com/ncs1/finrb/issues)
 
 ## License

@@ -1,22 +1,8 @@
-# FINANCE
-[![Build Status](https://travis-ci.org/Edward-Intelligence/finrb.svg?branch=master)](https://travis-ci.org/net-engine/finrb)
+# finrb
 
-a library for financial modelling in Ruby.
+Ruby gem for financial calculations/modeling.
 
-## INSTALL
-
-    $ sudo gem install finrb
-
-## IMPORTANT CHANGES
-
-Contributions by [@thadd](https://github.com/thadd) and
-[@bramswenson](https://github.com/bramswenson) have made the `finrb`
-library fully compatible with rails, at the cost of the `#years` and
-`#months` convenience methods on `Integer`, as well as the `#to_d` method for
-converting `Numerics` into `DecNums`.  These methods have been removed, due to
-conflicts with existing rails methods.
-
-Correspondingly, `finrb` has been bumped up to version 2.0.
+finrb forked from the ruby [finance](https://github.com/Edward-Intelligence/finance) gem.
 
 ## OVERVIEW
 
@@ -132,26 +118,6 @@ transactions.xirr(guess)
 #  => Rate.new(2.507136, :apr)
 ```
 
-## ABOUT
-
-I started developing `finrb` while analyzing mortgages as a personal
-project.  Spreadsheets have convenient formulas for doing this type of
-work, until you want to do something semi-complex (like ARMs or extra
-payments), at which point you need to create your own amortization
-table.  I thought I could create a better interface for this type of
-work in Ruby, and since I couldn't find an existing resource for these
-tools, I am hoping to save other folks some time by releasing what I
-have as a gem.
-
-More broadly, I believe there are many calculations that are necessary
-for the effective management of personal finrbs, but are difficult
-(or impossible) to do with spreadsheets or other existing open source
-tools.  My hope is that the `finrb` library will grow to provide a set
-of open, tested tools to fill this gap.
-
-If you have used `finrb` and find it useful, I would enjoy hearing
-about it!
-
 ## FEATURES
 
 Currently implemented features include:
@@ -166,26 +132,9 @@ Currently implemented features include:
 ## RESOURCES
 
 * [RubyGems Page](https://rubygems.org/gems/finrb)
-* [Source Code](http://github.com/wkranec/finrb)
-* [Bug Tracker](https://github.com/wkranec/finrb/issues)
-* [Google Group](http://groups.google.com/group/finrb-gem/topics?pli=1)
+* [Source Code](http://github.com/ncs1/finrb)
+* [Bug Tracker](https://github.com/ncs1/finrb/issues)
 
 ## COPYRIGHT
 
-This library is released under the terms of the LGPL license.
-
-Copyright (c) 2011, William Kranec.
-All rights reserved.
-
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your
-option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program.  If not, see <http://www.gnu.org/licenses/>.
+See [COPYING](./COPYING) and [COPYING.LESSER](./COPYING.LESSER)

@@ -4,6 +4,7 @@ require 'active_support/configurable'
 require 'finrb/config'
 require 'finrb/decimal'
 require 'finrb/cashflows'
+require 'finrb/utils'
 
 class FinrbError < StandardError; end
 
@@ -18,4 +19,5 @@ module Finrb
   autoload :Amortization, 'finrb/amortization'
   autoload :Rate,         'finrb/rates'
   autoload :Transaction,  'finrb/transaction'
+  autoload :Utils,        'finrb/utils'
 end

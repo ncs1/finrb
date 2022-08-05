@@ -16,6 +16,7 @@ Currently implemented features include:
 * Various cash flow computations, such as NPV and IRR.
 * Adjustable rate mortgage amortization.
 * Payment modifications (i.e., how does paying an additional $75 per month affect the amortization?)
+* Utils class provides basic financial calculation utilities (ported from R's [FinCal](https://github.com/felixfan/FinCal) library)
 
 ### Configuration
 

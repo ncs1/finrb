@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'decimal'
-require_relative 'rates'
+require_relative "decimal"
+require_relative "rates"
 
-require 'bigdecimal'
-require 'bigdecimal/newton'
-require 'business_time'
+require "bigdecimal"
+require "bigdecimal/newton"
+require "business_time"
 include Newton
 
 module Finrb
@@ -15,7 +15,7 @@ module Finrb
     # Base class for working with Newton's Method.
     # @api private
     class Function
-      values = { eps: Finrb.config.eps, one: '1.0', two: '2.0', ten: '10.0', zero: '0.0' }
+      values = { eps: Finrb.config.eps, one: "1.0", two: "2.0", ten: "10.0", zero: "0.0" }
 
       values.each do |key, value|
         define_method key do
@@ -48,7 +48,7 @@ module Finrb
     def irr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
       positives, negatives = partition { |i| i >= 0 }
-      raise(ArgumentError, 'Calculation does not converge.') if positives.empty? || negatives.empty?
+      raise(ArgumentError, "Calculation does not converge.") if positives.empty? || negatives.empty?
 
       func = Function.new(self, :npv)
       rate = [valid(guess)]
@@ -57,7 +57,7 @@ module Finrb
     end
 
     def method_missing(name, *args, &block)
-      return sum if name.to_s == 'sum'
+      return sum if name.to_s == "sum"
 
       super
     end
@@ -97,7 +97,7 @@ module Finrb
       if positives.empty? || negatives.empty?
         raise(
           ArgumentError,
-          'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.'
+          "Calculation does not converge. Cashflow needs to have a least one positive and one negative value."
         )
       end
 
@@ -125,44 +125,43 @@ module Finrb
     end
 
     private
-
-    def date_diff(from, to)
-      if Finrb.config.business_days
-        from.to_date.business_days_until(to)
-      else
-        to - from
-      end
-    end
-
-    def days_in_period
-      if Finrb.config.periodic_compound && Finrb.config.business_days
-        start.to_date.business_days_until(stop).to_f
-      else
-        Flt::DecNum.new(365.days.to_s)
-      end
-    end
-
-    def start
-      @start ||= self[0].date
-    end
-
-    def stop
-      @stop ||= self[-1].date.to_date
-    end
-
-    def valid(guess)
-      if guess.nil?
-        unless Finrb.config.guess.is_a?(Numeric)
-          raise(ArgumentError, 'Invalid Guess. Default guess should be a [Numeric] value.')
+      def date_diff(from, to)
+        if Finrb.config.business_days
+          from.to_date.business_days_until(to)
+        else
+          to - from
         end
+      end
 
-        Finrb.config.guess
-      else
-        raise(ArgumentError, 'Invalid Guess. Use a [Numeric] value.') unless guess.is_a?(Numeric)
+      def days_in_period
+        if Finrb.config.periodic_compound && Finrb.config.business_days
+          start.to_date.business_days_until(stop).to_f
+        else
+          Flt::DecNum.new(365.days.to_s)
+        end
+      end
 
-        guess
-      end.to_f
-    end
+      def start
+        @start ||= self[0].date
+      end
+
+      def stop
+        @stop ||= self[-1].date.to_date
+      end
+
+      def valid(guess)
+        if guess.nil?
+          unless Finrb.config.guess.is_a?(Numeric)
+            raise(ArgumentError, "Invalid Guess. Default guess should be a [Numeric] value.")
+          end
+
+          Finrb.config.guess
+        else
+          raise(ArgumentError, "Invalid Guess. Use a [Numeric] value.") unless guess.is_a?(Numeric)
+
+          guess
+        end.to_f
+      end
   end
 end
 

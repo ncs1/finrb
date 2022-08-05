@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'decimal'
+require_relative "decimal"
 
 module Finrb
   # the Rate class provides an interface for working with interest rates.
@@ -38,7 +38,7 @@ module Finrb
     end
 
     # Accepted rate types
-    TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
+    TYPES = { apr: "effective", apy: "effective", effective: "effective", nominal: "nominal" }.freeze
 
     # @return [Integer] the duration for which the rate is valid, in months
     # @api public

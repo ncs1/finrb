@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'rubygems'
-require 'flt'
+require "rubygems"
+require "flt"
 include Flt
 
 DecNum.context.define_conversion_from(BigDecimal) do |x, _context|

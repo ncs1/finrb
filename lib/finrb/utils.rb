@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'active_support/core_ext/array/wrap'
+require_relative 'decimal'
+require 'bigdecimal'
+require 'bigdecimal/newton'
+
+include Newton
 
 module Finrb
   class Utils

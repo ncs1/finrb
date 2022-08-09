@@ -8,121 +8,121 @@ Utils is based on R's [FinCal](https://github.com/felixfan/FinCal) library (port
 
 Provides the following functions:
 
-* Computing bank discount yield (BDY) for a T-bill
+- Computing bank discount yield (BDY) for a T-bill
 
-* Computing money market yield (MMY) for a T-bill
+- Computing money market yield (MMY) for a T-bill
 
-* Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+- Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-* Computing Coefficient of variation
+- Computing Coefficient of variation
 
-* Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
+- Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
 
-* Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+- Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-* Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
+- Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
 
-* Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+- Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Diluted Earnings Per Share
+- Diluted Earnings Per Share
 
-* Computing the rate of return for each period
+- Computing the rate of return for each period
 
-* Convert stated annual rate to the effective annual rate
+- Convert stated annual rate to the effective annual rate
 
-* Convert stated annual rate to the effective annual rate with continuous compounding
+- Convert stated annual rate to the effective annual rate with continuous compounding
 
-* Bond-equivalent yield (BEY), 2 x the semiannual discount rate
+- Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
-* Computing HPR, the holding period return
+- Computing HPR, the holding period return
 
-* Equivalent/proportional Interest Rates
+- Equivalent/proportional Interest Rates
 
-* Basic Earnings Per Share
+- Basic Earnings Per Share
 
-* Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+- Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Estimate future value (fv)
+- Estimate future value (fv)
 
-* Estimate future value of an annuity
+- Estimate future value of an annuity
 
-* Estimate future value (fv) of a single sum
+- Estimate future value (fv) of a single sum
 
-* Computing the future value of an uneven cash flow series
+- Computing the future value of an uneven cash flow series
 
-* Geometric mean return
+- Geometric mean return
 
-* Gross profit margin - Evaluate a company's financial performance
+- Gross profit margin - Evaluate a company's financial performance
 
-* Harmonic mean, average price
+- Harmonic mean, average price
 
-* Computing HPR, the holding period return
+- Computing HPR, the holding period return
 
-* Bond-equivalent yield (BEY), 2 x the semiannual discount rate
+- Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
-* Convert holding period return to the effective annual rate
+- Convert holding period return to the effective annual rate
 
-* Computing money market yield (MMY) for a T-bill
+- Computing money market yield (MMY) for a T-bill
 
-* Computing IRR, the internal rate of return
+- Computing IRR, the internal rate of return
 
-* Computing IRR, the internal rate of return
+- Computing IRR, the internal rate of return
 
-* Calculate the net increase in common shares from the potential exercise of stock options or warrants
+- Calculate the net increase in common shares from the potential exercise of stock options or warrants
 
-* Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+- Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Computing HPR, the holding period return
+- Computing HPR, the holding period return
 
-* Estimate the number of periods
+- Estimate the number of periods
 
-* Net profit margin - Evaluate a company's financial performance
+- Net profit margin - Evaluate a company's financial performance
 
-* Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
+- Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
 
-* Estimate period payment
+- Estimate period payment
 
-* Estimate present value (pv)
+- Estimate present value (pv)
 
-* Estimate present value (pv) of an annuity
+- Estimate present value (pv) of an annuity
 
-* Estimate present value of a perpetuity
+- Estimate present value of a perpetuity
 
-* Estimate present value (pv) of a single sum
+- Estimate present value (pv) of a single sum
 
-* Computing the present value of an uneven cash flow series
+- Computing the present value of an uneven cash flow series
 
-* Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+- Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-* Convert a given norminal rate to a continuous compounded rate
+- Convert a given norminal rate to a continuous compounded rate
 
-* Convert a given continuous compounded rate to a norminal rate
+- Convert a given continuous compounded rate to a norminal rate
 
-* Rate of return for a perpetuity
+- Rate of return for a perpetuity
 
-* Computing Sampling error
+- Computing Sampling error
 
-* Computing Roy's safety-first ratio
+- Computing Roy's safety-first ratio
 
-* Computing Sharpe Ratio
+- Computing Sharpe Ratio
 
-* Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
+- Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
 
-* Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+- Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Computing TWRR, the time-weighted rate of return
+- Computing TWRR, the time-weighted rate of return
 
-* Calculate weighted average shares - weighted average number of common shares
+- Calculate weighted average shares - weighted average number of common shares
 
-* Weighted mean as a portfolio return
+- Weighted mean as a portfolio return
 
 ### Computing bank discount yield (BDY) for a T-bill
 
-* Param - d - the dollar discount, which is equal to the difference between the face value of the bill and the purchase price
+- Param - d - the dollar discount, which is equal to the difference between the face value of the bill and the purchase price
 
-* Param - f - the face value (par value) of the bill
+- Param - f - the face value (par value) of the bill
 
-* Param - t - number of days remaining until maturity
+- Param - t - number of days remaining until maturity
 
 Examples:
 
@@ -132,9 +132,9 @@ Finrb::Utils.bdy(d=1500,f=100000,t=120)
 
 ### Computing money market yield (MMY) for a T-bill
 
-* Param - bdy - bank discount yield
+- Param - bdy - bank discount yield
 
-* Param - t - number of days remaining until maturity
+- Param - t - number of days remaining until maturity
 
 Examples:
 
@@ -142,13 +142,13 @@ Examples:
 Finrb::Utils.bdy2mmy(bdy=0.045,t=120)
 ```
 
-### Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
+### Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-* Param - cash - cash
+- Param - cash - cash
 
-* Param - ms -   marketable securities
+- Param - ms - marketable securities
 
-* Param - cl -   current liabilities
+- Param - cl - current liabilities
 
 Examples:
 
@@ -158,9 +158,9 @@ Finrb::Utils.cash_ratio(cash=3000,ms=2000,cl=2000)
 
 ### Computing Coefficient of variation
 
-* Param - sd - standard deviation
+- Param - sd - standard deviation
 
-* Param - avg - average value
+- Param - avg - average value
 
 Examples:
 
@@ -170,37 +170,37 @@ Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
 
 ### Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
 
-* Param - uinv - units of beginning inventory
+- Param - uinv - units of beginning inventory
 
-* Param - pinv - prince of beginning inventory
+- Param - pinv - prince of beginning inventory
 
-* Param - units - nx1 vector of inventory units. inventory purchased ordered by time (from first to last)
+- Param - units - nx1 vector of inventory units. inventory purchased ordered by time (from first to last)
 
-* Param - price - nx1 vector of inventory price. same order as units
+- Param - price - nx1 vector of inventory price. same order as units
 
-* Param - sinv - units of sold inventory
+- Param - sinv - units of sold inventory
 
-* Param - method - inventory methods: FIFO (first in first out, permitted under both US and IFRS), LIFO (late in first out, US only), WAC (weighted average cost,US and IFRS)
+- Param - method - inventory methods: FIFO (first in first out, permitted under both US and IFRS), LIFO (late in first out, US only), WAC (weighted average cost,US and IFRS)
 
 Examples:
 
 ```ruby
-Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="FIFO")
+Finrb::Utils.cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="FIFO")
 ```
 
 ```ruby
-Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="LIFO")
+Finrb::Utils.cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="LIFO")
 ```
 
 ```ruby
-Finrb::Utils.cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="WAC")
+Finrb::Utils.cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="WAC")
 ```
 
-### Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
+### Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-* Param - ca - current assets
+- Param - ca - current assets
 
-* Param - cl - current liabilities
+- Param - cl - current liabilities
 
 Examples:
 
@@ -208,13 +208,13 @@ Examples:
 Finrb::Utils.current_ratio(ca=8000,cl=2000)
 ```
 
-### Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance
+### Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
 
-* Param - cost - cost of long-lived assets
+- Param - cost - cost of long-lived assets
 
-* Param - rv -   residual value of the long-lived assets at the end of its useful life. DDB does not explicitly use the asset's residual value in the calculations, but depreciation ends once the estimated residual value has been reached. If the asset is expected to have no residual value, the DB method will never fully depreciate it, so the DB method is typically changed to straight-line at some point in the asset's life.
+- Param - rv - residual value of the long-lived assets at the end of its useful life. DDB does not explicitly use the asset's residual value in the calculations, but depreciation ends once the estimated residual value has been reached. If the asset is expected to have no residual value, the DB method will never fully depreciate it, so the DB method is typically changed to straight-line at some point in the asset's life.
 
-* Param - t -    length of the useful life
+- Param - t - length of the useful life
 
 Examples:
 
@@ -222,11 +222,11 @@ Examples:
 Finrb::Utils.ddb(cost=1200,rv=200,t=5)
 ```
 
-### Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations
+### Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Param - td - total debt
+- Param - td - total debt
 
-* Param - ta - total assets
+- Param - ta - total assets
 
 Examples:
 
@@ -236,23 +236,23 @@ Finrb::Utils.debt_ratio(td=6000,ta=20000)
 
 ### Diluted Earnings Per Share
 
-* Param - ni -     net income
+- Param - ni - net income
 
-* Param - pd -     preferred dividends
+- Param - pd - preferred dividends
 
-* Param - cpd -    dividends on convertible preferred stock
+- Param - cpd - dividends on convertible preferred stock
 
-* Param - cdi -    interest on convertible debt
+- Param - cdi - interest on convertible debt
 
-* Param - tax -    tax rate
+- Param - tax - tax rate
 
-* Param - w -      weighted average number of common shares outstanding
+- Param - w - weighted average number of common shares outstanding
 
-* Param - cps -    shares from conversion of convertible preferred stock
+- Param - cps - shares from conversion of convertible preferred stock
 
-* Param - cds -    shares from conversion of convertible debt
+- Param - cds - shares from conversion of convertible debt
 
-* Param - iss -    shares issuable from stock options
+- Param - iss - shares issuable from stock options
 
 Examples:
 
@@ -274,20 +274,20 @@ Finrb::Utils.diluted_eps(ni=115600,pd=10000,cpd=10000,cdi=42000,tax=0.4,w=200000
 
 ### Computing the rate of return for each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - pv - present value
+- Param - pv - present value
 
-* Param - fv - future value
+- Param - fv - future value
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
-* Param - lower - the lower end points of the rate of return to be searched.
+- Param - lower - the lower end points of the rate of return to be searched.
 
-* Param - upper - the upper end points of the rate of return to be searched.
-@importFrom stats uniroot
+- Param - upper - the upper end points of the rate of return to be searched.
+  @importFrom stats uniroot
 
 Examples:
 
@@ -297,9 +297,9 @@ Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
 
 ### Convert stated annual rate to the effective annual rate
 
-* Param - r - stated annual rate
+- Param - r - stated annual rate
 
-* Param - m - number of compounding periods per year
+- Param - m - number of compounding periods per year
 
 Examples:
 
@@ -313,7 +313,7 @@ Finrb::Utils.ear(0.04,365)
 
 ### Convert stated annual rate to the effective annual rate with continuous compounding
 
-* Param - r - stated annual rate
+- Param - r - stated annual rate
 
 Examples:
 
@@ -327,7 +327,7 @@ Finrb::Utils.ear_continuous(0.03)
 
 ### Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
-* Param - ear - effective annual rate
+- Param - ear - effective annual rate
 
 Examples:
 
@@ -337,9 +337,9 @@ Finrb::Utils.ear2bey(ear=0.08)
 
 ### Computing HPR, the holding period return
 
-* Param - ear - effective annual rate
+- Param - ear - effective annual rate
 
-* Param - t - number of days remaining until maturity
+- Param - t - number of days remaining until maturity
 
 Examples:
 
@@ -351,56 +351,56 @@ Finrb::Utils.ear2hpr(ear=0.05039,t=150)
 
 @description An interest rate to be applied n times p.a. can be converted to an equivalent rate to be applied p times p.a.
 
-* Param - r - interest rate to be applied n times per year (r is annual rate!)
+- Param - r - interest rate to be applied n times per year (r is annual rate!)
 
-* Param - n - times that the interest rate r were compounded per year
+- Param - n - times that the interest rate r were compounded per year
 
-* Param - p - times that the equivalent rate were compounded per year
+- Param - p - times that the equivalent rate were compounded per year
 
-* Param - type - equivalent interest rates ('e',default) or proportional interest rates ('p')
+- Param - type - equivalent interest rates ('e',default) or proportional interest rates ('p')
 
 Examples:
 
-* monthly interest rat equivalent to 5% compounded per year
+- monthly interest rat equivalent to 5% compounded per year
 
 ```ruby
 Finrb::Utils.eir(r=0.05,n=1,p=12)
 ```
 
-* monthly interest rat equivalent to 5% compounded per half year
+- monthly interest rat equivalent to 5% compounded per half year
 
 ```ruby
 Finrb::Utils.eir(r=0.05,n=2,p=12)
 ```
 
-* monthly interest rat equivalent to 5% compounded per quarter
+- monthly interest rat equivalent to 5% compounded per quarter
 
 ```ruby
 Finrb::Utils.eir(r=0.05,n=4,p=12)
 ```
 
-* annual interest rate equivalent to 5% compounded per month
+- annual interest rate equivalent to 5% compounded per month
 
 ```ruby
 Finrb::Utils.eir(r=0.05,n=12,p=1)
 ```
 
-* this is equivalent to
-ear(r=0.05,m=12)
+- this is equivalent to
+  ear(r=0.05,m=12)
 
-* quarter interest rate equivalent to 5% compounded per year
+- quarter interest rate equivalent to 5% compounded per year
 
 ```ruby
 Finrb::Utils.eir(r=0.05,n=1,p=4)
 ```
 
-* quarter interest rate equivalent to 5% compounded per month
+- quarter interest rate equivalent to 5% compounded per month
 
 ```ruby
 Finrb::Utils.eir(r=0.05,n=12,p=4)
 ```
 
-* monthly proportional interest rate which is equivalent to a simple annual interest
+- monthly proportional interest rate which is equivalent to a simple annual interest
 
 ```ruby
 Finrb::Utils.eir(r=0.05,p=12,type='p')
@@ -408,11 +408,11 @@ Finrb::Utils.eir(r=0.05,p=12,type='p')
 
 ### Basic Earnings Per Share
 
-* Param - ni - net income
+- Param - ni - net income
 
-* Param - pd - preferred dividends
+- Param - pd - preferred dividends
 
-* Param - w -  weighted average number of common shares outstanding
+- Param - w - weighted average number of common shares outstanding
 
 Examples:
 
@@ -420,11 +420,11 @@ Examples:
 Finrb::Utils.eps(ni=10000,pd=1000,w=11000)
 ```
 
-### Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations
+### Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Param - te - total equity
+- Param - te - total equity
 
-* Param - ta - total assets
+- Param - ta - total assets
 
 Examples:
 
@@ -434,15 +434,15 @@ Finrb::Utils.financial_leverage(te=16000,ta=20000)
 
 ### Estimate future value (fv)
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - pv - present value
+- Param - pv - present value
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -452,13 +452,13 @@ Finrb::Utils.fv(r=0.07,n=10,pv=1000,pmt=10)
 
 ### Estimate future value of an annuity
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -472,11 +472,11 @@ Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
 
 ### Estimate future value (fv) of a single sum
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - pv - present value
+- Param - pv - present value
 
 Examples:
 
@@ -490,31 +490,31 @@ Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
 
 ### Computing the future value of an uneven cash flow series
 
-* Param - r - stated annual rate
+- Param - r - stated annual rate
 
-* Param - cf - uneven cash flow
+- Param - cf - uneven cash flow
 
 Examples:
 
 ```ruby
-Finrb::Utils.fv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
+Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
 ```
 
 ### Geometric mean return
 
-* Param - r - returns over multiple periods
+- Param - r - returns over multiple periods
 
 Examples:
 
 ```ruby
-Finrb::Utils.geometric_mean(r=c(-0.0934, 0.2345, 0.0892))
+Finrb::Utils.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
 ```
 
 ### Gross profit margin - Evaluate a company's financial performance
 
-* Param - gp - gross profit, equal to revenue minus cost of goods sold (cogs)
+- Param - gp - gross profit, equal to revenue minus cost of goods sold (cogs)
 
-* Param - rv - revenue (sales)
+- Param - rv - revenue (sales)
 
 Examples:
 
@@ -524,21 +524,21 @@ Finrb::Utils.gpm(gp=1000,rv=20000)
 
 ### Harmonic mean, average price
 
-* Param - p - price over multiple periods
+- Param - p - price over multiple periods
 
 Examples:
 
 ```ruby
-Finrb::Utils.harmonic_mean(p=c(8,9,10))
+Finrb::Utils.harmonic_mean(p=[8,9,10])
 ```
 
 ### Computing HPR, the holding period return
 
-* Param - ev - ending value
+- Param - ev - ending value
 
-* Param - bv - beginning value
+- Param - bv - beginning value
 
-* Param - cfr - cash flow received
+- Param - cfr - cash flow received
 
 Examples:
 
@@ -548,9 +548,9 @@ Finrb::Utils.hpr(ev=33,bv=30,cfr=0.5)
 
 ### Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
-* Param - hpr - holding period return
+- Param - hpr - holding period return
 
-* Param - t - number of month remaining until maturity
+- Param - t - number of month remaining until maturity
 
 Examples:
 
@@ -560,9 +560,9 @@ Finrb::Utils.hpr2bey(hpr=0.02,t=3)
 
 ### Convert holding period return to the effective annual rate
 
-* Param - hpr - holding period return
+- Param - hpr - holding period return
 
-* Param - t - number of days remaining until maturity
+- Param - t - number of days remaining until maturity
 
 Examples:
 
@@ -572,9 +572,9 @@ Finrb::Utils.hpr2ear(hpr=0.015228,t=120)
 
 ### Computing money market yield (MMY) for a T-bill
 
-* Param - hpr - holding period return
+- Param - hpr - holding period return
 
-* Param - t - number of days remaining until maturity
+- Param - t - number of days remaining until maturity
 
 Examples:
 
@@ -584,46 +584,46 @@ Finrb::Utils.hpr2mmy(hpr=0.01523,t=120)
 
 ### Computing IRR, the internal rate of return
 
-* Param - cf - cash flow,the first cash flow is the initial outlay
-@importFrom stats uniroot
+- Param - cf - cash flow,the first cash flow is the initial outlay
+  @importFrom stats uniroot
 
 Examples:
 
 ```ruby
-Finrb::Utils.irr(cf=c(-5, 1.6, 2.4, 2.8))
+Finrb::Utils.irr(cf=[-5, 1.6, 2.4, 2.8])
 ```
 
 ### Computing IRR, the internal rate of return
 
 @description This function is the same as irr but can calculate negative value. This function may take a very long time. You can use larger cutoff and larger step to get a less precision irr first. Then based on the result, change from and to, to narrow down the interval, and use a smaller step to get a more precision irr.
 
-* Param - cf - cash flow,the first cash flow is the initial outlay
+- Param - cf - cash flow,the first cash flow is the initial outlay
 
-* Param - cutoff - threshold to take npv as zero
+- Param - cutoff - threshold to take npv as zero
 
-* Param - from - smallest irr to try
+- Param - from - smallest irr to try
 
-* Param - to - largest irr to try
+- Param - to - largest irr to try
 
-* Param - step - increment of the irr
+- Param - step - increment of the irr
 
 Examples:
 
 ```ruby
-Finrb::Utils.irr2(cf=c(-5, 1.6, 2.4, 2.8))
+Finrb::Utils.irr2(cf=[-5, 1.6, 2.4, 2.8])
 ```
 
 ```ruby
-Finrb::Utils.irr2(cf=c(-200, 50, 60, -70, 30, 20))
+Finrb::Utils.irr2(cf=[-200, 50, 60, -70, 30, 20])
 ```
 
 ### Calculate the net increase in common shares from the potential exercise of stock options or warrants
 
-* Param - amp - average market price over the year
+- Param - amp - average market price over the year
 
-* Param - ep -  exercise price of the options or warrants
+- Param - ep - exercise price of the options or warrants
 
-* Param - n -   number of common shares that the options and warrants can be convened into
+- Param - n - number of common shares that the options and warrants can be convened into
 
 Examples:
 
@@ -631,11 +631,11 @@ Examples:
 Finrb::Utils.iss(amp=20,ep=15,n=10000)
 ```
 
-### Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations
+### Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Param - ltd - long-term debt
+- Param - ltd - long-term debt
 
-* Param - te -  total equity
+- Param - te - total equity
 
 Examples:
 
@@ -645,9 +645,9 @@ Finrb::Utils.lt_d2e(ltd=8000,te=20000)
 
 ### Computing HPR, the holding period return
 
-* Param - mmy - money market yield
+- Param - mmy - money market yield
 
-* Param - t - number of days remaining until maturity
+- Param - t - number of days remaining until maturity
 
 Examples:
 
@@ -657,15 +657,15 @@ Finrb::Utils.mmy2hpr(mmy=0.04898,t=150)
 
 ### Estimate the number of periods
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - pv - present value
+- Param - pv - present value
 
-* Param - fv - future value
+- Param - fv - future value
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -679,9 +679,9 @@ Finrb::Utils.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
 
 ### Net profit margin - Evaluate a company's financial performance
 
-* Param - ni - net income
+- Param - ni - net income
 
-* Param - rv - revenue (sales)
+- Param - rv - revenue (sales)
 
 Examples:
 
@@ -691,27 +691,27 @@ Finrb::Utils.npm(ni=8000,rv=20000)
 
 ### Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - cf - cash flow,the first cash flow is the initial outlay
+- Param - cf - cash flow,the first cash flow is the initial outlay
 
 Examples:
 
 ```ruby
-Finrb::Utils.npv(r=0.12, cf=c(-5, 1.6, 2.4, 2.8))
+Finrb::Utils.npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
 ```
 
 ### Estimate period payment
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - pv - present value
+- Param - pv - present value
 
-* Param - fv - future value
+- Param - fv - future value
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -729,15 +729,15 @@ Finrb::Utils.pmt(0.08,10,-1000,10,1)
 
 ### Estimate present value (pv)
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - fv - future value
+- Param - fv - future value
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -751,13 +751,13 @@ Finrb::Utils.pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
 
 ### Estimate present value (pv) of an annuity
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -771,13 +771,13 @@ Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
 
 ### Estimate present value of a perpetuity
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - g - growth rate of perpetuity
+- Param - g - growth rate of perpetuity
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
+- Param - type - payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
 
 Examples:
 
@@ -795,11 +795,11 @@ Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
 
 ### Estimate present value (pv) of a single sum
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - n - number of periods
+- Param - n - number of periods
 
-* Param - fv - future value
+- Param - fv - future value
 
 Examples:
 
@@ -813,25 +813,25 @@ Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
 
 ### Computing the present value of an uneven cash flow series
 
-* Param - r - discount rate, or the interest rate at which the amount will be compounded each period
+- Param - r - discount rate, or the interest rate at which the amount will be compounded each period
 
-* Param - cf - uneven cash flow
+- Param - cf - uneven cash flow
 
 Examples:
 
 ```ruby
-Finrb::Utils.pv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
+Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
 ```
 
-### Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
+### Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-* Param - cash - cash
+- Param - cash - cash
 
-* Param - ms -   marketable securities
+- Param - ms - marketable securities
 
-* Param - rc -   receivables
+- Param - rc - receivables
 
-* Param - cl -   current liabilities
+- Param - cl - current liabilities
 
 Examples:
 
@@ -841,9 +841,9 @@ Finrb::Utils.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
 
 ### Convert a given norminal rate to a continuous compounded rate
 
-* Param - r - norminal rate
+- Param - r - norminal rate
 
-* Param - m - number of times compounded each year
+- Param - m - number of times compounded each year
 
 Examples:
 
@@ -853,9 +853,9 @@ Finrb::Utils.r_continuous(r=0.03,m=4)
 
 ### Convert a given continuous compounded rate to a norminal rate
 
-* Param - rc - continuous compounded rate
+- Param - rc - continuous compounded rate
 
-* Param - m - number of desired times compounded each year
+- Param - m - number of desired times compounded each year
 
 Examples:
 
@@ -869,9 +869,9 @@ Finrb::Utils.r_norminal(rc=0.03,m=4)
 
 ### Rate of return for a perpetuity
 
-* Param - pmt - payment per period
+- Param - pmt - payment per period
 
-* Param - pv - present value
+- Param - pv - present value
 
 Examples:
 
@@ -881,9 +881,9 @@ Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
 
 ### Computing Sampling error
 
-* Param - sm - sample mean
+- Param - sm - sample mean
 
-* Param - mu - population mean
+- Param - mu - population mean
 
 Examples:
 
@@ -893,11 +893,11 @@ Finrb::Utils.sampling_error(sm=0.45, mu=0.5)
 
 ### Computing Roy's safety-first ratio
 
-* Param - rp - portfolio return
+- Param - rp - portfolio return
 
-* Param - rl - threshold level return
+- Param - rl - threshold level return
 
-* Param - sd - standard deviation of portfolio retwns
+- Param - sd - standard deviation of portfolio retwns
 
 Examples:
 
@@ -907,11 +907,11 @@ Finrb::Utils.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
 
 ### Computing Sharpe Ratio
 
-* Param - rp - portfolio return
+- Param - rp - portfolio return
 
-* Param - rf - risk-free return
+- Param - rf - risk-free return
 
-* Param - sd - standard deviation of portfolio retwns
+- Param - sd - standard deviation of portfolio retwns
 
 Examples:
 
@@ -921,11 +921,11 @@ Finrb::Utils.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
 
 ### Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
 
-* Param - cost - cost of long-lived assets
+- Param - cost - cost of long-lived assets
 
-* Param - rv -   residual value of the long-lived assets at the end of its useful life
+- Param - rv - residual value of the long-lived assets at the end of its useful life
 
-* Param - t -    length of the useful life
+- Param - t - length of the useful life
 
 Examples:
 
@@ -933,11 +933,11 @@ Examples:
 Finrb::Utils.slde(cost=1200,rv=200,t=5)
 ```
 
-### Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations
+### Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-* Param - td - total debt
+- Param - td - total debt
 
-* Param - te - total equity
+- Param - te - total equity
 
 Examples:
 
@@ -947,33 +947,33 @@ Finrb::Utils.total_d2e(td=6000,te=20000)
 
 ### Computing TWRR, the time-weighted rate of return
 
-* Param - ev - ordered ending value list
+- Param - ev - ordered ending value list
 
-* Param - bv - ordered beginning value list
+- Param - bv - ordered beginning value list
 
-* Param - cfr - ordered cash flow received list
+- Param - cfr - ordered cash flow received list
 
 Examples:
 
 ```ruby
-Finrb::Utils.twrr(ev=c(120,260),bv=c(100,240),cfr=c(2,4))
+Finrb::Utils.twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
 ```
 
 ### Calculate weighted average shares - weighted average number of common shares
 
-* Param - ns - n x 1 vector vector of number of shares
+- Param - ns - n x 1 vector vector of number of shares
 
-* Param - nm - n x 1 vector vector of number of months relate to ns
+- Param - nm - n x 1 vector vector of number of months relate to ns
 
 Examples:
 
-s=c(10000,2000);m=c(12,6);
+s=[10000,2000];m=[12,6];
 
 ```ruby
 Finrb::Utils.was(ns=s,nm=m)
 ```
 
-s=c(11000,4400,-3000);m=c(12,9,4);
+s=[11000,4400,-3000];m=[12,9,4];
 
 ```ruby
 Finrb::Utils.was(ns=s,nm=m)
@@ -981,14 +981,14 @@ Finrb::Utils.was(ns=s,nm=m)
 
 ### Weighted mean as a portfolio return
 
-* Param - r - returns of the individual assets in the portfolio
+- Param - r - returns of the individual assets in the portfolio
 
-* Param - w - corresponding weights associated with each of the individual assets
+- Param - w - corresponding weights associated with each of the individual assets
 
 Examples:
 
 ```ruby
-Finrb::Utils.wpr(r=c(0.12, 0.07, 0.03),w=c(0.5,0.4,0.1))
+Finrb::Utils.wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
 ```
 
 ## Amortization
@@ -1029,7 +1029,7 @@ amortization.interest[0,6].sum
 => Flt::DecNum('5294.62')
 ```
 
-If your loan has an adjustable rate, no problem.  You can pass an
+If your loan has an adjustable rate, no problem. You can pass an
 arbitrary number of rates, and they will be used in the amortization.
 For example, we can look at an amortization of $250000, where the APR
 starts at 4.25%, and increases by 1% every five years.
@@ -1064,7 +1064,7 @@ arm.payments.sum
 ```
 
 Last, but not least, you may pass a block when creating an Amortization
-which returns a modified monthly payment.  For example, to increase your
+which returns a modified monthly payment. For example, to increase your
 payment by $150, do:
 
 ```ruby
@@ -1073,7 +1073,7 @@ extra_payments = 250000.amortize(rate){ |period| period.payment - 150 }
 ```
 
 Disregarding the block, we have used the same parameters as the first
-example.  Notice the difference in the results:
+example. Notice the difference in the results:
 
 ```ruby
 amortization.payments.sum

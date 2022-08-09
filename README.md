@@ -14,102 +14,103 @@ finrb forked from the ruby [finance](https://github.com/Edward-Intelligence/fina
 
 Currently implemented features include:
 
-* Uses the [flt](https://github.com/jgoizueta/flt) gem to ensure precision decimal arithmetic in all calculations.
-* Fixed-rate mortgage amortization (30/360).
-* Interest rates
-* Various cash flow computations, such as NPV and IRR.
-* Adjustable rate mortgage amortization.
-* Payment modifications (i.e., how does paying an additional $75 per month affect the amortization?)
-* Utils class provides basic financial calculation utilities (ported from R's [FinCal](https://github.com/felixfan/FinCal) library):
-  * Basic Earnings Per Share
+- Uses the [flt](https://github.com/jgoizueta/flt) gem to ensure precision decimal arithmetic in all calculations.
+- Fixed-rate mortgage amortization (30/360).
+- Interest rates
+- Various cash flow computations, such as NPV and IRR.
+- Adjustable rate mortgage amortization.
+- Payment modifications (i.e., how does paying an additional $75 per month affect the amortization?)
+- Utils class provides basic financial calculation utilities (ported from R's [FinCal](https://github.com/felixfan/FinCal) library):
 
-  * Bond-equivalent yield (BEY), 2 x the semiannual discount rate
+  - Basic Earnings Per Share
 
-  * Calculate the net increase in common shares from the potential exercise of stock options or warrants
+  - Bond-equivalent yield (BEY), 2 x the semiannual discount rate
 
-  * Calculate weighted average shares - weighted average number of common shares
+  - Calculate the net increase in common shares from the potential exercise of stock options or warrants
 
-  * Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+  - Calculate weighted average shares - weighted average number of common shares
 
-  * Computing Coefficient of variation
+  - Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-  * Computing HPR, the holding period return
+  - Computing Coefficient of variation
 
-  * Computing IRR, the internal rate of return
+  - Computing HPR, the holding period return
 
-  * Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
+  - Computing IRR, the internal rate of return
 
-  * Computing Roy's safety-first ratio
+  - Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
 
-  * Computing Sampling error
+  - Computing Roy's safety-first ratio
 
-  * Computing Sharpe Ratio
+  - Computing Sampling error
 
-  * Computing TWRR, the time-weighted rate of return
+  - Computing Sharpe Ratio
 
-  * Computing bank discount yield (BDY) for a T-bill
+  - Computing TWRR, the time-weighted rate of return
 
-  * Computing money market yield (MMY) for a T-bill
+  - Computing bank discount yield (BDY) for a T-bill
 
-  * Computing the future value of an uneven cash flow series
+  - Computing money market yield (MMY) for a T-bill
 
-  * Computing the present value of an uneven cash flow series
+  - Computing the future value of an uneven cash flow series
 
-  * Computing the rate of return for each period
+  - Computing the present value of an uneven cash flow series
 
-  * Convert a given continuous compounded rate to a norminal rate
+  - Computing the rate of return for each period
 
-  * Convert a given norminal rate to a continuous compounded rate
+  - Convert a given continuous compounded rate to a norminal rate
 
-  * Convert holding period return to the effective annual rate
+  - Convert a given norminal rate to a continuous compounded rate
 
-  * Convert stated annual rate to the effective annual rate (with continuous compounding)
+  - Convert holding period return to the effective annual rate
 
-  * Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
+  - Convert stated annual rate to the effective annual rate (with continuous compounding)
 
-  * Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+  - Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
 
-  * Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+  - Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-  * Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
+  - Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-  * Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
+  - Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
 
-  * Diluted Earnings Per Share
+  - Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
 
-  * Equivalent/proportional Interest Rates
+  - Diluted Earnings Per Share
 
-  * Estimate future value (fv) (of a single sum)
+  - Equivalent/proportional Interest Rates
 
-  * Estimate future value of an annuity
+  - Estimate future value (fv) (of a single sum)
 
-  * Estimate period payment
+  - Estimate future value of an annuity
 
-  * Estimate present value (pv) (of a single sum) (of an annuity)
+  - Estimate period payment
 
-  * Estimate present value of a perpetuity
+  - Estimate present value (pv) (of a single sum) (of an annuity)
 
-  * Estimate the number of periods
+  - Estimate present value of a perpetuity
 
-  * Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+  - Estimate the number of periods
 
-  * Geometric mean return
+  - Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-  * Gross profit margin - Evaluate a company's financial performance
+  - Geometric mean return
 
-  * Harmonic mean, average price
+  - Gross profit margin - Evaluate a company's financial performance
 
-  * Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+  - Harmonic mean, average price
 
-  * Net profit margin - Evaluate a company's financial performance
+  - Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
 
-  * Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+  - Net profit margin - Evaluate a company's financial performance
 
-  * Rate of return for a perpetuity
+  - Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
 
-  * Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+  - Rate of return for a perpetuity
 
-  * Weighted mean as a portfolio return
+  - Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+
+  - Weighted mean as a portfolio return
 
 ### Configuration
 
@@ -130,9 +131,9 @@ See [api.md](docs/api.md)
 
 ## Resources
 
-* [RubyGems Page](https://rubygems.org/gems/finrb)
-* [Source Code](https://github.com/ncs1/finrb)
-* [Bug Tracker](https://github.com/ncs1/finrb/issues)
+- [RubyGems Page](https://rubygems.org/gems/finrb)
+- [Source Code](https://github.com/ncs1/finrb)
+- [Bug Tracker](https://github.com/ncs1/finrb/issues)
 
 ## License
 

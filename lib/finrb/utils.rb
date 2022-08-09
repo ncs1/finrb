@@ -95,11 +95,11 @@ module Finrb
     # @param method inventory methods: FIFO (first in first out, permitted under both US and IFRS), LIFO (late in first out, US only), WAC (weighted average cost,US and IFRS)
     # @export
     # @examples
-    # cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="FIFO")
+    # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="FIFO")
     #
-    # cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="LIFO")
+    # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="LIFO")
     #
-    # cogs(uinv=2,pinv=2,units=c(3,5),price=c(3,5),sinv=7,method="WAC")
+    # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="WAC")
     def self.cogs(uinv, pinv, units, price, sinv, method = 'FIFO')
       uinv = uinv.to_d
       pinv = pinv.to_d
@@ -531,7 +531,7 @@ module Finrb
     # @param cf uneven cash flow
     # @export
     # @examples
-    # Finrb::Utils.fv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
+    # Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.fv_uneven(r, cf)
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
@@ -550,7 +550,7 @@ module Finrb
     # @param r returns over multiple periods
     # @export
     # @examples
-    # Finrb::Utils.geometric_mean(r=c(-0.0934, 0.2345, 0.0892))
+    # Finrb::Utils.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
     def self.geometric_mean(r)
       r = Array.wrap(r).map(&:to_d)
 
@@ -576,7 +576,7 @@ module Finrb
     # @param p price over multiple periods
     # @export
     # @examples
-    # Finrb::Utils.harmonic_mean(p=c(8,9,10))
+    # Finrb::Utils.harmonic_mean(p=[8,9,10])
     def self.harmonic_mean(p)
       p = Array.wrap(p).map(&:to_d)
 
@@ -647,7 +647,7 @@ module Finrb
     # @importFrom stats uniroot
     # @export
     # @examples
-    # irr(cf=c(-5, 1.6, 2.4, 2.8))
+    # irr(cf=[-5, 1.6, 2.4, 2.8])
     def self.irr(cf)
       cf = Array.wrap(cf).map(&:to_d)
 
@@ -673,8 +673,8 @@ module Finrb
     # @param step increment of the irr
     # @export
     # @examples
-    # irr2(cf=c(-5, 1.6, 2.4, 2.8))
-    # irr2(cf=c(-200, 50, 60, -70, 30, 20))
+    # irr2(cf=[-5, 1.6, 2.4, 2.8])
+    # irr2(cf=[-200, 50, 60, -70, 30, 20])
     def self.irr2(cf, cutoff = 0.1, from = -1, to = 10, step = 0.000001)
       cf = Array.wrap(cf).map(&:to_d)
       cutoff = cutoff.to_d
@@ -802,7 +802,7 @@ module Finrb
     # @param cf cash flow,the first cash flow is the initial outlay
     # @export
     # @examples
-    # npv(r=0.12, cf=c(-5, 1.6, 2.4, 2.8))
+    # npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
     def self.npv(r, cf)
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
@@ -946,7 +946,7 @@ module Finrb
     # @param cf uneven cash flow
     # @export
     # @examples
-    # Finrb::Utils.pv_uneven(r=0.1, cf=c(-1000, -500, 0, 4000, 3500, 2000))
+    # Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.pv_uneven(r, cf)
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
@@ -1104,7 +1104,7 @@ module Finrb
     # @param cfr ordered cash flow received list
     # @export
     # @examples
-    # twrr(ev=c(120,260),bv=c(100,240),cfr=c(2,4))
+    # twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
     def self.twrr(ev, bv, cfr)
       ev = Array.wrap(ev).map(&:to_d)
       bv = Array.wrap(bv).map(&:to_d)
@@ -1130,9 +1130,9 @@ module Finrb
     # @param nm n x 1 vector vector of number of months relate to ns
     # @export
     # @examples
-    # s=c(10000,2000);m=c(12,6);was(ns=s,nm=m)
+    # s=[10000,2000];m=[12,6];was(ns=s,nm=m)
     #
-    # s=c(11000,4400,-3000);m=c(12,9,4);was(ns=s,nm=m)
+    # s=[11000,4400,-3000];m=[12,9,4];was(ns=s,nm=m)
     def self.was(ns, nm)
       ns = Array.wrap(ns).map(&:to_d)
       nm = Array.wrap(nm).map(&:to_d)
@@ -1157,7 +1157,7 @@ module Finrb
     # @param w corresponding weights associated with each of the individual assets
     # @export
     # @examples
-    # wpr(r=c(0.12, 0.07, 0.03),w=c(0.5,0.4,0.1))
+    # wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
     def self.wpr(r, w)
       r = Array.wrap(r).map(&:to_d)
       w = Array.wrap(w).map(&:to_d)

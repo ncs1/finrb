@@ -164,7 +164,7 @@ module Finrb
               endingInventory = (units[i] - sinv) * price[i]
               if i > 1
                 temp = i - 1
-                (temp).downto(0).each do |j|
+                temp.downto(0).each do |j|
                   endingInventory += (units[j] * price[j])
                 end
               end
@@ -315,9 +315,10 @@ module Finrb
       upper = upper.to_d
 
       nlfunc = NlFunctionStub.new
-      nlfunc.func = lambda do |x|
-        BigDecimal((Finrb::Utils.fv_simple(x[0],n,pv) + Finrb::Utils.fv_annuity(x[0],n,pmt,type) - fv).to_s)
-      end
+      nlfunc.func =
+        lambda do |x|
+          BigDecimal((Finrb::Utils.fv_simple(x[0], n, pv) + Finrb::Utils.fv_annuity(x[0], n, pmt, type) - fv).to_s)
+        end
 
       root = [(upper - lower) / 2]
       nlsolve(nlfunc, root)
@@ -652,11 +653,11 @@ module Finrb
 
       n = cf.size
       subcf = cf.drop(1)
-
       nlfunc = NlFunctionStub.new
-      nlfunc.func = lambda do |x|
-        BigDecimal((-1 * Finrb::Utils.pv_uneven(x[0], subcf) + cf[0]).to_s)
-      end
+      nlfunc.func =
+        lambda do |x|
+          BigDecimal(((-1 * Finrb::Utils.pv_uneven(x[0], subcf)) + cf[0]).to_s)
+        end
 
       root = [0]
       nlsolve(nlfunc, root)

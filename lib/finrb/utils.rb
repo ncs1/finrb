@@ -33,7 +33,7 @@ module Finrb
     # @export
     # @examples
     # bdy(d=1500,f=100000,t=120)
-    def self.bdy(d, f, t)
+    def self.bdy(d:, f:, t:)
       d = d.to_d
       f = f.to_d
       t = t.to_d
@@ -48,7 +48,7 @@ module Finrb
     # @export
     # @examples
     # bdy2mmy(bdy=0.045,t=120)
-    def self.bdy2mmy(bdy, t)
+    def self.bdy2mmy(bdy:, t:)
       bdy = bdy.to_d
       t = t.to_d
 
@@ -63,7 +63,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.cash_ratio(cash=3000,ms=2000,cl=2000)
-    def self.cash_ratio(cash, ms, cl)
+    def self.cash_ratio(cash:, ms:, cl:)
       cash = cash.to_d
       ms = ms.to_d
       cl = cl.to_d
@@ -78,7 +78,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
-    def self.coefficient_variation(sd, avg)
+    def self.coefficient_variation(sd:, avg:)
       sd = sd.to_d
       avg = avg.to_d
 
@@ -100,7 +100,7 @@ module Finrb
     # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="LIFO")
     #
     # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="WAC")
-    def self.cogs(uinv, pinv, units, price, sinv, method = 'FIFO')
+    def self.cogs(uinv:, pinv:, units:, price:, sinv:, method: 'FIFO')
       uinv = uinv.to_d
       pinv = pinv.to_d
       units = Array.wrap(units).map(&:to_d)
@@ -200,7 +200,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.current_ratio(ca=8000,cl=2000)
-    def self.current_ratio(ca, cl)
+    def self.current_ratio(ca:, cl:)
       ca = ca.to_d
       cl = cl.to_d
 
@@ -215,7 +215,7 @@ module Finrb
     # @export
     # @examples
     # ddb(cost=1200,rv=200,t=5)
-    def self.ddb(cost, rv, t)
+    def self.ddb(cost:, rv:, t:)
       cost = cost.to_d
       rv = rv.to_d
       t = t.to_d
@@ -248,7 +248,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.debt_ratio(td=6000,ta=20000)
-    def self.debt_ratio(td, ta)
+    def self.debt_ratio(td:, ta:)
       td = td.to_d
       ta = ta.to_d
 
@@ -275,7 +275,7 @@ module Finrb
     # Finrb::Utils.diluted_eps(ni=115600,pd=10000,w=200000,iss=2500)
     #
     # Finrb::Utils.diluted_eps(ni=115600,pd=10000,cpd=10000,cdi=42000,tax=0.4,w=200000,cps=40000,cds=60000,iss=2500)
-    def self.diluted_eps(ni, pd, w, cpd = 0, cdi = 0, tax = 0, cps = 0, cds = 0, iss = 0)
+    def self.diluted_eps(ni:, pd:, w:, cpd: 0, cdi: 0, tax: 0, cps: 0, cds: 0, iss: 0)
       ni = ni.to_d
       pd = pd.to_d
       w = w.to_d
@@ -305,7 +305,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
-    def self.discount_rate(n, pv, fv, pmt, type = 0, lower = 0.0001, upper = 100)
+    def self.discount_rate(n:, pv:, fv:, pmt:, type: 0, lower: 0.0001, upper: 100)
       n = n.to_d
       pv = pv.to_d
       fv = fv.to_d
@@ -334,7 +334,7 @@ module Finrb
     # ear(r=0.12,m=12)
     #
     # ear(0.04,365)
-    def self.ear(r, m)
+    def self.ear(r:, m:)
       r = r.to_d
       m = m.to_d
 
@@ -349,7 +349,7 @@ module Finrb
     # Finrb::Utils.ear_continuous(r=0.1)
     #
     # Finrb::Utils.ear_continuous(0.03)
-    def self.ear_continuous(r)
+    def self.ear_continuous(r:)
       r = r.to_d
 
       (r.to_d.exp - 1)
@@ -361,7 +361,7 @@ module Finrb
     # @export
     # @examples
     # ear2bey(ear=0.08)
-    def self.ear2bey(ear)
+    def self.ear2bey(ear:)
       ear = ear.to_d
 
       ((((1 + ear)**0.5) - 1) * 2)
@@ -374,7 +374,7 @@ module Finrb
     # @export
     # @examples
     # ear2hpr(ear=0.05039,t=150)
-    def self.ear2hpr(ear, t)
+    def self.ear2hpr(ear:, t:)
       ear = ear.to_d
       t = t.to_d
 
@@ -411,7 +411,7 @@ module Finrb
     #
     # # monthly proportional interest rate which is equivalent to a simple annual interest
     # Finrb::Utils.eir(r=0.05,p=12,type='p')
-    def self.eir(r, n = 1, p = 12, type = 'e')
+    def self.eir(r:, n: 1, p: 12, type: 'e')
       r = r.to_d
       n = n.to_d
       p = p.to_d
@@ -436,7 +436,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.eps(ni=10000,pd=1000,w=11000)
-    def self.eps(ni, pd, w)
+    def self.eps(ni:, pd:, w:)
       ni = ni.to_d
       pd = pd.to_d
       w = w.to_d
@@ -451,7 +451,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.financial_leverage(te=16000,ta=20000)
-    def self.financial_leverage(te, ta)
+    def self.financial_leverage(te:, ta:)
       te = te.to_d
       ta = ta.to_d
 
@@ -468,7 +468,7 @@ module Finrb
     # @export
     # @examples
     # fv(r=0.07,n=10,pv=1000,pmt=10)
-    def self.fv(r, n, pv = 0, pmt = 0, type = 0)
+    def self.fv(r:, n:, pv: 0, pmt: 0, type: 0)
       r = r.to_d
       n = n.to_d
       pv = pv.to_d
@@ -493,7 +493,7 @@ module Finrb
     # Finrb::Utils.fv_annuity(0.03,12,-1000)
     #
     # Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
-    def self.fv_annuity(r, n, pmt, type = 0)
+    def self.fv_annuity(r:, n:, pmt:, type: 0)
       r = r.to_d
       n = n.to_d
       pmt = pmt.to_d
@@ -517,7 +517,7 @@ module Finrb
     # Finrb::Utils.fv_simple(0.08,10,-300)
     #
     # Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
-    def self.fv_simple(r, n, pv)
+    def self.fv_simple(r:, n:, pv:)
       r = r.to_d
       n = n.to_d
       pv = pv.to_d
@@ -532,7 +532,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
-    def self.fv_uneven(r, cf)
+    def self.fv_uneven(r:, cf:)
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
 
@@ -551,7 +551,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
-    def self.geometric_mean(r)
+    def self.geometric_mean(r:)
       r = Array.wrap(r).map(&:to_d)
 
       rs = r + 1
@@ -565,7 +565,7 @@ module Finrb
     # @export
     # @examples
     # gpm(gp=1000,rv=20000)
-    def self.gpm(gp, rv)
+    def self.gpm(gp:, rv:)
       gp = gp.to_d
       rv = rv.to_d
 
@@ -577,7 +577,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.harmonic_mean(p=[8,9,10])
-    def self.harmonic_mean(p)
+    def self.harmonic_mean(p:)
       p = Array.wrap(p).map(&:to_d)
 
       (1 / (p.sum { |val| 1 / val } / p.size))
@@ -591,7 +591,7 @@ module Finrb
     # @export
     # @examples
     # hpr(ev=33,bv=30,cfr=0.5)
-    def self.hpr(ev, bv, cfr = 0)
+    def self.hpr(ev:, bv:, cfr: 0)
       ev = ev.to_d
       bv = bv.to_d
       cfr = cfr.to_d
@@ -606,7 +606,7 @@ module Finrb
     # @export
     # @examples
     # hpr2bey(hpr=0.02,t=3)
-    def self.hpr2bey(hpr, t)
+    def self.hpr2bey(hpr:, t:)
       hpr = hpr.to_d
       t = t.to_d
 
@@ -620,7 +620,7 @@ module Finrb
     # @export
     # @examples
     # hpr2ear(hpr=0.015228,t=120)
-    def self.hpr2ear(hpr, t)
+    def self.hpr2ear(hpr:, t:)
       hpr = hpr.to_d
       t = t.to_d
 
@@ -634,7 +634,7 @@ module Finrb
     # @export
     # @examples
     # hpr2mmy(hpr=0.01523,t=120)
-    def self.hpr2mmy(hpr, t)
+    def self.hpr2mmy(hpr:, t:)
       hpr = hpr.to_d
       t = t.to_d
 
@@ -648,7 +648,7 @@ module Finrb
     # @export
     # @examples
     # irr(cf=[-5, 1.6, 2.4, 2.8])
-    def self.irr(cf)
+    def self.irr(cf:)
       cf = Array.wrap(cf).map(&:to_d)
 
       n = cf.size
@@ -675,7 +675,7 @@ module Finrb
     # @examples
     # irr2(cf=[-5, 1.6, 2.4, 2.8])
     # irr2(cf=[-200, 50, 60, -70, 30, 20])
-    def self.irr2(cf, cutoff = 0.1, from = -1, to = 10, step = 0.000001)
+    def self.irr2(cf:, cutoff: 0.1, from: -1, to: 10, step: 0.000001)
       cf = Array.wrap(cf).map(&:to_d)
       cutoff = cutoff.to_d
       from = from.to_d
@@ -715,7 +715,7 @@ module Finrb
     # @export
     # @examples
     # iss(amp=20,ep=15,n=10000)
-    def self.iss(amp, ep, n)
+    def self.iss(amp:, ep:, n:)
       amp = amp.to_d
       ep = ep.to_d
       n = n.to_d
@@ -734,7 +734,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.lt_d2e(ltd=8000,te=20000)
-    def self.lt_d2e(ltd, te)
+    def self.lt_d2e(ltd:, te:)
       ltd = ltd.to_d
       te = te.to_d
 
@@ -748,7 +748,7 @@ module Finrb
     # @export
     # @examples
     # mmy2hpr(mmy=0.04898,t=150)
-    def self.mmy2hpr(mmy, t)
+    def self.mmy2hpr(mmy:, t:)
       mmy = mmy.to_d
       t = t.to_d
 
@@ -767,7 +767,7 @@ module Finrb
     # Finrb::Utils.n_period(0.1,-10000,60000000,-50000,0)
     #
     # Finrb::Utils.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
-    def self.n_period(r, pv, fv, pmt, type = 0)
+    def self.n_period(r:, pv:, fv:, pmt:, type: 0)
       r = r.to_d
       pv = pv.to_d
       fv = fv.to_d
@@ -789,7 +789,7 @@ module Finrb
     # @export
     # @examples
     # npm(ni=8000,rv=20000)
-    def self.npm(ni, rv)
+    def self.npm(ni:, rv:)
       ni = ni.to_d
       rv = rv.to_d
 
@@ -803,7 +803,7 @@ module Finrb
     # @export
     # @examples
     # npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
-    def self.npv(r, cf)
+    def self.npv(r:, cf:)
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
 
@@ -826,7 +826,7 @@ module Finrb
     # pmt(r=0.08,n=10,pv=-1000,fv=0)
     #
     # pmt(0.08,10,-1000,10,1)
-    def self.pmt(r, n, pv, fv, type = 0)
+    def self.pmt(r:, n:, pv:, fv:, type: 0)
       r = r.to_d
       n = n.to_d
       pv = pv.to_d
@@ -853,7 +853,7 @@ module Finrb
     # pv(0.07,10,1000,10)
     #
     # pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
-    def self.pv(r, n, fv = 0, pmt = 0, type = 0)
+    def self.pv(r:, n:, fv: 0, pmt: 0, type: 0)
       r = r.to_d
       n = n.to_d
       fv = fv.to_d
@@ -879,7 +879,7 @@ module Finrb
     # Finrb::Utils.pv_annuity(0.03,12,1000)
     #
     # Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
-    def self.pv_annuity(r, n, pmt, type = 0)
+    def self.pv_annuity(r:, n:, pmt:, type: 0)
       r = r.to_d
       n = n.to_d
       pmt = pmt.to_d
@@ -906,7 +906,7 @@ module Finrb
     # Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,type=1)
     #
     # Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
-    def self.pv_perpetuity(r, pmt, g = 0, type = 0)
+    def self.pv_perpetuity(r:, pmt:, g: 0, type: 0)
       r = r.to_d
       pmt = pmt.to_d
       g = g.to_d
@@ -932,7 +932,7 @@ module Finrb
     # Finrb::Utils.pv_simple(0.07,10,100)
     #
     # Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
-    def self.pv_simple(r, n, fv)
+    def self.pv_simple(r:, n:, fv:)
       r = r.to_d
       n = n.to_d
       fv = fv.to_d
@@ -947,7 +947,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
-    def self.pv_uneven(r, cf)
+    def self.pv_uneven(r:, cf:)
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
 
@@ -968,7 +968,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
-    def self.quick_ratio(cash, ms, rc, cl)
+    def self.quick_ratio(cash:, ms:, rc:, cl:)
       cash = cash.to_d
       ms = ms.to_d
       rc = rc.to_d
@@ -984,7 +984,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.r_continuous(r=0.03,m=4)
-    def self.r_continuous(r, m)
+    def self.r_continuous(r:, m:)
       r = r.to_d
       m = m.to_d
 
@@ -1000,7 +1000,7 @@ module Finrb
     # Finrb::Utils.r_norminal(0.03,1)
     #
     # Finrb::Utils.r_norminal(rc=0.03,m=4)
-    def self.r_norminal(rc, m)
+    def self.r_norminal(rc:, m:)
       rc = rc.to_d
       m = m.to_d
 
@@ -1014,7 +1014,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
-    def self.r_perpetuity(pmt, pv)
+    def self.r_perpetuity(pmt:, pv:)
       pmt = pmt.to_d
       pv = pv.to_d
 
@@ -1028,7 +1028,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.sampling_error(sm=0.45, mu=0.5)
-    def self.sampling_error(sm, mu)
+    def self.sampling_error(sm:, mu:)
       sm = sm.to_d
       mu = mu.to_d
 
@@ -1043,7 +1043,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
-    def self.sf_ratio(rp, rl, sd)
+    def self.sf_ratio(rp:, rl:, sd:)
       rp = rp.to_d
       rl = rl.to_d
       sd = sd.to_d
@@ -1059,7 +1059,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
-    def self.sharpe_ratio(rp, rf, sd)
+    def self.sharpe_ratio(rp:, rf:, sd:)
       rp = rp.to_d
       rf = rf.to_d
       sd = sd.to_d
@@ -1075,7 +1075,7 @@ module Finrb
     # @export
     # @examples
     # slde(cost=1200,rv=200,t=5)
-    def self.slde(cost, rv, t)
+    def self.slde(cost:, rv:, t:)
       cost = cost.to_d
       rv = rv.to_d
       t = t.to_d
@@ -1090,7 +1090,7 @@ module Finrb
     # @export
     # @examples
     # Finrb::Utils.total_d2e(td=6000,te=20000)
-    def self.total_d2e(td, te)
+    def self.total_d2e(td:, te:)
       td = td.to_d
       te = te.to_d
 
@@ -1105,7 +1105,7 @@ module Finrb
     # @export
     # @examples
     # twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
-    def self.twrr(ev, bv, cfr)
+    def self.twrr(ev:, bv:, cfr:)
       ev = Array.wrap(ev).map(&:to_d)
       bv = Array.wrap(bv).map(&:to_d)
       cfr = Array.wrap(cfr).map(&:to_d)
@@ -1133,7 +1133,7 @@ module Finrb
     # s=[10000,2000];m=[12,6];was(ns=s,nm=m)
     #
     # s=[11000,4400,-3000];m=[12,9,4];was(ns=s,nm=m)
-    def self.was(ns, nm)
+    def self.was(ns:, nm:)
       ns = Array.wrap(ns).map(&:to_d)
       nm = Array.wrap(nm).map(&:to_d)
 
@@ -1158,7 +1158,7 @@ module Finrb
     # @export
     # @examples
     # wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
-    def self.wpr(r, w)
+    def self.wpr(r:, w:)
       r = Array.wrap(r).map(&:to_d)
       w = Array.wrap(w).map(&:to_d)
 

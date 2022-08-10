@@ -110,49 +110,49 @@ module Finrb
 
       n = units.size
       m = price.size
-      costOfGoods = 0
-      endingInventory = 0
+      cost_of_goods = 0
+      ending_inventory = 0
       if m == n
         case method
         when 'FIFO'
           if sinv <= uinv
-            costOfGoods = sinv * pinv
-            endingInventory = (uinv - sinv) * pinv
+            cost_of_goods = sinv * pinv
+            ending_inventory = (uinv - sinv) * pinv
             (0...n).each do |i|
-              endingInventory += (units[i] * price[i])
+              ending_inventory += (units[i] * price[i])
             end
           else
-            costOfGoods = uinv * pinv
+            cost_of_goods = uinv * pinv
             sinv -= uinv
             (0...n).each do |i|
               if sinv <= units[i]
-                costOfGoods += (sinv * price[i])
-                endingInventory = (units[i] - sinv) * price[i]
+                cost_of_goods += (sinv * price[i])
+                ending_inventory = (units[i] - sinv) * price[i]
                 if i < n
                   temp = i + 1
                   (temp...n).each do |j|
-                    endingInventory += (units[j] * price[j])
+                    ending_inventory += (units[j] * price[j])
                   end
                 end
                 sinv = 0
                 next
               else
-                costOfGoods += (units[i] * price[i])
+                cost_of_goods += (units[i] * price[i])
                 sinv -= units[i]
               end
             end
             raise(FinrbError, "Inventory is not enough to sell\n") if sinv.positive?
           end
         when 'WAC'
-          endingInventory = uinv * pinv
+          ending_inventory = uinv * pinv
           tu = uinv
           (0...n).each do |i|
-            endingInventory += (units[i] * price[i])
+            ending_inventory += (units[i] * price[i])
             tu += units[i]
           end
           if tu >= sinv
-            costOfGoods = endingInventory / tu * sinv
-            endingInventory = endingInventory / tu * (tu - sinv)
+            cost_of_goods = ending_inventory / tu * sinv
+            ending_inventory = ending_inventory / tu * (tu - sinv)
           else
             raise(FinrbError, "Inventory is not enough to sell\n")
           end
@@ -160,26 +160,26 @@ module Finrb
         when 'LIFO'
           (n - 1).downto(0).each do |i|
             if sinv <= units[i]
-              costOfGoods += (sinv * price[i])
-              endingInventory = (units[i] - sinv) * price[i]
+              cost_of_goods += (sinv * price[i])
+              ending_inventory = (units[i] - sinv) * price[i]
               if i > 1
                 temp = i - 1
                 temp.downto(0).each do |j|
-                  endingInventory += (units[j] * price[j])
+                  ending_inventory += (units[j] * price[j])
                 end
               end
-              endingInventory += (uinv * pinv)
+              ending_inventory += (uinv * pinv)
               sinv = 0
               next
             else
-              costOfGoods += (units[i] * price[i])
+              cost_of_goods += (units[i] * price[i])
               sinv -= units[i]
             end
           end
           if sinv.positive?
             if sinv <= uinv
-              costOfGoods += (sinv * pinv)
-              endingInventory += ((uinv - sinv) * pinv)
+              cost_of_goods += (sinv * pinv)
+              ending_inventory += ((uinv - sinv) * pinv)
             else
               raise(FinrbError, "Inventory is not enough to sell\n")
             end
@@ -190,7 +190,7 @@ module Finrb
         raise(FinrbError, "length of units and price are not the same\n")
       end
 
-      [costOfGoods, endingInventory]
+      [cost_of_goods, ending_inventory]
     end
 
     # current ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.

@@ -4,13 +4,11 @@ require:
   - rubocop-packaging
   - rubocop-minitest
 
-Lint/NumberConversion:
-  Enabled: false
 
 AllCops:
   TargetRubyVersion: 3.0
-  DisabledByDefault: true
-  SuggestExtensions: false
+  EnabledByDefault: true
+  NewCops: enable
   UseCache: true
   Exclude:
     - '**/.git/**/*'
@@ -19,266 +17,71 @@ AllCops:
   CacheRootDirectory: tmp
   MaxFilesInCache: 36000
 
+Packaging/RequireHardcodingLib:
+  Enabled: false
 
-# Prefer &&/|| over and/or.
-Style/AndOr:
-  Enabled: true
+Packaging/RequireRelativeHardcodingLib:
+  Enabled: false
 
-# Align `when` with `case`.
-Layout/CaseIndentation:
-  Enabled: true
+Lint/ConstantResolution:
+  Enabled: false
 
-Layout/ClosingHeredocIndentation:
-  Enabled: true
+Metrics/BlockLength:
+  Enabled: false
 
-Layout/ClosingParenthesisIndentation:
-  Enabled: true
+Style/MixinUsage:
+  Enabled: false
 
-# Align comments with method definitions.
-Layout/CommentIndentation:
-  Enabled: true
+Style/DocumentationMethod:
+  Enabled: false
 
-Layout/ElseAlignment:
-  Enabled: true
+Style/Send:
+  Enabled: false
 
-# Align `end` with the matching keyword or starting expression except for
-# assignments, where it should be aligned with the LHS.
-Layout/EndAlignment:
-  Enabled: true
-  EnforcedStyleAlignWith: variable
-  AutoCorrect: true
+Style/OptionHash:
+  Enabled: false
 
-Layout/EndOfLine:
-  Enabled: true
+Metrics/CyclomaticComplexity:
+  Enabled: false
 
-Layout/EmptyLineAfterMagicComment:
-  Enabled: true
+Metrics/MethodLength:
+  Enabled: false
 
-Layout/EmptyLinesAroundAccessModifier:
-  Enabled: true
-  EnforcedStyle: only_before
+Layout/ClassStructure:
+  Enabled: false
 
-Layout/EmptyLinesAroundBlockBody:
-  Enabled: true
+Style/ConstantVisibility:
+  Enabled: false
 
-# In a regular class definition, no empty lines around the body.
-Layout/EmptyLinesAroundClassBody:
-  Enabled: true
+Style/Documentation:
+  Enabled: false
 
-# In a regular method definition, no empty lines around the body.
-Layout/EmptyLinesAroundMethodBody:
-  Enabled: true
+Style/MissingElse:
+  Enabled: false
 
-# In a regular module definition, no empty lines around the body.
-Layout/EmptyLinesAroundModuleBody:
-  Enabled: true
+Style/MissingRespondToMissing:
+  Enabled: false
 
-# Use Ruby >= 1.9 syntax for hashes. Prefer { a: :b } over { :a => :b }.
-Style/HashSyntax:
-  Enabled: true
+Style/InlineComment:
+  Enabled: false
 
-# Method definitions after `private` or `protected` isolated calls need one
-# extra level of indentation.
-Layout/IndentationConsistency:
-  Enabled: true
-  EnforcedStyle: indented_internal_methods
+Naming/MethodParameterName:
+  Enabled: false
 
-# Two spaces, no tabs (for indentation).
-Layout/IndentationWidth:
-  Enabled: true
+Layout/LineLength:
+  Enabled: false
 
-Layout/LeadingCommentSpace:
-  Enabled: true
+Metrics/AbcSize:
+  Enabled: false
 
-Layout/SpaceAfterColon:
-  Enabled: true
+Gemspec/DependencyVersion:
+  Enabled: false
 
-Layout/SpaceAfterComma:
-  Enabled: true
+Naming/HeredocDelimiterNaming:
+  Enabled: false
 
-Layout/SpaceAfterSemicolon:
-  Enabled: true
+Lint/NumberConversion:
+  Enabled: false
 
-Layout/SpaceAroundEqualsInParameterDefault:
-  Enabled: true
-
-Layout/SpaceAroundKeyword:
-  Enabled: true
-
-Layout/SpaceAroundOperators:
-  Enabled: true
-
-Layout/SpaceBeforeComma:
-  Enabled: true
-
-Layout/SpaceBeforeComment:
-  Enabled: true
-
-Layout/SpaceBeforeFirstArg:
-  Enabled: true
-
-Style/DefWithParentheses:
-  Enabled: true
-
-# Defining a method with parameters needs parentheses.
-Style/MethodDefParentheses:
-  Enabled: true
-
-Style/ExplicitBlockArgument:
-  Enabled: true
-
-Style/FrozenStringLiteralComment:
-  Enabled: true
-  EnforcedStyle: always
-
-Style/MapToHash:
-  Enabled: true
-
-Style/RedundantFreeze:
-  Enabled: true
-
-# Use `foo {}` not `foo{}`.
-Layout/SpaceBeforeBlockBraces:
-  Enabled: true
-
-# Use `foo { bar }` not `foo {bar}`.
-Layout/SpaceInsideBlockBraces:
-  Enabled: true
-  EnforcedStyleForEmptyBraces: space
-
-# Use `{ a: 1 }` not `{a:1}`.
-Layout/SpaceInsideHashLiteralBraces:
-  Enabled: true
-
-Layout/SpaceInsideParens:
-  Enabled: true
-
-# Check quotes usage according to lint rule below.
-Style/StringLiterals:
-  Enabled: true
-  EnforcedStyle: double_quotes
-
-# Detect hard tabs, no hard tabs.
-Layout/IndentationStyle:
-  Enabled: true
-
-# Empty lines should not have any spaces.
-Layout/TrailingEmptyLines:
-  Enabled: true
-
-# No trailing whitespace.
-Layout/TrailingWhitespace:
-  Enabled: true
-
-# Use quotes for string literals when they are enough.
-Style/RedundantPercentQ:
-  Enabled: true
-
-Lint/AmbiguousOperator:
-  Enabled: true
-
-Lint/AmbiguousRegexpLiteral:
-  Enabled: true
-
-Lint/DuplicateRequire:
-  Enabled: true
-
-Lint/DuplicateMethods:
-  Enabled: true
-
-Lint/ErbNewArguments:
-  Enabled: true
-
-Lint/EnsureReturn:
-  Enabled: true
-
-# Use my_method(my_arg) not my_method( my_arg ) or my_method my_arg.
-Lint/RequireParentheses:
-  Enabled: true
-
-Lint/RedundantStringCoercion:
-  Enabled: true
-
-Lint/UriEscapeUnescape:
-  Enabled: true
-
-Lint/UselessAssignment:
-  Enabled: true
-
-Lint/DeprecatedClassMethods:
-  Enabled: true
-
-Style/ParenthesesAroundCondition:
-  Enabled: true
-
-Style/HashTransformKeys:
-  Enabled: true
-
-Style/HashTransformValues:
-  Enabled: true
-
-Style/RedundantBegin:
-  Enabled: true
-
-Style/RedundantReturn:
-  Enabled: true
-  AllowMultipleReturnValues: true
-
-Style/RedundantRegexpEscape:
-  Enabled: true
-
-Style/Semicolon:
-  Enabled: true
-  AllowAsExpressionSeparator: true
-
-# Prefer Foo.method over Foo::method
-Style/ColonMethodCall:
-  Enabled: true
-
-Style/TrivialAccessors:
-  Enabled: true
-
-Performance/BindCall:
-  Enabled: true
-
-Performance/FlatMap:
-  Enabled: true
-
-Performance/MapCompact:
-  Enabled: true
-
-Performance/SelectMap:
-  Enabled: true
-
-Performance/RedundantMerge:
-  Enabled: true
-
-Performance/StartWith:
-  Enabled: true
-
-Performance/EndWith:
-  Enabled: true
-
-Performance/RegexpMatch:
-  Enabled: true
-
-Performance/ReverseEach:
-  Enabled: true
-
-Performance/StringReplacement:
-  Enabled: true
-
-Performance/UnfreezeString:
-  Enabled: true
-
-Performance/DeletePrefix:
-  Enabled: true
-
-Performance/DeleteSuffix:
-  Enabled: true
-
-Performance/OpenStruct:
-  Enabled: true
-
-Minitest/UnreachableAssertion:
-  Enabled: true
+Bundler/GemVersion:
+  Enabled: false

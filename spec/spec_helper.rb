@@ -12,8 +12,20 @@
 # the additional setup, and require it from the spec files that actually need
 # it.
 #
+
+require("active_support/all")
+require("pry")
+require("flt")
+require("flt/d")
+require_relative("../lib/finrb/config")
+require_relative("../lib/finrb/amortization")
+require_relative("../lib/finrb/cashflows")
+require_relative("../lib/finrb/rates")
+require_relative("../lib/finrb/transaction")
+
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+  include(Finrb)
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

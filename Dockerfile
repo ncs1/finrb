@@ -30,6 +30,6 @@ ENTRYPOINT ["/bin/bash", "-c", "/bin/bash"]
 
 FROM development AS testing
 
-RUN bundle exec rake test_units || exit 0
+RUN bundle exec rake || exit 0
 
 ENTRYPOINT ["/bin/bash", "-c", "/bin/bash"]

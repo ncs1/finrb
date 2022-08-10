@@ -100,7 +100,7 @@ Style/GuardClause:
   Enabled: false
 
 Metrics/BlockNesting:
-  Enabled: false
+  Severity: info
 
 RSpec/MultipleExpectations:
   Severity: info

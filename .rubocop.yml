@@ -3,6 +3,7 @@ require:
   - rubocop-rake
   - rubocop-packaging
   - rubocop-minitest
+  - rubocop-rspec
 
 
 AllCops:

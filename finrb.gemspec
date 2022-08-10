@@ -23,18 +23,15 @@ SPEC =
     s.add_dependency('business_time')
     s.add_dependency('flt')
 
-    s.add_development_dependency('minitest')
     s.add_development_dependency('pry')
     s.add_development_dependency('rake')
     s.add_development_dependency('rspec')
     s.add_development_dependency('rubocop')
-    s.add_development_dependency('rubocop-minitest')
     s.add_development_dependency('rubocop-packaging')
     s.add_development_dependency('rubocop-performance')
     s.add_development_dependency('rubocop-rake')
     s.add_development_dependency('rubocop-rspec')
     s.add_development_dependency('semver')
-    s.add_development_dependency('solargraph')
 
     s.files = Dir['CHANGELOG.md', 'COPYING*', 'README.md', 'lib/**/*']
 

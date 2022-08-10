@@ -4,7 +4,6 @@ require:
   - rubocop-performance
   - rubocop-rake
   - rubocop-packaging
-  - rubocop-minitest
   - rubocop-rspec
 
 

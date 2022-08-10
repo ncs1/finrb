@@ -52,6 +52,19 @@ GEM
     reverse_markdown (2.1.1)
       nokogiri
     rexml (3.2.5)
+    rspec (3.11.0)
+      rspec-core (~> 3.11.0)
+      rspec-expectations (~> 3.11.0)
+      rspec-mocks (~> 3.11.0)
+    rspec-core (3.11.0)
+      rspec-support (~> 3.11.0)
+    rspec-expectations (3.11.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.11.0)
+    rspec-mocks (3.11.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.11.0)
+    rspec-support (3.11.0)
     rubocop (1.33.0)
       json (~> 2.3)
       parallel (~> 1.10)
@@ -73,6 +86,8 @@ GEM
       rubocop-ast (>= 0.4.0)
     rubocop-rake (0.6.0)
       rubocop (~> 1.0)
+    rubocop-rspec (2.12.1)
+      rubocop (~> 1.31)
     ruby-progressbar (1.11.0)
     semver (1.0.1)
     solargraph (0.45.0)
@@ -107,11 +122,13 @@ DEPENDENCIES
   minitest
   pry
   rake
+  rspec
   rubocop
   rubocop-minitest
   rubocop-packaging
   rubocop-performance
   rubocop-rake
+  rubocop-rspec
   semver
   solargraph
 

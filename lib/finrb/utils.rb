@@ -238,7 +238,7 @@ module Finrb
           end
         end
       end
-      { t: (0...t).to_a, ddb: }
+      { t: (0...t).to_a, ddb: ddb }
     end
 
     # debt ratio -- Solvency ratios measure the firm's ability to satisfy its long-term obligations.
@@ -651,7 +651,6 @@ module Finrb
     def self.irr(cf:)
       cf = Array.wrap(cf).map(&:to_d)
 
-      n = cf.size
       subcf = cf.drop(1)
       nlfunc = NlFunctionStub.new
       nlfunc.func =
@@ -807,7 +806,6 @@ module Finrb
       r = r.to_d
       cf = Array.wrap(cf).map(&:to_d)
 
-      n = cf.size
       subcf = cf.drop(1)
       ((-1 * Finrb::Utils.pv_uneven(r, subcf)) + cf[0])
     end
@@ -1164,7 +1162,6 @@ module Finrb
 
       if w.sum != 1
         puts('sum of weights is NOT equal to 1!') # TODO: need to change
-      else
       end
       r.zip(w).sum { |arr| arr.reduce(:*) }
     end

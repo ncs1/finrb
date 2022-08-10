@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "cashflows"
-require_relative "decimal"
-require_relative "transaction"
+require_relative 'cashflows'
+require_relative 'decimal'
+require_relative 'transaction'
 
 module Finrb
   # the Amortization class provides an interface for working with loan amortizations.

@@ -8,9 +8,6 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.verbose = true
 end
 
-# Default task: test
-task default: [] # in case it hasn't been set
-Rake::Task[:default].clear
 task default: %i[spec]
 
 namespace :docker do

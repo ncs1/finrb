@@ -85,3 +85,18 @@ Lint/NumberConversion:
 
 Bundler/GemVersion:
   Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Enabled: false

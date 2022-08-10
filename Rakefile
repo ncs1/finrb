@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 require 'rake'
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 
-task default: [:test_units]
-
-Rake::TestTask.new('test_units') do |t|
-  t.pattern = 'test/*.rb'
+task(:spec).clear
+RSpec::Core::RakeTask.new(:spec) do |t|
   t.verbose = true
-  t.warning = true
 end
+
+# Default task: test
+task default: [] # in case it hasn't been set
+Rake::Task[:default].clear
+task default: %i[spec]
 
 namespace :docker do
   desc 'Build docker instance'

@@ -101,3 +101,22 @@ Style/GuardClause:
 
 Metrics/BlockNesting:
   Enabled: false
+
+RSpec/MultipleExpectations:
+  Severity: info
+
+RSpec/InstanceVariable:
+  Severity: info
+
+RSpec/BeforeAfterAll:
+  Severity: info
+
+RSpec/ExampleLength:
+  Severity: info
+
+RSpec/MultipleDescribes:
+  Severity: info
+
+RSpec/DescribeClass:
+  Severity: info
+

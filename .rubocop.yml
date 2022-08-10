@@ -27,46 +27,22 @@ Packaging/RequireRelativeHardcodingLib:
   Enabled: false
 
 Lint/ConstantResolution:
-  Enabled: false
+  Severity: info
 
 Metrics/BlockLength:
-  Enabled: false
-
-Style/MixinUsage:
   Enabled: false
 
 Style/DocumentationMethod:
   Enabled: false
 
-Style/Send:
-  Enabled: false
-
-Style/OptionHash:
-  Enabled: false
-
 Metrics/CyclomaticComplexity:
-  Enabled: false
+  Severity: info
 
 Metrics/MethodLength:
   Enabled: false
 
-Layout/ClassStructure:
-  Enabled: false
-
-Style/ConstantVisibility:
-  Enabled: false
-
 Style/Documentation:
-  Enabled: false
-
-Style/MissingElse:
-  Enabled: false
-
-Style/MissingRespondToMissing:
-  Enabled: false
-
-Style/InlineComment:
-  Enabled: false
+  Severity: info
 
 Naming/MethodParameterName:
   Enabled: false
@@ -75,7 +51,7 @@ Layout/LineLength:
   Enabled: false
 
 Metrics/AbcSize:
-  Enabled: false
+  Severity: info
 
 Gemspec/DependencyVersion:
   Enabled: false
@@ -93,7 +69,7 @@ Metrics/ClassLength:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Enabled: false
+  Severity: info
 
 Metrics/ParameterLists:
   Enabled: false
@@ -105,20 +81,5 @@ Metrics/BlockNesting:
   Severity: info
 
 RSpec/MultipleExpectations:
-  Severity: info
-
-RSpec/InstanceVariable:
-  Severity: info
-
-RSpec/BeforeAfterAll:
-  Severity: info
-
-RSpec/ExampleLength:
-  Severity: info
-
-RSpec/MultipleDescribes:
-  Severity: info
-
-RSpec/DescribeClass:
-  Severity: info
+  Enabled: false
 

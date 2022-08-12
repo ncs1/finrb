@@ -4,6 +4,17 @@
 [![CodeQL](https://github.com/ncs1/finrb/actions/workflows/codeql.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/codeql.yml)
 [![RuboCop](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml)
 
+<!-- TOC depthfrom:2 -->
+
+- [Overview](#overview)
+  - [Features](#features)
+  - [Configuration](#configuration)
+  - [API and examples](#api-and-examples)
+- [Resources](#resources)
+- [License](#license)
+
+<!-- /TOC -->
+
 Ruby gem for financial calculations/modeling.
 
 finrb forked from the ruby [finance](https://github.com/Edward-Intelligence/finance) gem.

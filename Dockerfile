@@ -1,4 +1,6 @@
-FROM ruby:3.1.2 AS development
+ARG RUBY_VER=3.1
+
+FROM ruby:${RUBY_VER} AS development
 
 LABEL maintainer="nadircs11@gmail.co.il"
 

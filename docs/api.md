@@ -1,5 +1,117 @@
 # finrb - API and examples
 
+## Amortization
+
+You are interested in borrowing $250,000 under a 30 year, fixed-rate
+loan with a 4.25% APR.
+
+```ruby
+rate = Finrb::Rate.new(0.0425, :apr, :duration => (30 * 12))
+amortization = Finrb::Amortization.new(250000, rate)
+```
+
+Find the standard monthly payment:
+
+```ruby
+amortization.payment
+=> Flt::DecNum('-1229.91')
+```
+
+Find the total cost of the loan:
+
+```ruby
+amortization.payments.sum
+=> Flt::DecNum('-442766.55')
+```
+
+How much will you pay in interest?
+
+```ruby
+amortization.interest.sum
+=> Flt::DecNum('192766.55')
+```
+
+How much interest in the first six months?
+
+```ruby
+amortization.interest[0,6].sum
+=> Flt::DecNum('5294.62')
+```
+
+If your loan has an adjustable rate, no problem. You can pass an
+arbitrary number of rates, and they will be used in the amortization.
+For example, we can look at an amortization of $250000, where the APR
+starts at 4.25%, and increases by 1% every five years.
+
+```ruby
+values = %w{ 0.0425 0.0525 0.0625 0.0725 0.0825 0.0925 }
+rates = values.collect { |value| Finrb::Rate.new( value, :apr, :duration => (5  * 12) }
+arm = Finrb::Amortization.new(250000, *rates)
+```
+
+Since we are looking at an ARM, there is no longer a single "payment" value.
+
+```ruby
+arm.payment
+=> nil
+```
+
+But we can look at the different payments over time.
+
+```ruby
+arm.payments.uniq
+=> [Flt::DecNum('-1229.85'), Flt::DecNum('-1360.41'), Flt::DecNum('-1475.65'), Flt::DecNum('-1571.07'), ... snipped ... ]
+```
+
+The other methods previously discussed can be accessed in the same way:
+
+```ruby
+arm.interest.sum
+=> Flt::DecNum('287515.45')
+arm.payments.sum
+=> Flt::DecNum('-537515.45')
+```
+
+Last, but not least, you may pass a block when creating an Amortization
+which returns a modified monthly payment. For example, to increase your
+payment by $150, do:
+
+```ruby
+rate = Finrb::Rate.new(0.0425, :apr, :duration => (30 * 12))
+extra_payments = 250000.amortize(rate){ |period| period.payment - 150 }
+```
+
+Disregarding the block, we have used the same parameters as the first
+example. Notice the difference in the results:
+
+```ruby
+amortization.payments.sum
+=> Flt::DecNum('-442745.98')
+extra_payments.payments.sum
+=> Flt::DecNum('-400566.24')
+amortization.interest.sum
+=> Flt::DecNum('192745.98')
+extra_payments.interest.sum
+=> Flt::DecNum('150566.24')
+```
+
+You can also increase your payment to a specific amount:
+
+```ruby
+extra_payments_2 = 250000.amortize(rate){ -1500 }
+```
+
+## IRR and XIRR
+
+```ruby
+guess = 0.1
+transactions = []
+transactions << Transaction.new(-10000, date: '2010-01-01'.to_time(:utc))
+transactions << Transaction.new(123000, date: '2012-01-01'.to_time(:utc))
+transactions.xirr(guess)
+#  => Finrb::Rate.new(2.507136, :apr)
+```
+
 ## Utils
 
 Utils is a static class providing basic financial functions for modeling.
@@ -124,7 +236,7 @@ Examples:
 Finrb::Utils.bdy2mmy(bdy=0.045,t=120)
 ```
 
-### Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+### Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
 
 - Param - cash - cash
 
@@ -178,7 +290,7 @@ Finrb::Utils.cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="LIFO")
 Finrb::Utils.cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="WAC")
 ```
 
-### Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+### Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
 
 - Param - ca - current assets
 
@@ -190,7 +302,7 @@ Examples:
 Finrb::Utils.current_ratio(ca=8000,cl=2000)
 ```
 
-### Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
+### Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance
 
 - Param - cost - cost of long-lived assets
 
@@ -204,7 +316,7 @@ Examples:
 Finrb::Utils.ddb(cost=1200,rv=200,t=5)
 ```
 
-### Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 - Param - td - total debt
 
@@ -402,7 +514,7 @@ Examples:
 Finrb::Utils.eps(ni=10000,pd=1000,w=11000)
 ```
 
-### Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 - Param - te - total equity
 
@@ -613,7 +725,7 @@ Examples:
 Finrb::Utils.iss(amp=20,ep=15,n=10000)
 ```
 
-### Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 - Param - ltd - long-term debt
 
@@ -805,7 +917,7 @@ Examples:
 Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
 ```
 
-### Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
+### Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
 
 - Param - cash - cash
 
@@ -915,7 +1027,7 @@ Examples:
 Finrb::Utils.slde(cost=1200,rv=200,t=5)
 ```
 
-### Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
+### Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations
 
 - Param - td - total debt
 
@@ -971,116 +1083,4 @@ Examples:
 
 ```ruby
 Finrb::Utils.wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
-```
-
-## Amortization
-
-You are interested in borrowing $250,000 under a 30 year, fixed-rate
-loan with a 4.25% APR.
-
-```ruby
-rate = Finrb::Rate.new(0.0425, :apr, :duration => (30 * 12))
-amortization = Finrb::Amortization.new(250000, rate)
-```
-
-Find the standard monthly payment:
-
-```ruby
-amortization.payment
-=> Flt::DecNum('-1229.91')
-```
-
-Find the total cost of the loan:
-
-```ruby
-amortization.payments.sum
-=> Flt::DecNum('-442766.55')
-```
-
-How much will you pay in interest?
-
-```ruby
-amortization.interest.sum
-=> Flt::DecNum('192766.55')
-```
-
-How much interest in the first six months?
-
-```ruby
-amortization.interest[0,6].sum
-=> Flt::DecNum('5294.62')
-```
-
-If your loan has an adjustable rate, no problem. You can pass an
-arbitrary number of rates, and they will be used in the amortization.
-For example, we can look at an amortization of $250000, where the APR
-starts at 4.25%, and increases by 1% every five years.
-
-```ruby
-values = %w{ 0.0425 0.0525 0.0625 0.0725 0.0825 0.0925 }
-rates = values.collect { |value| Finrb::Rate.new( value, :apr, :duration => (5  * 12) }
-arm = Finrb::Amortization.new(250000, *rates)
-```
-
-Since we are looking at an ARM, there is no longer a single "payment" value.
-
-```ruby
-arm.payment
-=> nil
-```
-
-But we can look at the different payments over time.
-
-```ruby
-arm.payments.uniq
-=> [Flt::DecNum('-1229.85'), Flt::DecNum('-1360.41'), Flt::DecNum('-1475.65'), Flt::DecNum('-1571.07'), ... snipped ... ]
-```
-
-The other methods previously discussed can be accessed in the same way:
-
-```ruby
-arm.interest.sum
-=> Flt::DecNum('287515.45')
-arm.payments.sum
-=> Flt::DecNum('-537515.45')
-```
-
-Last, but not least, you may pass a block when creating an Amortization
-which returns a modified monthly payment. For example, to increase your
-payment by $150, do:
-
-```ruby
-rate = Finrb::Rate.new(0.0425, :apr, :duration => (30 * 12))
-extra_payments = 250000.amortize(rate){ |period| period.payment - 150 }
-```
-
-Disregarding the block, we have used the same parameters as the first
-example. Notice the difference in the results:
-
-```ruby
-amortization.payments.sum
-=> Flt::DecNum('-442745.98')
-extra_payments.payments.sum
-=> Flt::DecNum('-400566.24')
-amortization.interest.sum
-=> Flt::DecNum('192745.98')
-extra_payments.interest.sum
-=> Flt::DecNum('150566.24')
-```
-
-You can also increase your payment to a specific amount:
-
-```ruby
-extra_payments_2 = 250000.amortize(rate){ -1500 }
-```
-
-## IRR and XIRR
-
-```ruby
-guess = 0.1
-transactions = []
-transactions << Transaction.new(-10000, date: '2010-01-01'.to_time(:utc))
-transactions << Transaction.new(123000, date: '2012-01-01'.to_time(:utc))
-transactions.xirr(guess)
-#  => Finrb::Rate.new(2.507136, :apr)
 ```

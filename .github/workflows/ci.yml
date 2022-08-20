@@ -23,3 +23,15 @@ jobs:
       run: bundle install --jobs 4 --retry 3
     - name: Run tests
       run: bundle exec rake
+
+  docker_build:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby_version: ["3.0", "3.1"]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: build test docker image
+      run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .
+

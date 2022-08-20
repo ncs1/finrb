@@ -11,6 +11,7 @@
   - [Configuration](#configuration)
   - [API and examples](#api-and-examples)
 - [Resources](#resources)
+- [Acknowledgements](#acknowledgements)
 - [License](#license)
 
 <!-- /TOC -->
@@ -145,6 +146,11 @@ See [api.md](docs/api.md)
 - [RubyGems Page](https://rubygems.org/gems/finrb)
 - [Source Code](https://github.com/ncs1/finrb)
 - [Bug Tracker](https://github.com/ncs1/finrb/issues)
+
+## Acknowledgements
+
+- Martin Bjeldbak Madsen (@martinbjeldbak), Bill Kranec (@wkranec) - original [finance](https://github.com/Edward-Intelligence/finance) gem maintainers.
+- Yanhui Fan (@felixfan) - maintainer of [FinCal](https://github.com/felixfan/FinCal) library.
 
 ## License
 

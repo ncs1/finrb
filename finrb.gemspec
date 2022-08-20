@@ -4,9 +4,9 @@ SPEC =
   Gem::Specification.new do |s|
     s.name = 'finrb'
     s.version = '0.1.0'
-    s.authors = ['Nadir Cohen', 'Martin Bjeldbak Madsen', 'Bill Kranec']
+    s.authors = ['Nadir Cohen']
     s.license = 'LGPL-3.0'
-    s.email = ['nadircs11@gmail.com', 'me@martinbjeldbak.com', 'wkranec@gmail.com']
+    s.email = ['nadircs11@gmail.com']
     s.platform = Gem::Platform::RUBY
     s.summary = 'Ruby gem for financial calculations/modeling'
 

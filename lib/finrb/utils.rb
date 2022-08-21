@@ -658,7 +658,7 @@ module Finrb
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          [BigDecimal(((-1 * Finrb::Utils.pv_uneven(x[0], subcf)) + cf[0]).to_s)]
+          [BigDecimal(((-1 * Finrb::Utils.pv_uneven(r: x[0], cf: subcf)) + cf[0]).to_s)]
         end
 
       root = [0]

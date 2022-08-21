@@ -251,6 +251,11 @@ describe('Utils') do
     end
   end
 
+  describe('irr') do
+    it('Example 1') do
+      expect(Utils.irr(cf: [-5, 1.6, 2.4, 2.8])).to(be_within(EPSILON_ERR).of(D('0.155175727')))
+    end
+  end
 
   describe('iss') do
     it('Example 1') do

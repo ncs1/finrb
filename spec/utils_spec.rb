@@ -277,6 +277,16 @@ describe('Utils') do
     end
   end
 
+  describe('pv_annuity') do
+    it('Example 1') do
+      expect(Utils.pv_annuity(r: 0.03, n: 12, pmt: 1000)).to(be_within(EPSILON_ERR).of(D('-9954.004')))
+    end
+
+    it('Example 2') do
+      expect(Utils.pv_annuity(r: 0.0425, n: 3, pmt: 30_000)).to(be_within(EPSILON_ERR).of(D('-82859.27543')))
+    end
+  end
+
   describe('quick_ratio') do
     it('Example 1') do
       expect(Utils.quick_ratio(cash: 3000, ms: 2000, rc: 1000, cl: 2000)).to(be_within(EPSILON_ERR).of(D('3')))

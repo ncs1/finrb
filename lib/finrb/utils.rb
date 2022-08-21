@@ -88,7 +88,7 @@ module Finrb
     # Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
     #
     # @param uinv units of beginning inventory
-    # @param pinv prince of beginning inventory
+    # @param pinv price of beginning inventory
     # @param units nx1 vector of inventory units. inventory purchased ordered by time (from first to last)
     # @param price nx1 vector of inventory price. same order as units
     # @param sinv units of sold inventory

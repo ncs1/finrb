@@ -327,7 +327,7 @@ Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
 
 - Param - uinv - units of beginning inventory
 
-- Param - pinv - prince of beginning inventory
+- Param - pinv - price of beginning inventory
 
 - Param - units - nx1 vector of inventory units. inventory purchased ordered by time (from first to last)
 

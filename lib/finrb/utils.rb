@@ -952,7 +952,7 @@ module Finrb
       n = cf.size
       sum = 0
       (0...n).each do |i|
-        sum += Finrb::Utils.pv_simple(r: r, n: i, fv: cf[i])
+        sum += Finrb::Utils.pv_simple(r: r, n: i + 1, fv: cf[i])
       end
       sum
     end

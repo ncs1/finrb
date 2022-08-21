@@ -287,6 +287,19 @@ describe('Utils') do
     end
   end
 
+  describe('pv_perpetuity') do
+    it('Example 1') do
+      expect(Utils.pv_perpetuity(r: 0.1, pmt: 1000, g: 0.02)).to(be_within(EPSILON_ERR).of(D('-12500')))
+    end
+
+    it('Example 2') do
+      expect(Utils.pv_perpetuity(r: 0.1, pmt: 1000, type: 1)).to(be_within(EPSILON_ERR).of(D('-11000')))
+    end
+
+    it('Example 3') do
+      expect(Utils.pv_perpetuity(r: 0.1, pmt: 1000)).to(be_within(EPSILON_ERR).of(D('-10000')))
+    end
+  end
   describe('quick_ratio') do
     it('Example 1') do
       expect(Utils.quick_ratio(cash: 3000, ms: 2000, rc: 1000, cl: 2000)).to(be_within(EPSILON_ERR).of(D('3')))

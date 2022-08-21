@@ -267,6 +267,15 @@ describe('Utils') do
     end
   end
 
+  describe('pv') do
+    it('Example 1') do
+      expect(Utils.pv(r: 0.07, n: 10, fv: 1000, pmt: 10)).to(be_within(EPSILON_ERR).of(D('-578.5851')))
+    end
+
+    it('Example 2') do
+      expect(Utils.pv(r: 0.05, n: 20, fv: 1000, pmt: 10, type: 1)).to(be_within(EPSILON_ERR).of(D('-507.7427')))
+    end
+  end
 
   describe('quick_ratio') do
     it('Example 1') do

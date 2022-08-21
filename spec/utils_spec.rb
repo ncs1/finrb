@@ -183,6 +183,13 @@ describe('Utils') do
       expect(Utils.fv_uneven(r: 0.1, cf: [-1000, -500, 0, 4000, 3500, 2000])).to(be_within(EPSILON_ERR).of(D('-8347.44')))
     end
   end
+
+  describe('geometric_mean') do
+    it('Example 1') do
+      expect(Utils.geometric_mean(r: [-0.0934, 0.2345, 0.0892])).to(be_within(EPSILON_ERR).of(D('0.0682465')))
+    end
+  end
+
   describe('gpm') do
     it('Example 1') do
       expect(Utils.gpm(gp: 1000, rv: 20_000)).to(be_within(EPSILON_ERR).of(D('0.05')))

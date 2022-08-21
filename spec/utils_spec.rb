@@ -178,6 +178,11 @@ describe('Utils') do
     end
   end
 
+  describe('fv_uneven') do
+    it('Example 1') do
+      expect(Utils.fv_uneven(r: 0.1, cf: [-1000, -500, 0, 4000, 3500, 2000])).to(be_within(EPSILON_ERR).of(D('-8347.44')))
+    end
+  end
   describe('gpm') do
     it('Example 1') do
       expect(Utils.gpm(gp: 1000, rv: 20_000)).to(be_within(EPSILON_ERR).of(D('0.05')))

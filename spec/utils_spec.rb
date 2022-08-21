@@ -73,6 +73,12 @@ describe('Utils') do
     end
   end
 
+  # TODO: fix nlsolve infinite loop
+  # describe('discount_rate') do
+  #   it('Example 1') do
+  #     expect(Utils.discount_rate(n: 5, pv: 0, fv: 600, pmt: -100, type: 0)).to(be_within(EPSILON_ERR).of(D('0.09130091')))
+  #   end
+  # end
 
   describe('ear') do
     it('Example 1') do

@@ -103,8 +103,8 @@ module Finrb
     def self.cogs(uinv:, pinv:, units:, price:, sinv:, method: 'FIFO')
       uinv = DecNum(uinv.to_s)
       pinv = DecNum(pinv.to_s)
-      units = Array.wrap(units).map(&:to_d)
-      price = Array.wrap(price).map(&:to_d)
+      units = Array.wrap(units).map { |value| DecNum(value.to_s) }
+      price = Array.wrap(price).map { |value| DecNum(value.to_s) }
       sinv = DecNum(sinv.to_s)
       method = method.to_s
 
@@ -534,7 +534,7 @@ module Finrb
     # Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.fv_uneven(r:, cf:)
       r = DecNum(r.to_s)
-      cf = Array.wrap(cf).map(&:to_d)
+      cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
 
       m = cf.size
       sum = 0
@@ -552,9 +552,9 @@ module Finrb
     # @examples
     # Finrb::Utils.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
     def self.geometric_mean(r:)
-      r = Array.wrap(r).map(&:to_d)
+      r = Array.wrap(r).map { |value| DecNum(value.to_s) }
 
-      rs = r.map { |value| value + 1}
+      rs = r.map { |value| value + 1 }
       ((rs.reduce(:*)**(1 / rs.size)) - 1)
     end
 
@@ -578,7 +578,7 @@ module Finrb
     # @examples
     # Finrb::Utils.harmonic_mean(p=[8,9,10])
     def self.harmonic_mean(p:)
-      p = Array.wrap(p).map(&:to_d)
+      p = Array.wrap(p).map { |value| DecNum(value.to_s) }
 
       (1 / (p.sum { |val| 1 / val } / p.size))
     end
@@ -649,7 +649,7 @@ module Finrb
     # @examples
     # irr(cf=[-5, 1.6, 2.4, 2.8])
     def self.irr(cf:)
-      cf = Array.wrap(cf).map(&:to_d)
+      cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
 
       subcf = cf.drop(1)
       nlfunc = NlFunctionStub.new
@@ -675,7 +675,7 @@ module Finrb
     # irr2(cf=[-5, 1.6, 2.4, 2.8])
     # irr2(cf=[-200, 50, 60, -70, 30, 20])
     def self.irr2(cf:, cutoff: 0.1, from: -1, to: 10, step: 0.000001)
-      cf = Array.wrap(cf).map(&:to_d)
+      cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
       cutoff = DecNum(cutoff.to_s)
       from = DecNum(from.to_s)
       to = DecNum(to.to_s)
@@ -804,7 +804,7 @@ module Finrb
     # npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
     def self.npv(r:, cf:)
       r = DecNum(r.to_s)
-      cf = Array.wrap(cf).map(&:to_d)
+      cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
 
       subcf = cf.drop(1)
       ((-1 * Finrb::Utils.pv_uneven(r, subcf)) + cf[0])
@@ -947,7 +947,7 @@ module Finrb
     # Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.pv_uneven(r:, cf:)
       r = DecNum(r.to_s)
-      cf = Array.wrap(cf).map(&:to_d)
+      cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
 
       n = cf.size
       sum = 0
@@ -1104,9 +1104,9 @@ module Finrb
     # @examples
     # twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
     def self.twrr(ev:, bv:, cfr:)
-      ev = Array.wrap(ev).map(&:to_d)
-      bv = Array.wrap(bv).map(&:to_d)
-      cfr = Array.wrap(cfr).map(&:to_d)
+      ev = Array.wrap(ev).map { |value| DecNum(value.to_s) }
+      bv = Array.wrap(bv).map { |value| DecNum(value.to_s) }
+      cfr = Array.wrap(cfr).map { |value| DecNum(value.to_s) }
 
       r = ev.size
       s = bv.size
@@ -1132,8 +1132,8 @@ module Finrb
     #
     # s=[11000,4400,-3000];m=[12,9,4];was(ns=s,nm=m)
     def self.was(ns:, nm:)
-      ns = Array.wrap(ns).map(&:to_d)
-      nm = Array.wrap(nm).map(&:to_d)
+      ns = Array.wrap(ns).map { |value| DecNum(value.to_s) }
+      nm = Array.wrap(nm).map { |value| DecNum(value.to_s) }
 
       m = ns.size
       n = nm.size
@@ -1157,8 +1157,8 @@ module Finrb
     # @examples
     # wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
     def self.wpr(r:, w:)
-      r = Array.wrap(r).map(&:to_d)
-      w = Array.wrap(w).map(&:to_d)
+      r = Array.wrap(r).map { |value| DecNum(value.to_s) }
+      w = Array.wrap(w).map { |value| DecNum(value.to_s) }
 
       if w.sum != 1
         puts('sum of weights is NOT equal to 1!') # TODO: need to change

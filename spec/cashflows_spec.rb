@@ -2,7 +2,6 @@
 
 describe('Cashflows') do
   describe('an array of numeric cashflows') do
-
     # TODO: fix slow test
     # it('has an Internal Rate of Return') do
     #   expect([-4000, 1200, 1410, 1875, 1050].irr.round(3)).to(eq(D('0.143')))

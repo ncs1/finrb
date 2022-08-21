@@ -274,6 +274,21 @@ describe('Utils') do
     end
   end
 
+  describe('r_continuous') do
+    it('Example 1') do
+      expect(Utils.r_continuous(r: 0.03, m: 4)).to(be_within(EPSILON_ERR).of(D('0.02988806')))
+    end
+  end
+
+  describe('r_norminal') do
+    it('Example 1') do
+      expect(Utils.r_norminal(rc: 0.03, m: 1)).to(be_within(EPSILON_ERR).of(D('0.03045453')))
+    end
+
+    it('Example 2') do
+      expect(Utils.r_norminal(rc: 0.03, m: 4)).to(be_within(EPSILON_ERR).of(D('0.03011278')))
+    end
+  end
 
   describe('r_perpetuity') do
     it('Example 1') do

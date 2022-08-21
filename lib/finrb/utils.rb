@@ -835,7 +835,6 @@ module Finrb
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
         (pv + (fv / ((1 + r)**n))) * r / (1 - (1.to_f / ((1 + r)**n))) * -1 * ((1 + r)**(-1 * type))
-
       end
     end
 

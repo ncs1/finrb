@@ -807,7 +807,7 @@ module Finrb
       cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
 
       subcf = cf.drop(1)
-      ((-1 * Finrb::Utils.pv_uneven(r, subcf)) + cf[0])
+      ((-1 * Finrb::Utils.pv_uneven(r: r, cf: subcf)) + cf[0])
     end
 
     # Estimate period payment
@@ -952,7 +952,7 @@ module Finrb
       n = cf.size
       sum = 0
       (0...n).each do |i|
-        sum += Finrb::Utils.pv_simple(r, i, cf[i])
+        sum += Finrb::Utils.pv_simple(r: r, n: i, fv: cf[i])
       end
       sum
     end

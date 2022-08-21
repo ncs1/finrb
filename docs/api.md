@@ -34,7 +34,6 @@
   - [Convert holding period return to the effective annual rate](#convert-holding-period-return-to-the-effective-annual-rate)
   - [Computing money market yield MMY for a T-bill](#computing-money-market-yield-mmy-for-a-t-bill)
   - [Computing IRR, the internal rate of return](#computing-irr-the-internal-rate-of-return)
-  - [Computing IRR, the internal rate of return](#computing-irr-the-internal-rate-of-return)
   - [Calculate the net increase in common shares from the potential exercise of stock options or warrants](#calculate-the-net-increase-in-common-shares-from-the-potential-exercise-of-stock-options-or-warrants)
   - [Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations](#long-term-debt-to-equity---solvency-ratios-measure-the-firms-ability-to-satisfy-its-long-term-obligations)
   - [Computing HPR, the holding period return](#computing-hpr-the-holding-period-return)
@@ -746,30 +745,6 @@ Examples:
 
 ```ruby
 Finrb::Utils.irr(cf=[-5, 1.6, 2.4, 2.8])
-```
-
-### Computing IRR, the internal rate of return
-
-@description This function is the same as irr but can calculate negative value. This function may take a very long time. You can use larger cutoff and larger step to get a less precision irr first. Then based on the result, change from and to, to narrow down the interval, and use a smaller step to get a more precision irr.
-
-- Param - cf - cash flow,the first cash flow is the initial outlay
-
-- Param - cutoff - threshold to take npv as zero
-
-- Param - from - smallest irr to try
-
-- Param - to - largest irr to try
-
-- Param - step - increment of the irr
-
-Examples:
-
-```ruby
-Finrb::Utils.irr2(cf=[-5, 1.6, 2.4, 2.8])
-```
-
-```ruby
-Finrb::Utils.irr2(cf=[-200, 50, 60, -70, 30, 20])
 ```
 
 ### Calculate the net increase in common shares from the potential exercise of stock options or warrants

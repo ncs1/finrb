@@ -663,49 +663,6 @@ module Finrb
       root[0]
     end
 
-    # Computing IRR, the internal rate of return
-    # @description This function is the same as irr but can calculate negative value. This function may take a very long time. You can use larger cutoff and larger step to get a less precision irr first. Then based on the result, change from and to, to narrow down the interval, and use a smaller step to get a more precision irr.
-    # @param cf cash flow,the first cash flow is the initial outlay
-    # @param cutoff threshold to take npv as zero
-    # @param from smallest irr to try
-    # @param to largest irr to try
-    # @param step increment of the irr
-    # @export
-    # @examples
-    # irr2(cf=[-5, 1.6, 2.4, 2.8])
-    # irr2(cf=[-200, 50, 60, -70, 30, 20])
-    def self.irr2(cf:, cutoff: 0.1, from: -1, to: 10, step: 0.000001)
-      cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
-      cutoff = DecNum(cutoff.to_s)
-      from = DecNum(from.to_s)
-      to = DecNum(to.to_s)
-      step = DecNum(step.to_s)
-
-      r0 = nil
-      n = cf.size
-      from.step((to - 1), step).each do |r|
-        npv = cf[0]
-        (1...n).each do |i|
-          npv += (cf[i] / ((1 + r)**(i - 1)))
-        end
-        next if npv.nil?
-
-        if npv.abs < cutoff
-          r0 = r
-          break
-        end
-      end
-
-      if r0.nil?
-        raise(
-          FinrbError,
-          'can not find irr in the given interval, you can try smaller step, and/or larger to, and/or larger cutoff'
-        )
-      end
-
-      r0
-    end
-
     # calculate the net increase in common shares from the potential exercise of stock options or warrants
     #
     # @param amp average market price over the year

@@ -267,6 +267,11 @@ describe('Utils') do
     end
   end
 
+  describe('npv') do
+    it('Example 1') do
+      expect(Utils.npv(r: 0.12, cf: [-5, 1.6, 2.4, 2.8])).to(be_within(EPSILON_ERR).of(D('0.3348214')))
+    end
+  end
   describe('pv') do
     it('Example 1') do
       expect(Utils.pv(r: 0.07, n: 10, fv: 1000, pmt: 10)).to(be_within(EPSILON_ERR).of(D('-578.5851')))

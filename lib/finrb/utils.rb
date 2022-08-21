@@ -1116,9 +1116,9 @@ module Finrb
         raise(FinrbError, 'Different number of values!')
       else
         (0...r).each do |i|
-          wr *= (hpr(ev: ev[i], bv: bv[i], cfr: cfr[i]) + 1)
+          wr *= (Finrb::Utils.hpr(ev: ev[i], bv: bv[i], cfr: cfr[i]) + 1)
         end
-        ((wr**(1 / r)) - 1)
+        ((wr**(1.to_f / r)) - 1)
       end
     end
 

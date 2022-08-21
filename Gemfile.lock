@@ -3,6 +3,7 @@ PATH
   specs:
     finrb (0.1.0)
       activesupport
+      bigdecimal (>= 3.1.2)
       business_time
       flt
 
@@ -15,6 +16,7 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
     ast (2.4.2)
+    bigdecimal (3.1.2)
     business_time (0.13.0)
       activesupport (>= 3.2.0)
       tzinfo
@@ -26,7 +28,7 @@ GEM
       concurrent-ruby (~> 1.0)
     json (2.6.2)
     method_source (1.0.0)
-    minitest (5.16.2)
+    minitest (5.16.3)
     parallel (1.22.1)
     parser (3.1.2.1)
       ast (~> 2.4.1)

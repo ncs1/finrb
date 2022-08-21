@@ -251,6 +251,15 @@ describe('Utils') do
     end
   end
 
+  describe('n_period') do
+    it('Example 1') do
+      expect(Utils.n_period(r: 0.1, pv: -10_000, fv: 60_000_000, pmt: -50_000, type: 0)).to(be_within(EPSILON_ERR).of(D('50.10995')))
+    end
+
+    it('Example 2') do
+      expect(Utils.n_period(r: 0.1, pv: -10_000, fv: 60_000_000, pmt: -50_000, type: 1)).to(be_within(EPSILON_ERR).of(D('49.13733')))
+    end
+  end
 
   describe('npm') do
     it('Example 1') do

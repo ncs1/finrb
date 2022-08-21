@@ -24,6 +24,7 @@ require_relative('../lib/finrb/amortization')
 require_relative('../lib/finrb/cashflows')
 require_relative('../lib/finrb/rates')
 require_relative('../lib/finrb/transaction')
+require_relative('../lib/finrb/utils')
 
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|

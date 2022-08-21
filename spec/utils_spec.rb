@@ -259,6 +259,12 @@ describe('Utils') do
     end
   end
 
+  describe('twrr') do
+    it('Example 1') do
+      expect(Utils.twrr(ev: [120, 260], bv: [100, 240], cfr: [2, 4])).to(be_within(EPSILON_ERR).of(D('0.1584472')))
+    end
+  end
+
   describe('was') do
     it('Example 1') do
       s = [10_000, 2000]

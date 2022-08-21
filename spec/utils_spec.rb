@@ -34,6 +34,20 @@ describe('Utils') do
     end
   end
 
+  describe('ddb') do
+    it('Example 1') do
+      ddb_result_hsh_expect = { t: (0..4).to_a, ddb: [D('480'), D('288'), D('172.8'), D('59.2'), D('0')] }
+
+      ddb_result_hsh = Utils.ddb(cost: 1200, rv: 200, t: 5)
+
+      expect(ddb_result_hsh.size).to(eq(ddb_result_hsh_expect.size))
+      expect(ddb_result_hsh[:t]).to(eq(ddb_result_hsh_expect[:t]))
+
+      ddb_result_hsh[:ddb].each_with_index do |ddb_result, idx|
+        expect(ddb_result).to(be_within(EPSILON_ERR).of(ddb_result_hsh_expect[:ddb][idx]))
+      end
+    end
+  end
 
   describe('debt_ratio') do
     it('Example 1') do

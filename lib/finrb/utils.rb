@@ -34,9 +34,9 @@ module Finrb
     # @examples
     # bdy(d=1500,f=100000,t=120)
     def self.bdy(d:, f:, t:)
-      d = d.to_d
-      f = f.to_d
-      t = t.to_d
+      d = DecNum(d.to_s)
+      f = DecNum(f.to_s)
+      t = DecNum(t.to_s)
 
       (360 * d / f / t)
     end
@@ -49,8 +49,8 @@ module Finrb
     # @examples
     # bdy2mmy(bdy=0.045,t=120)
     def self.bdy2mmy(bdy:, t:)
-      bdy = bdy.to_d
-      t = t.to_d
+      bdy = DecNum(bdy.to_s)
+      t = DecNum(t.to_s)
 
       (360 * bdy / (360 - (t * bdy)))
     end
@@ -64,9 +64,9 @@ module Finrb
     # @examples
     # Finrb::Utils.cash_ratio(cash=3000,ms=2000,cl=2000)
     def self.cash_ratio(cash:, ms:, cl:)
-      cash = cash.to_d
-      ms = ms.to_d
-      cl = cl.to_d
+      cash = DecNum(cash.to_s)
+      ms = DecNum(ms.to_s)
+      cl = DecNum(cl.to_s)
 
       ((cash + ms) / cl)
     end
@@ -79,8 +79,8 @@ module Finrb
     # @examples
     # Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
     def self.coefficient_variation(sd:, avg:)
-      sd = sd.to_d
-      avg = avg.to_d
+      sd = DecNum(sd.to_s)
+      avg = DecNum(avg.to_s)
 
       (sd / avg)
     end
@@ -101,11 +101,11 @@ module Finrb
     #
     # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="WAC")
     def self.cogs(uinv:, pinv:, units:, price:, sinv:, method: 'FIFO')
-      uinv = uinv.to_d
-      pinv = pinv.to_d
+      uinv = DecNum(uinv.to_s)
+      pinv = DecNum(pinv.to_s)
       units = Array.wrap(units).map(&:to_d)
       price = Array.wrap(price).map(&:to_d)
-      sinv = sinv.to_d
+      sinv = DecNum(sinv.to_s)
       method = method.to_s
 
       n = units.size
@@ -201,8 +201,8 @@ module Finrb
     # @examples
     # Finrb::Utils.current_ratio(ca=8000,cl=2000)
     def self.current_ratio(ca:, cl:)
-      ca = ca.to_d
-      cl = cl.to_d
+      ca = DecNum(ca.to_s)
+      cl = DecNum(cl.to_s)
 
       (ca / cl)
     end
@@ -216,9 +216,9 @@ module Finrb
     # @examples
     # ddb(cost=1200,rv=200,t=5)
     def self.ddb(cost:, rv:, t:)
-      cost = cost.to_d
-      rv = rv.to_d
-      t = t.to_d
+      cost = DecNum(cost.to_s)
+      rv = DecNum(rv.to_s)
+      t = DecNum(t.to_s)
 
       raise(FinrbError, 't should be larger than 1') if t < 2
 
@@ -249,8 +249,8 @@ module Finrb
     # @examples
     # Finrb::Utils.debt_ratio(td=6000,ta=20000)
     def self.debt_ratio(td:, ta:)
-      td = td.to_d
-      ta = ta.to_d
+      td = DecNum(td.to_s)
+      ta = DecNum(ta.to_s)
 
       (td / ta)
     end
@@ -276,15 +276,15 @@ module Finrb
     #
     # Finrb::Utils.diluted_eps(ni=115600,pd=10000,cpd=10000,cdi=42000,tax=0.4,w=200000,cps=40000,cds=60000,iss=2500)
     def self.diluted_eps(ni:, pd:, w:, cpd: 0, cdi: 0, tax: 0, cps: 0, cds: 0, iss: 0)
-      ni = ni.to_d
-      pd = pd.to_d
-      w = w.to_d
-      cpd = cpd.to_d
-      cdi = cdi.to_d
-      tax = tax.to_d
-      cps = cps.to_d
-      cds = cds.to_d
-      iss = iss.to_d
+      ni = DecNum(ni.to_s)
+      pd = DecNum(pd.to_s)
+      w = DecNum(w.to_s)
+      cpd = DecNum(cpd.to_s)
+      cdi = DecNum(cdi.to_s)
+      tax = DecNum(tax.to_s)
+      cps = DecNum(cps.to_s)
+      cds = DecNum(cds.to_s)
+      iss = DecNum(iss.to_s)
 
       basic = (ni - pd) / w
       diluted = (ni - pd + cpd + (cdi * (1 - tax))) / (w + cps + cds + iss)
@@ -306,18 +306,18 @@ module Finrb
     # @examples
     # Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
     def self.discount_rate(n:, pv:, fv:, pmt:, type: 0, lower: 0.0001, upper: 100)
-      n = n.to_d
-      pv = pv.to_d
-      fv = fv.to_d
-      pmt = pmt.to_d
-      type = type.to_d
-      lower = lower.to_d
-      upper = upper.to_d
+      n = DecNum(n.to_s)
+      pv = DecNum(pv.to_s)
+      fv = DecNum(fv.to_s)
+      pmt = DecNum(pmt.to_s)
+      type = DecNum(type.to_s)
+      lower = DecNum(lower.to_s)
+      upper = DecNum(upper.to_s)
 
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          BigDecimal((Finrb::Utils.fv_simple(x[0], n, pv) + Finrb::Utils.fv_annuity(x[0], n, pmt, type) - fv).to_s)
+          [BigDecimal((Finrb::Utils.fv_simple(r: x[0], n: n, pv: pv) + Finrb::Utils.fv_annuity(r: x[0], n: n, pmt: pmt, type: type) - fv).to_s)]
         end
 
       root = [(upper - lower) / 2]
@@ -335,8 +335,8 @@ module Finrb
     #
     # ear(0.04,365)
     def self.ear(r:, m:)
-      r = r.to_d
-      m = m.to_d
+      r = DecNum(r.to_s)
+      m = DecNum(m.to_s)
 
       (((1 + (r / m))**m) - 1)
     end
@@ -350,7 +350,7 @@ module Finrb
     #
     # Finrb::Utils.ear_continuous(0.03)
     def self.ear_continuous(r:)
-      r = r.to_d
+      r = DecNum(r.to_s)
 
       (r.to_d.exp - 1)
     end
@@ -362,7 +362,7 @@ module Finrb
     # @examples
     # ear2bey(ear=0.08)
     def self.ear2bey(ear:)
-      ear = ear.to_d
+      ear = DecNum(ear.to_s)
 
       ((((1 + ear)**0.5) - 1) * 2)
     end
@@ -375,8 +375,8 @@ module Finrb
     # @examples
     # ear2hpr(ear=0.05039,t=150)
     def self.ear2hpr(ear:, t:)
-      ear = ear.to_d
-      t = t.to_d
+      ear = DecNum(ear.to_s)
+      t = DecNum(t.to_s)
 
       (((1 + ear)**(t / 365)) - 1)
     end
@@ -412,9 +412,9 @@ module Finrb
     # # monthly proportional interest rate which is equivalent to a simple annual interest
     # Finrb::Utils.eir(r=0.05,p=12,type='p')
     def self.eir(r:, n: 1, p: 12, type: 'e')
-      r = r.to_d
-      n = n.to_d
-      p = p.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      p = DecNum(p.to_s)
       type = type.to_s
 
       case type
@@ -437,9 +437,9 @@ module Finrb
     # @examples
     # Finrb::Utils.eps(ni=10000,pd=1000,w=11000)
     def self.eps(ni:, pd:, w:)
-      ni = ni.to_d
-      pd = pd.to_d
-      w = w.to_d
+      ni = DecNum(ni.to_s)
+      pd = DecNum(pd.to_s)
+      w = DecNum(w.to_s)
 
       ((ni - pd) / w)
     end
@@ -452,8 +452,8 @@ module Finrb
     # @examples
     # Finrb::Utils.financial_leverage(te=16000,ta=20000)
     def self.financial_leverage(te:, ta:)
-      te = te.to_d
-      ta = ta.to_d
+      te = DecNum(te.to_s)
+      ta = DecNum(ta.to_s)
 
       (ta / te)
     end
@@ -469,11 +469,11 @@ module Finrb
     # @examples
     # fv(r=0.07,n=10,pv=1000,pmt=10)
     def self.fv(r:, n:, pv: 0, pmt: 0, type: 0)
-      r = r.to_d
-      n = n.to_d
-      pv = pv.to_d
-      pmt = pmt.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      pv = DecNum(pv.to_s)
+      pmt = DecNum(pmt.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -494,10 +494,10 @@ module Finrb
     #
     # Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
     def self.fv_annuity(r:, n:, pmt:, type: 0)
-      r = r.to_d
-      n = n.to_d
-      pmt = pmt.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      pmt = DecNum(pmt.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -518,9 +518,9 @@ module Finrb
     #
     # Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
     def self.fv_simple(r:, n:, pv:)
-      r = r.to_d
-      n = n.to_d
-      pv = pv.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      pv = DecNum(pv.to_s)
 
       ((pv * ((1 + r)**n)) * -1)
     end
@@ -533,7 +533,7 @@ module Finrb
     # @examples
     # Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.fv_uneven(r:, cf:)
-      r = r.to_d
+      r = DecNum(r.to_s)
       cf = Array.wrap(cf).map(&:to_d)
 
       m = cf.size
@@ -566,8 +566,8 @@ module Finrb
     # @examples
     # gpm(gp=1000,rv=20000)
     def self.gpm(gp:, rv:)
-      gp = gp.to_d
-      rv = rv.to_d
+      gp = DecNum(gp.to_s)
+      rv = DecNum(rv.to_s)
 
       (gp / rv)
     end
@@ -592,9 +592,9 @@ module Finrb
     # @examples
     # hpr(ev=33,bv=30,cfr=0.5)
     def self.hpr(ev:, bv:, cfr: 0)
-      ev = ev.to_d
-      bv = bv.to_d
-      cfr = cfr.to_d
+      ev = DecNum(ev.to_s)
+      bv = DecNum(bv.to_s)
+      cfr = DecNum(cfr.to_s)
 
       ((ev - bv + cfr) / bv)
     end
@@ -607,8 +607,8 @@ module Finrb
     # @examples
     # hpr2bey(hpr=0.02,t=3)
     def self.hpr2bey(hpr:, t:)
-      hpr = hpr.to_d
-      t = t.to_d
+      hpr = DecNum(hpr.to_s)
+      t = DecNum(t.to_s)
 
       ((((1 + hpr)**(6 / t)) - 1) * 2)
     end
@@ -621,8 +621,8 @@ module Finrb
     # @examples
     # hpr2ear(hpr=0.015228,t=120)
     def self.hpr2ear(hpr:, t:)
-      hpr = hpr.to_d
-      t = t.to_d
+      hpr = DecNum(hpr.to_s)
+      t = DecNum(t.to_s)
 
       (((1 + hpr)**(365 / t)) - 1)
     end
@@ -635,8 +635,8 @@ module Finrb
     # @examples
     # hpr2mmy(hpr=0.01523,t=120)
     def self.hpr2mmy(hpr:, t:)
-      hpr = hpr.to_d
-      t = t.to_d
+      hpr = DecNum(hpr.to_s)
+      t = DecNum(t.to_s)
 
       (360 * hpr / t)
     end
@@ -655,7 +655,7 @@ module Finrb
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          BigDecimal(((-1 * Finrb::Utils.pv_uneven(x[0], subcf)) + cf[0]).to_s)
+          [BigDecimal(((-1 * Finrb::Utils.pv_uneven(x[0], subcf)) + cf[0]).to_s)]
         end
 
       root = [0]
@@ -676,10 +676,10 @@ module Finrb
     # irr2(cf=[-200, 50, 60, -70, 30, 20])
     def self.irr2(cf:, cutoff: 0.1, from: -1, to: 10, step: 0.000001)
       cf = Array.wrap(cf).map(&:to_d)
-      cutoff = cutoff.to_d
-      from = from.to_d
-      to = to.to_d
-      step = step.to_d
+      cutoff = DecNum(cutoff.to_s)
+      from = DecNum(from.to_s)
+      to = DecNum(to.to_s)
+      step = DecNum(step.to_s)
 
       r0 = nil
       n = cf.size
@@ -715,9 +715,9 @@ module Finrb
     # @examples
     # iss(amp=20,ep=15,n=10000)
     def self.iss(amp:, ep:, n:)
-      amp = amp.to_d
-      ep = ep.to_d
-      n = n.to_d
+      amp = DecNum(amp.to_s)
+      ep = DecNum(ep.to_s)
+      n = DecNum(n.to_s)
 
       if amp > ep
         ((amp - ep) * n / amp)
@@ -734,8 +734,8 @@ module Finrb
     # @examples
     # Finrb::Utils.lt_d2e(ltd=8000,te=20000)
     def self.lt_d2e(ltd:, te:)
-      ltd = ltd.to_d
-      te = te.to_d
+      ltd = DecNum(ltd.to_s)
+      te = DecNum(te.to_s)
 
       (ltd / te)
     end
@@ -748,8 +748,8 @@ module Finrb
     # @examples
     # mmy2hpr(mmy=0.04898,t=150)
     def self.mmy2hpr(mmy:, t:)
-      mmy = mmy.to_d
-      t = t.to_d
+      mmy = DecNum(mmy.to_s)
+      t = DecNum(t.to_s)
 
       (mmy * t / 360)
     end
@@ -767,11 +767,11 @@ module Finrb
     #
     # Finrb::Utils.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
     def self.n_period(r:, pv:, fv:, pmt:, type: 0)
-      r = r.to_d
-      pv = pv.to_d
-      fv = fv.to_d
-      pmt = pmt.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      pv = DecNum(pv.to_s)
+      fv = DecNum(fv.to_s)
+      pmt = DecNum(pmt.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -789,8 +789,8 @@ module Finrb
     # @examples
     # npm(ni=8000,rv=20000)
     def self.npm(ni:, rv:)
-      ni = ni.to_d
-      rv = rv.to_d
+      ni = DecNum(ni.to_s)
+      rv = DecNum(rv.to_s)
 
       (ni / rv)
     end
@@ -803,7 +803,7 @@ module Finrb
     # @examples
     # npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
     def self.npv(r:, cf:)
-      r = r.to_d
+      r = DecNum(r.to_s)
       cf = Array.wrap(cf).map(&:to_d)
 
       subcf = cf.drop(1)
@@ -825,11 +825,11 @@ module Finrb
     #
     # pmt(0.08,10,-1000,10,1)
     def self.pmt(r:, n:, pv:, fv:, type: 0)
-      r = r.to_d
-      n = n.to_d
-      pv = pv.to_d
-      fv = fv.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      pv = DecNum(pv.to_s)
+      fv = DecNum(fv.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -852,11 +852,11 @@ module Finrb
     #
     # pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
     def self.pv(r:, n:, fv: 0, pmt: 0, type: 0)
-      r = r.to_d
-      n = n.to_d
-      fv = fv.to_d
-      pmt = pmt.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      fv = DecNum(fv.to_s)
+      pmt = DecNum(pmt.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -878,10 +878,10 @@ module Finrb
     #
     # Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
     def self.pv_annuity(r:, n:, pmt:, type: 0)
-      r = r.to_d
-      n = n.to_d
-      pmt = pmt.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      pmt = DecNum(pmt.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -905,10 +905,10 @@ module Finrb
     #
     # Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
     def self.pv_perpetuity(r:, pmt:, g: 0, type: 0)
-      r = r.to_d
-      pmt = pmt.to_d
-      g = g.to_d
-      type = type.to_d
+      r = DecNum(r.to_s)
+      pmt = DecNum(pmt.to_s)
+      g = DecNum(g.to_s)
+      type = DecNum(type.to_s)
 
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
@@ -931,9 +931,9 @@ module Finrb
     #
     # Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
     def self.pv_simple(r:, n:, fv:)
-      r = r.to_d
-      n = n.to_d
-      fv = fv.to_d
+      r = DecNum(r.to_s)
+      n = DecNum(n.to_s)
+      fv = DecNum(fv.to_s)
 
       ((fv / ((1 + r)**n)) * -1)
     end
@@ -946,7 +946,7 @@ module Finrb
     # @examples
     # Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.pv_uneven(r:, cf:)
-      r = r.to_d
+      r = DecNum(r.to_s)
       cf = Array.wrap(cf).map(&:to_d)
 
       n = cf.size
@@ -967,10 +967,10 @@ module Finrb
     # @examples
     # Finrb::Utils.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
     def self.quick_ratio(cash:, ms:, rc:, cl:)
-      cash = cash.to_d
-      ms = ms.to_d
-      rc = rc.to_d
-      cl = cl.to_d
+      cash = DecNum(cash.to_s)
+      ms = DecNum(ms.to_s)
+      rc = DecNum(rc.to_s)
+      cl = DecNum(cl.to_s)
 
       ((cash + ms + rc) / cl)
     end
@@ -983,8 +983,8 @@ module Finrb
     # @examples
     # Finrb::Utils.r_continuous(r=0.03,m=4)
     def self.r_continuous(r:, m:)
-      r = r.to_d
-      m = m.to_d
+      r = DecNum(r.to_s)
+      m = DecNum(m.to_s)
 
       (m * (1 + (r / m)).to_d.log)
     end
@@ -999,8 +999,8 @@ module Finrb
     #
     # Finrb::Utils.r_norminal(rc=0.03,m=4)
     def self.r_norminal(rc:, m:)
-      rc = rc.to_d
-      m = m.to_d
+      rc = DecNum(rc.to_s)
+      m = DecNum(m.to_s)
 
       (m * ((rc / m).to_d.exp - 1))
     end
@@ -1013,8 +1013,8 @@ module Finrb
     # @examples
     # Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
     def self.r_perpetuity(pmt:, pv:)
-      pmt = pmt.to_d
-      pv = pv.to_d
+      pmt = DecNum(pmt.to_s)
+      pv = DecNum(pv.to_s)
 
       (-1 * pmt / pv)
     end
@@ -1027,8 +1027,8 @@ module Finrb
     # @examples
     # Finrb::Utils.sampling_error(sm=0.45, mu=0.5)
     def self.sampling_error(sm:, mu:)
-      sm = sm.to_d
-      mu = mu.to_d
+      sm = DecNum(sm.to_s)
+      mu = DecNum(mu.to_s)
 
       (sm - mu)
     end
@@ -1042,9 +1042,9 @@ module Finrb
     # @examples
     # Finrb::Utils.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
     def self.sf_ratio(rp:, rl:, sd:)
-      rp = rp.to_d
-      rl = rl.to_d
-      sd = sd.to_d
+      rp = DecNum(rp.to_s)
+      rl = DecNum(rl.to_s)
+      sd = DecNum(sd.to_s)
 
       ((rp - rl) / sd)
     end
@@ -1058,9 +1058,9 @@ module Finrb
     # @examples
     # Finrb::Utils.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
     def self.sharpe_ratio(rp:, rf:, sd:)
-      rp = rp.to_d
-      rf = rf.to_d
-      sd = sd.to_d
+      rp = DecNum(rp.to_s)
+      rf = DecNum(rf.to_s)
+      sd = DecNum(sd.to_s)
 
       ((rp - rf) / sd)
     end
@@ -1074,9 +1074,9 @@ module Finrb
     # @examples
     # slde(cost=1200,rv=200,t=5)
     def self.slde(cost:, rv:, t:)
-      cost = cost.to_d
-      rv = rv.to_d
-      t = t.to_d
+      cost = DecNum(cost.to_s)
+      rv = DecNum(rv.to_s)
+      t = DecNum(t.to_s)
 
       ((cost - rv) / t)
     end
@@ -1089,8 +1089,8 @@ module Finrb
     # @examples
     # Finrb::Utils.total_d2e(td=6000,te=20000)
     def self.total_d2e(td:, te:)
-      td = td.to_d
-      te = te.to_d
+      td = DecNum(td.to_s)
+      te = DecNum(te.to_s)
 
       (td / te)
     end

@@ -861,7 +861,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        Finrb::Utils.pv_simple(r, n, fv) + Finrb::Utils.pv_annuity(r, n, pmt, type)
+        Finrb::Utils.pv_simple(r: r, n: n, fv: fv) + Finrb::Utils.pv_annuity(r: r, n: n, pmt: pmt, type: type)
 
       end
     end

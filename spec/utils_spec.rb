@@ -311,6 +311,12 @@ describe('Utils') do
     end
   end
 
+  describe('pv_uneven') do
+    it('Example 1') do
+      expect(Utils.pv_uneven(r: 0.1, cf: [-1000, -500, 0, 4000, 3500, 2000])).to(be_within(EPSILON_ERR).of(D('-4711.912262')))
+    end
+  end
+
   describe('quick_ratio') do
     it('Example 1') do
       expect(Utils.quick_ratio(cash: 3000, ms: 2000, rc: 1000, cl: 2000)).to(be_within(EPSILON_ERR).of(D('3')))

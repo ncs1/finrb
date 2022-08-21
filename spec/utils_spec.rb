@@ -152,6 +152,31 @@ describe('Utils') do
     end
   end
 
+  describe('fv') do
+    it('Example 1') do
+      expect(Utils.fv(r: 0.07, n: 10, pv: 1000, pmt: 10)).to(be_within(EPSILON_ERR).of(D('-2105.31583')))
+    end
+  end
+
+  describe('fv_annuity') do
+    it('Example 1') do
+      expect(Utils.fv_annuity(r: 0.03, n: 12, pmt: -1000)).to(be_within(EPSILON_ERR).of(D('14192.02956')))
+    end
+
+    it('Example 2') do
+      expect(Utils.fv_annuity(r: 0.03, n: 12, pmt: -1000, type: 1)).to(be_within(EPSILON_ERR).of(D('14617.79044')))
+    end
+  end
+
+  describe('fv_simple') do
+    it('Example 1') do
+      expect(Utils.fv_simple(r: 0.08, n: 10, pv: -300)).to(be_within(EPSILON_ERR).of(D('647.6775')))
+    end
+
+    it('Example 2') do
+      expect(Utils.fv_simple(r: 0.04, n: 20, pv: -50_000)).to(be_within(EPSILON_ERR).of(D('109556.15715')))
+    end
+  end
 
   describe('gpm') do
     it('Example 1') do

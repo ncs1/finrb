@@ -74,6 +74,26 @@ describe('Utils') do
   end
 
 
+  describe('ear') do
+    it('Example 1') do
+      expect(Utils.ear(r: 0.12, m: 12)).to(be_within(EPSILON_ERR).of(D('0.126825')))
+    end
+
+    it('Example 2') do
+      expect(Utils.ear(r: 0.04, m: 365)).to(be_within(EPSILON_ERR).of(D('0.04080849')))
+    end
+  end
+
+  describe('ear_continuous') do
+    it('Example 1') do
+      expect(Utils.ear_continuous(r: 0.1)).to(be_within(EPSILON_ERR).of(D('0.1051709')))
+    end
+
+    it('Example 2') do
+      expect(Utils.ear_continuous(r: 0.03)).to(be_within(EPSILON_ERR).of(D('0.03045453')))
+    end
+  end
+
   describe('ear2bey') do
     it('Example 1') do
       expect(Utils.ear2bey(ear: 0.08)).to(be_within(EPSILON_ERR).of(D('0.07846097')))

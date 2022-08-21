@@ -554,7 +554,7 @@ module Finrb
     def self.geometric_mean(r:)
       r = Array.wrap(r).map(&:to_d)
 
-      rs = r + 1
+      rs = r.map { |value| value + 1}
       ((rs.reduce(:*)**(1 / rs.size)) - 1)
     end
 

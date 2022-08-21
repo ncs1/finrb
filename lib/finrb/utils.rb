@@ -190,7 +190,10 @@ module Finrb
         raise(FinrbError, "length of units and price are not the same\n")
       end
 
-      [cost_of_goods, ending_inventory]
+      {
+        cost_of_goods: cost_of_goods,
+        ending_inventory: ending_inventory
+      }
     end
 
     # current ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.

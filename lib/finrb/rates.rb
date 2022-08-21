@@ -158,7 +158,7 @@ module Finrb
       if periods.infinite?
         (rate + 1).log
       else
-        periods * (((1 + rate)**(1 / periods)) - 1)
+        periods * (((1 + rate)**(1.to_f / periods)) - 1)
       end
     end
 

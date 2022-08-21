@@ -555,7 +555,7 @@ module Finrb
       r = Array.wrap(r).map { |value| DecNum(value.to_s) }
 
       rs = r.map { |value| value + 1 }
-      ((rs.reduce(:*)**(1 / rs.size)) - 1)
+      ((rs.reduce(:*)**(1.to_f / rs.size)) - 1)
     end
 
     # gross profit margin -- Evaluate a company's financial performance
@@ -580,7 +580,7 @@ module Finrb
     def self.harmonic_mean(p:)
       p = Array.wrap(p).map { |value| DecNum(value.to_s) }
 
-      (1 / (p.sum { |val| 1 / val } / p.size))
+      (1.to_f / (p.sum { |val| 1.to_f / val } / p.size))
     end
 
     # Computing HPR, the holding period return
@@ -834,7 +834,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pv + (fv / ((1 + r)**n))) * r / (1 - (1 / ((1 + r)**n))) * -1 * ((1 + r)**(-1 * type))
+        (pv + (fv / ((1 + r)**n))) * r / (1 - (1.to_f / ((1 + r)**n))) * -1 * ((1 + r)**(-1 * type))
 
       end
     end
@@ -886,7 +886,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pmt / r * (1 - (1 / ((1 + r)**n)))) * ((1 + r)**type) * -1
+        (pmt / r * (1 - (1.to_f / ((1 + r)**n)))) * ((1 + r)**type) * -1
 
       end
     end

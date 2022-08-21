@@ -27,6 +27,25 @@ describe('Utils') do
     end
   end
 
+  describe('cogs') do
+    it('Example 1') do
+      cogs = Utils.cogs(uinv: 2, pinv: 2, units: [3, 5], price: [3, 5], sinv: 7, method: 'FIFO')
+      expect(cogs[:cost_of_goods]).to(be_within(EPSILON_ERR).of(D(23)))
+      expect(cogs[:ending_inventory]).to(be_within(EPSILON_ERR).of(D(15)))
+    end
+
+    it('Example 2') do
+      cogs = Utils.cogs(uinv: 2, pinv: 2, units: [3, 5], price: [3, 5], sinv: 7, method: 'LIFO')
+      expect(cogs[:cost_of_goods]).to(be_within(EPSILON_ERR).of(D(31)))
+      expect(cogs[:ending_inventory]).to(be_within(EPSILON_ERR).of(D(7)))
+    end
+
+    it('Example 3') do
+      cogs = Utils.cogs(uinv: 2, pinv: 2, units: [3, 5], price: [3, 5], sinv: 7, method: 'WAC')
+      expect(cogs[:cost_of_goods]).to(be_within(EPSILON_ERR).of(D('26.6')))
+      expect(cogs[:ending_inventory]).to(be_within(EPSILON_ERR).of(D('11.4')))
+    end
+  end
 
   describe('current_ratio') do
     it('Example 1') do

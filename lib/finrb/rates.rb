@@ -8,6 +8,45 @@ module Finrb
   # @api public
   class Rate
     include Comparable
+    # Accepted rate types
+    TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
+    # convert a nominal interest rate to an effective interest rate
+    # @return [DecNum] the effective interest rate
+    # @param [Numeric] rate the nominal interest rate
+    # @param [Numeric] periods the number of compounding periods per year
+    # @example
+    #   Rate.to_effective(0.05, 4) #=> DecNum('0.05095')
+    # @api public
+    def self.to_effective(rate, periods)
+      rate = Flt::DecNum.new(rate.to_s)
+      periods = Flt::DecNum.new(periods.to_s)
+
+      if periods.infinite?
+        rate.exp - 1
+      else
+        (((rate / periods) + 1)**periods) - 1
+      end
+    end
+
+    # convert an effective interest rate to a nominal interest rate
+    # @return [DecNum] the nominal interest rate
+    # @param [Numeric] rate the effective interest rate
+    # @param [Numeric] periods the number of compounding periods per year
+    # @example
+    #   Rate.to_nominal(0.06, 365) #=> DecNum('0.05827')
+    # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
+    # @api public
+    def self.to_nominal(rate, periods)
+      rate = Flt::DecNum.new(rate.to_s)
+      periods = Flt::DecNum.new(periods.to_s)
+
+      if periods.infinite?
+        (rate + 1).log
+      else
+        periods * (((rate + 1)**(1.to_f / periods)) - 1)
+      end
+    end
+
     # create a new Rate instance
     # @return [Rate]
     # @param [Numeric] rate the decimal value of the interest rate
@@ -36,9 +75,6 @@ module Finrb
         raise(ArgumentError, "type must be one of #{TYPES.keys.join(', ')}", caller)
       end
     end
-
-    # Accepted rate types
-    TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
 
     # @return [Integer] the duration for which the rate is valid, in months
     # @api public
@@ -123,43 +159,6 @@ module Finrb
     def nominal=(rate)
       @nominal = rate
       @effective = Rate.to_effective(rate, @periods)
-    end
-
-    # convert a nominal interest rate to an effective interest rate
-    # @return [DecNum] the effective interest rate
-    # @param [Numeric] rate the nominal interest rate
-    # @param [Numeric] periods the number of compounding periods per year
-    # @example
-    #   Rate.to_effective(0.05, 4) #=> DecNum('0.05095')
-    # @api public
-    def self.to_effective(rate, periods)
-      rate = Flt::DecNum.new(rate.to_s)
-      periods = Flt::DecNum.new(periods.to_s)
-
-      if periods.infinite?
-        rate.exp - 1
-      else
-        ((1 + (rate / periods))**periods) - 1
-      end
-    end
-
-    # convert an effective interest rate to a nominal interest rate
-    # @return [DecNum] the nominal interest rate
-    # @param [Numeric] rate the effective interest rate
-    # @param [Numeric] periods the number of compounding periods per year
-    # @example
-    #   Rate.to_nominal(0.06, 365) #=> DecNum('0.05827')
-    # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
-    # @api public
-    def self.to_nominal(rate, periods)
-      rate = Flt::DecNum.new(rate.to_s)
-      periods = Flt::DecNum.new(periods.to_s)
-
-      if periods.infinite?
-        (rate + 1).log
-      else
-        periods * (((1 + rate)**(1.to_f / periods)) - 1)
-      end
     end
 
     private :compounds=, :effective=, :nominal=

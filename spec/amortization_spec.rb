@@ -5,7 +5,7 @@ describe('Amortization') do
   # @see https://tinyurl.com/6zroqvd for detailed calculations for the
   #   examples in these unit tests.
   def ipmt(principal, rate, payment, period)
-    -(((-rate * principal) * ((1 + rate)**(period - 1))) - (payment * (((1 + rate)**(period - 1)) - 1))).round(2)
+    -(((-rate * principal) * ((rate + 1)**(period - 1))) - (payment * (((rate + 1)**(period - 1)) - 1))).round(2)
   end
   describe('amortization with a 0% rate') do
     it('does not raise a divide-by-zero error') do
@@ -60,7 +60,7 @@ describe('Amortization') do
     before(:all) do
       @rates = []
       0.upto(9) do |adj|
-        (@rates << Rate.new((0.0375 + (D('0.01') * adj)), :apr, duration: (3 * 12)))
+        (@rates << Rate.new(((D('0.01') * adj) + 0.0375), :apr, duration: (3 * 12)))
       end
       @principal = D(200_000)
       @arm = Amortization.new(@principal, *@rates)

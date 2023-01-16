@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'active_support/configurable'
+require 'finrb/cashflows'
 require 'finrb/config'
 require 'finrb/decimal'
-require 'finrb/cashflows'
 require 'finrb/utils'
 
 class FinrbError < StandardError; end

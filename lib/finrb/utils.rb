@@ -38,7 +38,7 @@ module Finrb
       f = DecNum(f.to_s)
       t = DecNum(t.to_s)
 
-      (360 * d / f / t)
+      (d * 360 / f / t)
     end
 
     # Computing money market yield (MMY) for a T-bill
@@ -52,7 +52,7 @@ module Finrb
       bdy = DecNum(bdy.to_s)
       t = DecNum(t.to_s)
 
-      (360 * bdy / (360 - (t * bdy)))
+      (bdy * 360 / (360 - (t * bdy)))
     end
 
     # cash ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
@@ -226,13 +226,13 @@ module Finrb
       raise(FinrbError, 't should be larger than 1') if t < 2
 
       ddb = [0] * t
-      ddb[0] = 2 * cost / t
+      ddb[0] = cost * 2 / t
       if cost - ddb[0] <= rv
         ddb[0] = cost - rv
       else
         cost -= ddb[0]
         (1...t).each do |i|
-          ddb[i] = 2 * cost / t
+          ddb[i] = cost * 2 / t
           if cost - ddb[i] <= rv
             ddb[i] = cost - rv
             break
@@ -341,7 +341,7 @@ module Finrb
       r = DecNum(r.to_s)
       m = DecNum(m.to_s)
 
-      (((1 + (r / m))**m) - 1)
+      ((((r / m) + 1)**m) - 1)
     end
 
     # Convert stated annual rate to the effective annual rate with continuous compounding
@@ -367,7 +367,7 @@ module Finrb
     def self.ear2bey(ear:)
       ear = DecNum(ear.to_s)
 
-      ((((1 + ear)**0.5) - 1) * 2)
+      ((((ear + 1)**0.5) - 1) * 2)
     end
 
     # Computing HPR, the holding period return
@@ -381,7 +381,7 @@ module Finrb
       ear = DecNum(ear.to_s)
       t = DecNum(t.to_s)
 
-      (((1 + ear)**(t / 365)) - 1)
+      (((ear + 1)**(t / 365)) - 1)
     end
 
     # Equivalent/proportional Interest Rates
@@ -422,7 +422,7 @@ module Finrb
 
       case type
       when 'e'
-        eir = ((1 + (r / n))**(n / p)) - 1
+        eir = (((r / n) + 1)**(n / p)) - 1
       when 'p'
         eir = r / p
       else
@@ -505,7 +505,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pmt / r * (((1 + r)**n) - 1)) * ((1 + r)**type) * -1
+        (pmt / r * (((r + 1)**n) - 1)) * ((r + 1)**type) * -1
 
       end
     end
@@ -525,7 +525,7 @@ module Finrb
       n = DecNum(n.to_s)
       pv = DecNum(pv.to_s)
 
-      ((pv * ((1 + r)**n)) * -1)
+      ((pv * ((r + 1)**n)) * -1)
     end
 
     # Computing the future value of an uneven cash flow series
@@ -613,7 +613,7 @@ module Finrb
       hpr = DecNum(hpr.to_s)
       t = DecNum(t.to_s)
 
-      ((((1 + hpr)**(6 / t)) - 1) * 2)
+      ((((hpr + 1)**(6 / t)) - 1) * 2)
     end
 
     # Convert holding period return to the effective annual rate
@@ -627,7 +627,7 @@ module Finrb
       hpr = DecNum(hpr.to_s)
       t = DecNum(t.to_s)
 
-      (((1 + hpr)**(365 / t)) - 1)
+      (((hpr + 1)**(365 / t)) - 1)
     end
 
     # Computing money market yield (MMY) for a T-bill
@@ -641,7 +641,7 @@ module Finrb
       hpr = DecNum(hpr.to_s)
       t = DecNum(t.to_s)
 
-      (360 * hpr / t)
+      (hpr * 360 / t)
     end
 
     # Computing IRR, the internal rate of return
@@ -658,7 +658,7 @@ module Finrb
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          [BigDecimal(((-1 * Finrb::Utils.pv_uneven(r: x[0], cf: subcf)) + cf[0]).to_s)]
+          [BigDecimal(((Finrb::Utils.pv_uneven(r: x[0], cf: subcf) * -1) + cf[0]).to_s)]
         end
 
       root = [0]
@@ -736,7 +736,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (-1 * ((fv * r) - (pmt * ((1 + r)**type))) / ((pv * r) + (pmt * ((1 + r)**type)))).to_d.log / (1 + r).to_d.log
+        (((fv * r) - (pmt * ((r + 1)**type))) * -1 / ((pv * r) + (pmt * ((r + 1)**type)))).to_d.log / (r + 1).to_d.log
 
       end
     end
@@ -767,7 +767,7 @@ module Finrb
       cf = Array.wrap(cf).map { |value| DecNum(value.to_s) }
 
       subcf = cf.drop(1)
-      ((-1 * Finrb::Utils.pv_uneven(r: r, cf: subcf)) + cf[0])
+      ((Finrb::Utils.pv_uneven(r: r, cf: subcf) * -1) + cf[0])
     end
 
     # Estimate period payment
@@ -794,7 +794,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pv + (fv / ((1 + r)**n))) * r / (1 - (1.to_f / ((1 + r)**n))) * -1 * ((1 + r)**(-1 * type))
+        (pv + (fv / ((r + 1)**n))) * r / (1 - (1.to_f / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
       end
     end
 
@@ -845,7 +845,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pmt / r * (1 - (1.to_f / ((1 + r)**n)))) * ((1 + r)**type) * -1
+        (pmt / r * (1 - (1.to_f / ((r + 1)**n)))) * ((r + 1)**type) * -1
 
       end
     end
@@ -874,7 +874,7 @@ module Finrb
       elsif g >= r
         raise(FinrbError, 'Error: g is not smaller than r!')
       else
-        (pmt / (r - g)) * ((1 + r)**type) * -1
+        (pmt / (r - g)) * ((r + 1)**type) * -1
 
       end
     end
@@ -894,7 +894,7 @@ module Finrb
       n = DecNum(n.to_s)
       fv = DecNum(fv.to_s)
 
-      ((fv / ((1 + r)**n)) * -1)
+      ((fv / ((r + 1)**n)) * -1)
     end
 
     # Computing the present value of an uneven cash flow series
@@ -945,7 +945,7 @@ module Finrb
       r = DecNum(r.to_s)
       m = DecNum(m.to_s)
 
-      (m * (1 + (r / m)).to_d.log)
+      (m * ((r / m) + 1).to_d.log)
     end
 
     # Convert a given continuous compounded rate to a norminal rate
@@ -975,7 +975,7 @@ module Finrb
       pmt = DecNum(pmt.to_s)
       pv = DecNum(pv.to_s)
 
-      (-1 * pmt / pv)
+      (pmt * -1 / pv)
     end
 
     # Computing Sampling error

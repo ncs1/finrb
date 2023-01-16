@@ -75,7 +75,7 @@ module Finrb
       rate = Flt::DecNum.new(rate.to_s)
       total = Flt::DecNum.new(0.to_s)
       cashflows.each_with_index do |cashflow, index|
-        total += cashflow / ((1 + rate)**index)
+        total += cashflow / ((rate + 1)**index)
       end
 
       total
@@ -120,7 +120,7 @@ module Finrb
       rate = Flt::DecNum.new(rate.to_s)
 
       sum do |t|
-        t.amount / ((1 + rate)**(date_diff(start, t.date) / days_in_period))
+        t.amount / ((rate + 1)**(date_diff(start, t.date) / days_in_period))
       end
     end
 

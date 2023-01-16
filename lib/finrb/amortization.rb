@@ -34,6 +34,26 @@ module Finrb
     # @api public
     attr_reader :rates
 
+    # @return [DecNum] the periodic payment due on a loan
+    # @param [DecNum] principal the initial amount of the loan or investment
+    # @param [Rate] rate the applicable interest rate (per period)
+    # @param [Integer] periods the number of periods needed for repayment
+    # @note in most cases, you will probably want to use rate.monthly when calling this function outside of an Amortization instance.
+    # @example
+    #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
+    #   rate.duration #=> 360
+    #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
+    # @see https://en.wikipedia.org/wiki/Amortization_calculator
+    # @api public
+    def self.payment(principal, rate, periods)
+      if rate.zero?
+        # simplified formula to avoid division-by-zero when interest rate is zero
+        -(principal / periods).round(2)
+      else
+        -(principal * (rate + (rate / (((rate + 1)**periods) - 1)))).round(2)
+      end
+    end
+
     # create a new Amortization instance
     # @return [Amortization]
     # @param [DecNum] principal the initial amount of the loan or investment
@@ -156,26 +176,6 @@ module Finrb
     # @api public
     def interest
       @transactions.filter_map { |trans| trans.amount if trans.interest? }
-    end
-
-    # @return [DecNum] the periodic payment due on a loan
-    # @param [DecNum] principal the initial amount of the loan or investment
-    # @param [Rate] rate the applicable interest rate (per period)
-    # @param [Integer] periods the number of periods needed for repayment
-    # @note in most cases, you will probably want to use rate.monthly when calling this function outside of an Amortization instance.
-    # @example
-    #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   rate.duration #=> 360
-    #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
-    # @see https://en.wikipedia.org/wiki/Amortization_calculator
-    # @api public
-    def self.payment(principal, rate, periods)
-      if rate.zero?
-        # simplified formula to avoid division-by-zero when interest rate is zero
-        -(principal / periods).round(2)
-      else
-        -(principal * (rate + (rate / (((1 + rate)**periods) - 1)))).round(2)
-      end
     end
 
     # @return [Array] the amount of the payment in each period

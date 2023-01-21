@@ -13,7 +13,7 @@ DecNum.context.define_conversion_to(BigDecimal) do |x|
 end
 
 class Numeric
-  def to_d
+  def to_dec
     if instance_of?(DecNum)
       self
     else

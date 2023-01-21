@@ -355,7 +355,7 @@ module Finrb
     def self.ear_continuous(r:)
       r = DecNum(r.to_s)
 
-      (r.to_d.exp - 1)
+      (r.to_dec.exp - 1)
     end
 
     # bond-equivalent yield (BEY), 2 x the semiannual discount rate
@@ -736,7 +736,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (((fv * r) - (pmt * ((r + 1)**type))) * -1 / ((pv * r) + (pmt * ((r + 1)**type)))).to_d.log / (r + 1).to_d.log
+        (((fv * r) - (pmt * ((r + 1)**type))) * -1 / ((pv * r) + (pmt * ((r + 1)**type)))).to_dec.log / (r + 1).to_dec.log
 
       end
     end
@@ -945,7 +945,7 @@ module Finrb
       r = DecNum(r.to_s)
       m = DecNum(m.to_s)
 
-      (m * ((r / m) + 1).to_d.log)
+      (m * ((r / m) + 1).to_dec.log)
     end
 
     # Convert a given continuous compounded rate to a norminal rate
@@ -961,7 +961,7 @@ module Finrb
       rc = DecNum(rc.to_s)
       m = DecNum(m.to_s)
 
-      (m * ((rc / m).to_d.exp - 1))
+      (m * ((rc / m).to_dec.exp - 1))
     end
 
     # Rate of return for a perpetuity

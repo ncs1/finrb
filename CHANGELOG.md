@@ -1,5 +1,11 @@
 # finrb changelog
 
+## 0.1.1
+
+- documentation additions and fixes
+- refactoring
+- bugfixes and test suite migration to rspec
+
 ## 0.1.0
 
 - sets ruby dependency to >= 3

@@ -74,7 +74,7 @@ module Finrb
 
     # compare two Amortization instances
     # @return [Numeric] -1, 0, or +1
-    # @param [Amortization]
+    # @param [Amortization] other
     # @api public
     def ==(other)
       (principal == other.principal) && (rates == other.rates) && (payments == other.payments)

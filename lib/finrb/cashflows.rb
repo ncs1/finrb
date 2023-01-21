@@ -41,7 +41,7 @@ module Finrb
 
     # calculate the internal rate of return for a sequence of cash flows
     # @return [DecNum] the internal rate of return
-    # @param [Numeric] Initial guess rate, Defaults to 1.0
+    # @param [Numeric] guess Initial guess rate, Defaults to 1.0
     # @example
     #   [-4000,1200,1410,1875,1050].irr #=> 0.143
     # @see https://en.wikipedia.org/wiki/Internal_rate_of_return

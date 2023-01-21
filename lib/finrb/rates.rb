@@ -88,7 +88,7 @@ module Finrb
 
     # compare two Rates, using the effective rate
     # @return [Numeric] one of -1, 0, +1
-    # @param [Rate] rate the comparison Rate
+    # @param [Rate] other the comparison Rate
     # @example Which is better, a nominal rate of 15% compounded monthly, or 15.5% compounded semiannually?
     #   r1 = Rate.new(0.15, :nominal) #=> Rate.new(0.160755, :apr)
     #   r2 = Rate.new(0.155, :nominal, :compounds => :semiannually) #=> Rate.new(0.161006, :apr)

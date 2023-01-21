@@ -30,7 +30,6 @@ module Finrb
     # @param d the dollar discount, which is equal to the difference between the face value of the bill and the purchase price
     # @param f the face value (par value) of the bill
     # @param t number of days remaining until maturity
-    # @export
     # @examples
     # bdy(d=1500,f=100000,t=120)
     def self.bdy(d:, f:, t:)
@@ -45,7 +44,6 @@ module Finrb
     #
     # @param bdy bank discount yield
     # @param t number of days remaining until maturity
-    # @export
     # @examples
     # bdy2mmy(bdy=0.045,t=120)
     def self.bdy2mmy(bdy:, t:)
@@ -60,7 +58,6 @@ module Finrb
     # @param cash cash
     # @param ms   marketable securities
     # @param cl   current liabilities
-    # @export
     # @examples
     # Finrb::Utils.cash_ratio(cash=3000,ms=2000,cl=2000)
     def self.cash_ratio(cash:, ms:, cl:)
@@ -75,7 +72,6 @@ module Finrb
     #
     # @param sd standard deviation
     # @param avg average value
-    # @export
     # @examples
     # Finrb::Utils.coefficient_variation(sd=0.15,avg=0.39)
     def self.coefficient_variation(sd:, avg:)
@@ -93,7 +89,6 @@ module Finrb
     # @param price nx1 vector of inventory price. same order as units
     # @param sinv units of sold inventory
     # @param method inventory methods: FIFO (first in first out, permitted under both US and IFRS), LIFO (late in first out, US only), WAC (weighted average cost,US and IFRS)
-    # @export
     # @examples
     # cogs(uinv=2,pinv=2,units=[3,5],price=[3,5],sinv=7,method="FIFO")
     #
@@ -200,7 +195,6 @@ module Finrb
     #
     # @param ca current assets
     # @param cl current liabilities
-    # @export
     # @examples
     # Finrb::Utils.current_ratio(ca=8000,cl=2000)
     def self.current_ratio(ca:, cl:)
@@ -215,7 +209,6 @@ module Finrb
     # @param cost cost of long-lived assets
     # @param rv   residual value of the long-lived assets at the end of its useful life. DDB does not explicitly use the asset's residual value in the calculations, but depreciation ends once the estimated residual value has been reached. If the asset is expected to have no residual value, the DB method will never fully depreciate it, so the DB method is typically changed to straight-line at some point in the asset's life.
     # @param t    length of the useful life
-    # @export
     # @examples
     # ddb(cost=1200,rv=200,t=5)
     def self.ddb(cost:, rv:, t:)
@@ -248,7 +241,6 @@ module Finrb
     #
     # @param td total debt
     # @param ta total assets
-    # @export
     # @examples
     # Finrb::Utils.debt_ratio(td=6000,ta=20000)
     def self.debt_ratio(td:, ta:)
@@ -269,7 +261,6 @@ module Finrb
     # @param cps    shares from conversion of convertible preferred stock
     # @param cds    shares from conversion of convertible debt
     # @param iss    shares issuable from stock options
-    # @export
     # @examples
     # Finrb::Utils.diluted_eps(ni=115600,pd=10000,cdi=42000,tax=0.4,w=200000,cds=60000)
     #
@@ -305,7 +296,6 @@ module Finrb
     # @param lower the lower end points of the rate of return to be searched.
     # @param upper the upper end points of the rate of return to be searched.
     # @importFrom stats uniroot
-    # @export
     # @examples
     # Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
     def self.discount_rate(n:, pv:, fv:, pmt:, type: 0, lower: 0.0001, upper: 100)
@@ -332,7 +322,6 @@ module Finrb
     #
     # @param r stated annual rate
     # @param m number of compounding periods per year
-    # @export
     # @examples
     # ear(r=0.12,m=12)
     #
@@ -347,7 +336,6 @@ module Finrb
     # Convert stated annual rate to the effective annual rate with continuous compounding
     #
     # @param r stated annual rate
-    # @export
     # @examples
     # Finrb::Utils.ear_continuous(r=0.1)
     #
@@ -361,7 +349,6 @@ module Finrb
     # bond-equivalent yield (BEY), 2 x the semiannual discount rate
     #
     # @param ear effective annual rate
-    # @export
     # @examples
     # ear2bey(ear=0.08)
     def self.ear2bey(ear:)
@@ -374,7 +361,6 @@ module Finrb
     #
     # @param ear effective annual rate
     # @param t number of days remaining until maturity
-    # @export
     # @examples
     # ear2hpr(ear=0.05039,t=150)
     def self.ear2hpr(ear:, t:)
@@ -390,7 +376,6 @@ module Finrb
     # @param n times that the interest rate r were compounded per year
     # @param p times that the equivalent rate were compounded per year
     # @param type equivalent interest rates ('e',default) or proportional interest rates ('p')
-    # @export
     # @examples
     # # monthly interest rat equivalent to 5% compounded per year
     # Finrb::Utils.eir(r=0.05,n=1,p=12)
@@ -436,7 +421,6 @@ module Finrb
     # @param ni net income
     # @param pd preferred dividends
     # @param w  weighted average number of common shares outstanding
-    # @export
     # @examples
     # Finrb::Utils.eps(ni=10000,pd=1000,w=11000)
     def self.eps(ni:, pd:, w:)
@@ -451,7 +435,6 @@ module Finrb
     #
     # @param te total equity
     # @param ta total assets
-    # @export
     # @examples
     # Finrb::Utils.financial_leverage(te=16000,ta=20000)
     def self.financial_leverage(te:, ta:)
@@ -468,7 +451,6 @@ module Finrb
     # @param pv present value
     # @param pmt payment per period
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # fv(r=0.07,n=10,pv=1000,pmt=10)
     def self.fv(r:, n:, pv: 0, pmt: 0, type: 0)
@@ -491,7 +473,6 @@ module Finrb
     # @param n number of periods
     # @param pmt payment per period
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # Finrb::Utils.fv_annuity(0.03,12,-1000)
     #
@@ -515,7 +496,6 @@ module Finrb
     # @param r discount rate, or the interest rate at which the amount will be compounded each period
     # @param n number of periods
     # @param pv present value
-    # @export
     # @examples
     # Finrb::Utils.fv_simple(0.08,10,-300)
     #
@@ -532,7 +512,6 @@ module Finrb
     #
     # @param r stated annual rate
     # @param cf uneven cash flow
-    # @export
     # @examples
     # Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.fv_uneven(r:, cf:)
@@ -551,7 +530,6 @@ module Finrb
     # Geometric mean return
     #
     # @param r returns over multiple periods
-    # @export
     # @examples
     # Finrb::Utils.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
     def self.geometric_mean(r:)
@@ -565,7 +543,6 @@ module Finrb
     #
     # @param gp gross profit, equal to revenue minus cost of goods sold (cogs)
     # @param rv revenue (sales)
-    # @export
     # @examples
     # gpm(gp=1000,rv=20000)
     def self.gpm(gp:, rv:)
@@ -577,7 +554,6 @@ module Finrb
 
     # harmonic mean, average price
     # @param p price over multiple periods
-    # @export
     # @examples
     # Finrb::Utils.harmonic_mean(p=[8,9,10])
     def self.harmonic_mean(p:)
@@ -591,7 +567,6 @@ module Finrb
     # @param ev ending value
     # @param bv beginning value
     # @param cfr cash flow received
-    # @export
     # @examples
     # hpr(ev=33,bv=30,cfr=0.5)
     def self.hpr(ev:, bv:, cfr: 0)
@@ -606,7 +581,6 @@ module Finrb
     #
     # @param hpr holding period return
     # @param t number of month remaining until maturity
-    # @export
     # @examples
     # hpr2bey(hpr=0.02,t=3)
     def self.hpr2bey(hpr:, t:)
@@ -620,7 +594,6 @@ module Finrb
     #
     # @param hpr holding period return
     # @param t number of days remaining until maturity
-    # @export
     # @examples
     # hpr2ear(hpr=0.015228,t=120)
     def self.hpr2ear(hpr:, t:)
@@ -634,7 +607,6 @@ module Finrb
     #
     # @param hpr holding period return
     # @param t number of days remaining until maturity
-    # @export
     # @examples
     # hpr2mmy(hpr=0.01523,t=120)
     def self.hpr2mmy(hpr:, t:)
@@ -648,7 +620,6 @@ module Finrb
     #
     # @param cf cash flow,the first cash flow is the initial outlay
     # @importFrom stats uniroot
-    # @export
     # @examples
     # irr(cf=[-5, 1.6, 2.4, 2.8])
     def self.irr(cf:)
@@ -671,7 +642,6 @@ module Finrb
     # @param amp average market price over the year
     # @param ep  exercise price of the options or warrants
     # @param n   number of common shares that the options and warrants can be convened into
-    # @export
     # @examples
     # iss(amp=20,ep=15,n=10000)
     def self.iss(amp:, ep:, n:)
@@ -690,7 +660,6 @@ module Finrb
     #
     # @param ltd long-term debt
     # @param te  total equity
-    # @export
     # @examples
     # Finrb::Utils.lt_d2e(ltd=8000,te=20000)
     def self.lt_d2e(ltd:, te:)
@@ -704,7 +673,6 @@ module Finrb
     #
     # @param mmy money market yield
     # @param t number of days remaining until maturity
-    # @export
     # @examples
     # mmy2hpr(mmy=0.04898,t=150)
     def self.mmy2hpr(mmy:, t:)
@@ -721,7 +689,6 @@ module Finrb
     # @param fv future value
     # @param pmt payment per period
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # Finrb::Utils.n_period(0.1,-10000,60000000,-50000,0)
     #
@@ -745,7 +712,6 @@ module Finrb
     #
     # @param ni net income
     # @param rv revenue (sales)
-    # @export
     # @examples
     # npm(ni=8000,rv=20000)
     def self.npm(ni:, rv:)
@@ -759,7 +725,6 @@ module Finrb
     #
     # @param r discount rate, or the interest rate at which the amount will be compounded each period
     # @param cf cash flow,the first cash flow is the initial outlay
-    # @export
     # @examples
     # npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
     def self.npv(r:, cf:)
@@ -777,7 +742,6 @@ module Finrb
     # @param pv present value
     # @param fv future value
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # pmt(0.08,10,-1000,10)
     #
@@ -805,7 +769,6 @@ module Finrb
     # @param fv future value
     # @param pmt payment per period
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # pv(0.07,10,1000,10)
     #
@@ -831,7 +794,6 @@ module Finrb
     # @param n number of periods
     # @param pmt payment per period
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # Finrb::Utils.pv_annuity(0.03,12,1000)
     #
@@ -856,7 +818,6 @@ module Finrb
     # @param g growth rate of perpetuity
     # @param pmt payment per period
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @export
     # @examples
     # Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,g=0.02)
     #
@@ -884,7 +845,6 @@ module Finrb
     # @param r discount rate, or the interest rate at which the amount will be compounded each period
     # @param n number of periods
     # @param fv future value
-    # @export
     # @examples
     # Finrb::Utils.pv_simple(0.07,10,100)
     #
@@ -901,7 +861,6 @@ module Finrb
     #
     # @param r discount rate, or the interest rate at which the amount will be compounded each period
     # @param cf uneven cash flow
-    # @export
     # @examples
     # Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.pv_uneven(r:, cf:)
@@ -922,7 +881,6 @@ module Finrb
     # @param ms   marketable securities
     # @param rc   receivables
     # @param cl   current liabilities
-    # @export
     # @examples
     # Finrb::Utils.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
     def self.quick_ratio(cash:, ms:, rc:, cl:)
@@ -938,7 +896,6 @@ module Finrb
     #
     # @param r norminal rate
     # @param m number of times compounded each year
-    # @export
     # @examples
     # Finrb::Utils.r_continuous(r=0.03,m=4)
     def self.r_continuous(r:, m:)
@@ -952,7 +909,6 @@ module Finrb
     #
     # @param rc continuous compounded rate
     # @param m number of desired times compounded each year
-    # @export
     # @examples
     # Finrb::Utils.r_norminal(0.03,1)
     #
@@ -968,7 +924,6 @@ module Finrb
     #
     # @param pmt payment per period
     # @param pv present value
-    # @export
     # @examples
     # Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
     def self.r_perpetuity(pmt:, pv:)
@@ -982,7 +937,6 @@ module Finrb
     #
     # @param sm sample mean
     # @param mu population mean
-    # @export
     # @examples
     # Finrb::Utils.sampling_error(sm=0.45, mu=0.5)
     def self.sampling_error(sm:, mu:)
@@ -997,7 +951,6 @@ module Finrb
     # @param rp portfolio return
     # @param rl threshold level return
     # @param sd standard deviation of portfolio retwns
-    # @export
     # @examples
     # Finrb::Utils.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
     def self.sf_ratio(rp:, rl:, sd:)
@@ -1013,7 +966,6 @@ module Finrb
     # @param rp portfolio return
     # @param rf risk-free return
     # @param sd standard deviation of portfolio retwns
-    # @export
     # @examples
     # Finrb::Utils.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
     def self.sharpe_ratio(rp:, rf:, sd:)
@@ -1029,7 +981,6 @@ module Finrb
     # @param cost cost of long-lived assets
     # @param rv   residual value of the long-lived assets at the end of its useful life
     # @param t    length of the useful life
-    # @export
     # @examples
     # slde(cost=1200,rv=200,t=5)
     def self.slde(cost:, rv:, t:)
@@ -1044,7 +995,6 @@ module Finrb
     #
     # @param td total debt
     # @param te total equity
-    # @export
     # @examples
     # Finrb::Utils.total_d2e(td=6000,te=20000)
     def self.total_d2e(td:, te:)
@@ -1059,7 +1009,6 @@ module Finrb
     # @param ev ordered ending value list
     # @param bv ordered beginning value list
     # @param cfr ordered cash flow received list
-    # @export
     # @examples
     # twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
     def self.twrr(ev:, bv:, cfr:)
@@ -1085,7 +1034,6 @@ module Finrb
     #
     # @param ns n x 1 vector vector of number of shares
     # @param nm n x 1 vector vector of number of months relate to ns
-    # @export
     # @examples
     # s=[10000,2000];m=[12,6];was(ns=s,nm=m)
     #
@@ -1112,7 +1060,6 @@ module Finrb
     #
     # @param r returns of the individual assets in the portfolio
     # @param w corresponding weights associated with each of the individual assets
-    # @export
     # @examples
     # wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
     def self.wpr(r:, w:)

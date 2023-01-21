@@ -1,1 +1,1 @@
---no-private lib/**/*.rb - COPYING COPYING.LESSER HISTORY README
+--no-private lib/**/*.rb - COPYING COPYING.LESSER CHANGELOG.md README.md

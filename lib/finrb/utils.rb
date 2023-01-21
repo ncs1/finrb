@@ -300,7 +300,6 @@ module Finrb
     # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
     # @param lower the lower end points of the rate of return to be searched.
     # @param upper the upper end points of the rate of return to be searched.
-    # @importFrom stats uniroot
     # @example
     #   Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
     def self.discount_rate(n:, pv:, fv:, pmt:, type: 0, lower: 0.0001, upper: 100)
@@ -634,7 +633,6 @@ module Finrb
     # Computing IRR, the internal rate of return
     #
     # @param cf cash flow,the first cash flow is the initial outlay
-    # @importFrom stats uniroot
     # @example
     #   Finrb::Utils.irr(cf=[-5, 1.6, 2.4, 2.8])
     def self.irr(cf:)

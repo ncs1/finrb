@@ -377,7 +377,7 @@ module Finrb
     end
 
     # Equivalent/proportional Interest Rates
-    # @description An interest rate to be applied n times p.a. can be converted to an equivalent rate to be applied p times p.a.
+    # @note An interest rate to be applied n times p.a. can be converted to an equivalent rate to be applied p times p.a.
     # @param r interest rate to be applied n times per year (r is annual rate!)
     # @param n times that the interest rate r were compounded per year
     # @param p times that the equivalent rate were compounded per year

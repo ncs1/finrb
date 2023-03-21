@@ -135,7 +135,7 @@ module Finrb
       end
 
       # Add any remaining balance due to rounding error to the last payment.
-      unless @balance.zero?
+      if @balance.nonzero?
         @transactions.reverse.find(&:payment?).amount -= @balance
         @balance = 0
       end

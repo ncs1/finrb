@@ -82,3 +82,6 @@ Metrics/BlockNesting:
 RSpec/MultipleExpectations:
   Enabled: false
 
+Gemspec/DevelopmentDependencies:
+  EnforcedStyle: gemspec
+

@@ -15,7 +15,7 @@ describe('Cashflows') do
   end
 
   describe('guess with business days') do
-    before(:all) do
+    before do
       Finrb.config.business_days = true
       Finrb.config.periodic_compound = true
       @transactions = []
@@ -24,7 +24,7 @@ describe('Cashflows') do
       (@transactions << Transaction.new(2_876_570.16, date: Date.new(2017, 9, 29)))
     end
 
-    after(:all) do
+    after do
       Finrb.config.business_days = false
       Finrb.config.periodic_compound = false
     end
@@ -40,7 +40,7 @@ describe('Cashflows') do
   end
 
   describe('guess') do
-    before(:all) do
+    before do
       @transactions = []
       (@transactions << Transaction.new(-1000, date: Time.new(1957, 1, 1)))
       (@transactions << Transaction.new(390_000, date: Time.new(2013, 1, 1)))

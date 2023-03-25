@@ -15,7 +15,7 @@ describe('Amortization') do
   end
 
   describe('a fixed-rate amortization of 200000 at 3.75% over 30 years') do
-    before(:all) do
+    before do
       @rate = Rate.new(0.0375, :apr, duration: (30 * 12))
       @principal = D(200_000)
       @std = Amortization.new(@principal, @rate)
@@ -57,7 +57,7 @@ describe('Amortization') do
   end
 
   describe('an adjustable rate amortization of 200000 starting at 3.75% and increasing by 1% every 3 years') do
-    before(:all) do
+    before do
       @rates = []
       0.upto(9) do |adj|
         (@rates << Rate.new(((D('0.01') * adj) + 0.0375), :apr, duration: (3 * 12)))
@@ -107,7 +107,7 @@ describe('Amortization') do
   end
 
   describe('a fixed-rate amortization of 200000 at 3.75% over 30 years, where an additional 100 is paid each month') do
-    before(:all) do
+    before do
       @rate = Rate.new(0.0375, :apr, duration: (30 * 12))
       @principal = D(200_000)
       @exp = Amortization.new(@principal, @rate) { |period| (period.payment - 100) }

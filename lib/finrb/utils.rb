@@ -1089,9 +1089,9 @@ module Finrb
       r = Array.wrap(r).map { |value| DecNum(value.to_s) }
       w = Array.wrap(w).map { |value| DecNum(value.to_s) }
 
-      if w.sum != 1
-        puts('sum of weights is NOT equal to 1!') # TODO: need to change
-      end
+      # TODO: need to change
+      puts('sum of weights is NOT equal to 1!') if w.sum != 1
+
       r.zip(w).sum { |arr| arr.reduce(:*) }
     end
   end

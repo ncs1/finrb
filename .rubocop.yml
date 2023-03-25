@@ -85,3 +85,6 @@ RSpec/MultipleExpectations:
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
 
+Lint/ConstantResolution:
+  Enabled: false
+

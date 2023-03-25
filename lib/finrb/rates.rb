@@ -10,6 +10,8 @@ module Finrb
     include Comparable
     # Accepted rate types
     TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
+    public_constant :TYPES
+
     # convert a nominal interest rate to an effective interest rate
     # @return [DecNum] the effective interest rate
     # @param [Numeric] rate the nominal interest rate

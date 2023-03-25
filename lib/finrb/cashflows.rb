@@ -63,6 +63,10 @@ module Finrb
       super
     end
 
+    def respond_to_missing?(name, include_private = false)
+      name.to_s == 'sum' || super
+    end
+
     # calculate the net present value of a sequence of cash flows
     # @return [DecNum] the net present value
     # @param [Numeric] rate the discount rate to be applied

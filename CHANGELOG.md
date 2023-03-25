@@ -1,5 +1,9 @@
 # finrb changelog
 
+## 0.1.2
+
+- refactoring
+
 ## 0.1.1
 
 - documentation additions and fixes

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-describe('Utils') do
-  EPSILON_ERR = D('0.00001')
+EPSILON_ERR = D('0.00001')
 
+describe('Utils') do
   describe('bdy') do
     it('Example 1') do
       expect(Utils.bdy(d: 1500, f: 100_000, t: 120)).to(be_within(EPSILON_ERR).of(D('0.045')))

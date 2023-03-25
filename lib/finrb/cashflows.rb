@@ -31,7 +31,7 @@ module Finrb
       end
 
       def values(x)
-        value = @transactions.send(@function, Flt::DecNum.new(x[0].to_s))
+        value = @transactions.public_send(@function, Flt::DecNum.new(x[0].to_s))
         begin
           [BigDecimal(value.to_s)]
         rescue ArgumentError

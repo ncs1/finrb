@@ -67,12 +67,12 @@ module Finrb
 
       # Set optional attributes..
       opts.each do |key, value|
-        send("#{key}=", value)
+        __send__("#{key}=", value)
       end
 
       # Set the rate in the proper way, based on the value of type.
       begin
-        send("#{TYPES.fetch(type)}=", Flt::DecNum.new(rate.to_s))
+        __send__("#{TYPES.fetch(type)}=", Flt::DecNum.new(rate.to_s))
       rescue KeyError
         raise(ArgumentError, "type must be one of #{TYPES.keys.join(', ')}", caller)
       end

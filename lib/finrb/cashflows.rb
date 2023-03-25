@@ -41,7 +41,7 @@ module Finrb
     end
 
     # calculate the internal rate of return for a sequence of cash flows
-    # @return [DecNum] the internal rate of return
+    # @return [Flt::DecNum] the internal rate of return
     # @param [Numeric] guess Initial guess rate, Defaults to 1.0
     # @example
     #   [-4000,1200,1410,1875,1050].irr #=> 0.143
@@ -69,7 +69,7 @@ module Finrb
     end
 
     # calculate the net present value of a sequence of cash flows
-    # @return [DecNum] the net present value
+    # @return [Flt::DecNum] the net present value
     # @param [Numeric] rate the discount rate to be applied
     # @example
     #   [-100.0, 60, 60, 60].npv(0.1) #=> 49.211
@@ -114,7 +114,7 @@ module Finrb
     end
 
     # calculate the net present value of a sequence of cash flows
-    # @return [DecNum]
+    # @return [Flt::DecNum]
     # @example
     #   @transactions = []
     #   @transactions << Transaction.new(-1000, :date => Time.new(1985,01,01))

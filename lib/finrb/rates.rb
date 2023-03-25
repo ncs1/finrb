@@ -13,11 +13,11 @@ module Finrb
     public_constant :TYPES
 
     # convert a nominal interest rate to an effective interest rate
-    # @return [DecNum] the effective interest rate
+    # @return [Flt::DecNum] the effective interest rate
     # @param [Numeric] rate the nominal interest rate
     # @param [Numeric] periods the number of compounding periods per year
     # @example
-    #   Rate.to_effective(0.05, 4) #=> DecNum('0.05095')
+    #   Rate.to_effective(0.05, 4) #=> Flt::DecNum('0.05095')
     # @api public
     def self.to_effective(rate, periods)
       rate = Flt::DecNum.new(rate.to_s)
@@ -31,11 +31,11 @@ module Finrb
     end
 
     # convert an effective interest rate to a nominal interest rate
-    # @return [DecNum] the nominal interest rate
+    # @return [Flt::DecNum] the nominal interest rate
     # @param [Numeric] rate the effective interest rate
     # @param [Numeric] periods the number of compounding periods per year
     # @example
-    #   Rate.to_nominal(0.06, 365) #=> DecNum('0.05827')
+    #   Rate.to_nominal(0.06, 365) #=> Flt::DecNum('0.05827')
     # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
     # @api public
     def self.to_nominal(rate, periods)
@@ -81,10 +81,10 @@ module Finrb
     # @return [Integer] the duration for which the rate is valid, in months
     # @api public
     attr_accessor :duration
-    # @return [DecNum] the effective interest rate
+    # @return [Flt::DecNum] the effective interest rate
     # @api public
     attr_reader :effective
-    # @return [DecNum] the nominal interest rate
+    # @return [Flt::DecNum] the nominal interest rate
     # @api public
     attr_reader :nominal
 
@@ -133,7 +133,7 @@ module Finrb
 
     # set the effective interest rate
     # @return none
-    # @param [DecNum] rate the effective interest rate
+    # @param [Flt::DecNum] rate the effective interest rate
     # @api private
     def effective=(rate)
       @effective = rate
@@ -144,11 +144,11 @@ module Finrb
       "Rate.new(#{apr.round(6)}, :apr)"
     end
 
-    # @return [DecNum] the monthly effective interest rate
+    # @return [Flt::DecNum] the monthly effective interest rate
     # @example
     #   rate = Rate.new(0.15, :nominal)
-    #   rate.apr.round(6) #=> DecNum('0.160755')
-    #   rate.monthly.round(6) #=> DecNum('0.013396')
+    #   rate.apr.round(6) #=> Flt::DecNum('0.160755')
+    #   rate.monthly.round(6) #=> Flt::DecNum('0.013396')
     # @api public
     def monthly
       (effective / 12).round(15)
@@ -156,7 +156,7 @@ module Finrb
 
     # set the nominal interest rate
     # @return none
-    # @param [DecNum] rate the nominal interest rate
+    # @param [Flt::DecNum] rate the nominal interest rate
     # @api private
     def nominal=(rate)
       @nominal = rate

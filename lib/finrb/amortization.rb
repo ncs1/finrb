@@ -21,28 +21,28 @@ module Finrb
   #   extra_payments = 250000.amortize(rate){ |period| period.payment - 150 }
   # @api public
   class Amortization
-    # @return [DecNum] the balance of the loan at the end of the amortization period (usually zero)
+    # @return [Flt::DecNum] the balance of the loan at the end of the amortization period (usually zero)
     # @api public
     attr_reader :balance
-    # @return [DecNum] the required monthly payment.  For loans with more than one rate, returns nil
+    # @return [Flt::DecNum] the required monthly payment.  For loans with more than one rate, returns nil
     # @api public
     attr_reader :payment
-    # @return [DecNum] the principal amount of the loan
+    # @return [Flt::DecNum] the principal amount of the loan
     # @api public
     attr_reader :principal
     # @return [Array] the interest rates used for calculating the amortization
     # @api public
     attr_reader :rates
 
-    # @return [DecNum] the periodic payment due on a loan
-    # @param [DecNum] principal the initial amount of the loan or investment
+    # @return [Flt::DecNum] the periodic payment due on a loan
+    # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rate the applicable interest rate (per period)
     # @param [Integer] periods the number of periods needed for repayment
     # @note in most cases, you will probably want to use rate.monthly when calling this function outside of an Amortization instance.
     # @example
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   rate.duration #=> 360
-    #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
+    #   Amortization.payment(200000, rate.monthly, rate.duration) #=> Flt::DecNum('-926.23')
     # @see https://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
     def self.payment(principal, rate, periods)
@@ -56,7 +56,7 @@ module Finrb
 
     # create a new Amortization instance
     # @return [Amortization]
-    # @param [DecNum] principal the initial amount of the loan or investment
+    # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
     # @api public
@@ -84,7 +84,7 @@ module Finrb
     # @example
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = 300000.amortize(rate){ |payment| payment.amount-100}
-    #   amt.additional_payments #=> [DecNum('-100.00'), DecNum('-100.00'), ... ]
+    #   amt.additional_payments #=> [Flt::DecNum('-100.00'), Flt::DecNum('-100.00'), ... ]
     # @api public
     def additional_payments
       @transactions.filter_map { |trans| trans.difference if trans.payment? }
@@ -168,11 +168,11 @@ module Finrb
     # @example find the total cost of interest for a loan
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = 300000.amortize(rate)
-    #   amt.interest.sum #=> DecNum('200163.94')
+    #   amt.interest.sum #=> Flt::DecNum('200163.94')
     # @example find the total interest charges in the first six months
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = 300000.amortize(rate)
-    #   amt.interest[0,6].sum #=> DecNum('5603.74')
+    #   amt.interest[0,6].sum #=> Flt::DecNum('5603.74')
     # @api public
     def interest
       @transactions.filter_map { |trans| trans.amount if trans.interest? }
@@ -182,7 +182,7 @@ module Finrb
     # @example find the total payments for a loan
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = 300000.amortize(rate)
-    #   amt.payments.sum #=> DecNum('-500163.94')
+    #   amt.payments.sum #=> Flt::DecNum('-500163.94')
     # @api public
     def payments
       @transactions.filter_map { |trans| trans.amount if trans.payment? }

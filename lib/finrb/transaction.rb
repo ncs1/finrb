@@ -6,7 +6,7 @@ module Finrb
   # the Transaction class provides a general interface for working with individual cash flows.
   # @api public
   class Transaction
-    # @return [DecNum] the cash value of the transaction
+    # @return [Flt::DecNum] the cash value of the transaction
     # @api public
     attr_reader :amount
     # @return [Integer] the period number of the transaction
@@ -49,12 +49,12 @@ module Finrb
       @amount = Flt::DecNum.new(value.to_s) || 0
     end
 
-    # @return [DecNum] the difference between the original transaction
+    # @return [Flt::DecNum] the difference between the original transaction
     #   amount and the current amount
     # @example
     #   t = Transaction.new(500)
     #   t.amount = 750
-    #   t.difference #=> DecNum('250')
+    #   t.difference #=> Flt::DecNum('250')
     # @api public
     def difference
       @amount - @original

@@ -145,20 +145,20 @@ describe('Amortization') do
       expect(@exp.interest.sum).to(eq(D('108880.09')))
     end
   end
-end
 
-describe('Numeric Method') do
-  it('works with simple invocation') do
-    rate = Rate.new(0.0375, :apr, duration: (30 * 12))
-    amt_method = 300_000.amortize(rate)
-    amt_class = Amortization.new(300_000, rate)
-    expect(amt_class).to(eq(amt_method))
-  end
+  describe('Numeric Method') do
+    it('works with simple invocation') do
+      rate = Rate.new(0.0375, :apr, duration: (30 * 12))
+      amt_method = 300_000.amortize(rate)
+      amt_class = Amortization.new(300_000, rate)
+      expect(amt_class).to(eq(amt_method))
+    end
 
-  it('works with block invocation') do
-    rate = Rate.new(0.0375, :apr, duration: (30 * 12))
-    amt_method = 300_000.amortize(rate) { |period| (period.payment - 300) }
-    amt_class = Amortization.new(300_000, rate) { |period| (period.payment - 300) }
-    expect(amt_class).to(eq(amt_method))
+    it('works with block invocation') do
+      rate = Rate.new(0.0375, :apr, duration: (30 * 12))
+      amt_method = 300_000.amortize(rate) { |period| (period.payment - 300) }
+      amt_class = Amortization.new(300_000, rate) { |period| (period.payment - 300) }
+      expect(amt_class).to(eq(amt_method))
+    end
   end
 end

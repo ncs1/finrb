@@ -5,9 +5,9 @@ require_relative 'decimal'
 require 'bigdecimal'
 require 'bigdecimal/newton'
 
-include Newton
-
 module Finrb
+  include Newton
+
   class Utils
     class NlFunctionStub
       attr_accessor :func

@@ -7,9 +7,10 @@ require_relative 'rates'
 require 'bigdecimal'
 require 'bigdecimal/newton'
 require 'business_time'
-include Newton
 
 module Finrb
+  include Newton
+
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow

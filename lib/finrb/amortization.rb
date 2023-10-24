@@ -193,7 +193,7 @@ end
 class Numeric
   # @see Amortization#new
   # @api public
-  def amortize(*rates, &block)
-    Finrb::Amortization.new(self, *rates, &block)
+  def amortize(...)
+    Finrb::Amortization.new(self, ...)
   end
 end

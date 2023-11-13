@@ -10,7 +10,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.1.1)
+    activesupport (7.1.2)
       base64
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
@@ -21,7 +21,7 @@ GEM
       mutex_m
       tzinfo (~> 2.0)
     ast (2.4.2)
-    base64 (0.1.1)
+    base64 (0.2.0)
     bigdecimal (3.1.4)
     business_time (0.13.0)
       activesupport (>= 3.2.0)
@@ -30,7 +30,7 @@ GEM
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     diff-lcs (1.5.0)
-    drb (2.1.1)
+    drb (2.2.0)
       ruby2_keywords
     flt (1.5.4)
     i18n (1.14.1)
@@ -39,7 +39,7 @@ GEM
     language_server-protocol (3.17.0.3)
     method_source (1.0.0)
     minitest (5.20.0)
-    mutex_m (0.1.2)
+    mutex_m (0.2.0)
     parallel (1.23.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)

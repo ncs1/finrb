@@ -22,7 +22,7 @@ GEM
       tzinfo (~> 2.0)
     ast (2.4.2)
     base64 (0.2.0)
-    bigdecimal (3.1.5)
+    bigdecimal (3.1.6)
     business_time (0.13.0)
       activesupport (>= 3.2.0)
       tzinfo

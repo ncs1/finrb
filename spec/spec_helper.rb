@@ -15,16 +15,8 @@
 # it.
 #
 
-require('active_support/all')
-require('flt')
-require('flt/d')
 require('pry')
-require_relative('../lib/finrb/amortization')
-require_relative('../lib/finrb/cashflows')
-require_relative('../lib/finrb/config')
-require_relative('../lib/finrb/rates')
-require_relative('../lib/finrb/transaction')
-require_relative('../lib/finrb/utils')
+require_relative('../lib/finrb')
 
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|

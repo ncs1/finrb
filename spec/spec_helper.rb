@@ -15,9 +15,9 @@
 # it.
 #
 
-require('pry')
 require('flt')
 require('flt/d')
+require('pry')
 require_relative('../lib/finrb')
 
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration

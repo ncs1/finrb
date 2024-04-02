@@ -9,11 +9,11 @@ require 'bigdecimal/newton'
 require 'business_time'
 
 module Finrb
-  include Newton
-
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow
+    include Newton
+
     # Base class for working with Newton's Method.
     # @api private
     class Function

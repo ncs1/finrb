@@ -1,4 +1,4 @@
-ARG RUBY_VER=3.2
+ARG RUBY_VER=3.3
 
 FROM ruby:${RUBY_VER} AS development
 

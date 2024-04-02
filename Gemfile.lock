@@ -102,6 +102,7 @@ GEM
     unicode-display_width (2.5.0)
 
 PLATFORMS
+  ruby
   x86_64-linux
 
 DEPENDENCIES
@@ -117,4 +118,4 @@ DEPENDENCIES
   semver
 
 BUNDLED WITH
-   2.4.7
+   2.5.7

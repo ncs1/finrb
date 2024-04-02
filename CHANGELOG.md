@@ -1,5 +1,10 @@
 # finrb changelog
 
+## 0.1.4
+
+- transactions rails fix
+- rm ruby 3.0 support
+
 ## 0.1.2
 
 - refactoring

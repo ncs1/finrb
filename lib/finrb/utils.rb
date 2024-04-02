@@ -222,10 +222,10 @@ module Finrb
 
       ddb = [0] * t
       ddb[0] = cost * 2 / t
-      if cost - ddb[0] <= rv
+      if cost - ddb.first <= rv
         ddb[0] = cost - rv
       else
-        cost -= ddb[0]
+        cost -= ddb.first
         (1...t).each do |i|
           ddb[i] = cost * 2 / t
           if cost - ddb[i] <= rv
@@ -314,12 +314,12 @@ module Finrb
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          [BigDecimal((Finrb::Utils.fv_simple(r: x[0], n: n, pv: pv) + Finrb::Utils.fv_annuity(r: x[0], n: n, pmt: pmt, type: type) - fv).to_s)]
+          [BigDecimal((Finrb::Utils.fv_simple(r: x.first, n: n, pv: pv) + Finrb::Utils.fv_annuity(r: x.first, n: n, pmt: pmt, type: type) - fv).to_s)]
         end
 
       root = [(upper - lower) / 2]
       nlsolve(nlfunc, root)
-      root[0]
+      root.first
     end
 
     # Convert stated annual rate to the effective annual rate
@@ -642,12 +642,12 @@ module Finrb
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          [BigDecimal(((Finrb::Utils.pv_uneven(r: x[0], cf: subcf) * -1) + cf[0]).to_s)]
+          [BigDecimal(((Finrb::Utils.pv_uneven(r: x.first, cf: subcf) * -1) + cf.first).to_s)]
         end
 
       root = [0]
       nlsolve(nlfunc, root)
-      root[0]
+      root.first
     end
 
     # calculate the net increase in common shares from the potential exercise of stock options or warrants
@@ -746,7 +746,7 @@ module Finrb
       cf = Array.wrap(cf).map { |value| Flt::DecNum(value.to_s) }
 
       subcf = cf.drop(1)
-      ((Finrb::Utils.pv_uneven(r: r, cf: subcf) * -1) + cf[0])
+      ((Finrb::Utils.pv_uneven(r: r, cf: subcf) * -1) + cf.first)
     end
 
     # Estimate period payment

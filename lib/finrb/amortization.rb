@@ -140,7 +140,7 @@ module Finrb
         @balance = 0
       end
 
-      @payment = (payments[0] if @rates.length == 1)
+      @payment = (payments.first if @rates.length == 1)
 
       @transactions.freeze
     end

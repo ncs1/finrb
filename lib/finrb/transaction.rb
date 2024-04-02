@@ -33,7 +33,7 @@ module Finrb
 
       # Set optional attributes..
       opts.each do |key, value|
-        __send__("#{key}=", value)
+        __send__(:"#{key}=", value)
       end
     end
 

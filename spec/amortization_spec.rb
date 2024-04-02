@@ -38,7 +38,7 @@ describe('Amortization') do
     end
 
     it('has a final payment of $926.96 (due to rounding)') do
-      expect(@std.payments[-1]).to(eq(D('-926.96')))
+      expect(@std.payments.last).to(eq(D('-926.96')))
     end
 
     it('has total payments of $333,443.53') do
@@ -94,7 +94,7 @@ describe('Amortization') do
     end
 
     it('has a final payment of $1601.78 (due to rounding)') do
-      expect(@arm.payments[-1]).to(eq(D('-1601.78')))
+      expect(@arm.payments.last).to(eq(D('-1601.78')))
     end
 
     it('has total payments of $47,505.92') do
@@ -130,7 +130,7 @@ describe('Amortization') do
     end
 
     it('has a final payment of $1011.09') do
-      expect(@exp.payments[-1]).to(eq(D('-1011.09')))
+      expect(@exp.payments.last).to(eq(D('-1011.09')))
     end
 
     it('has total payments of $308,880.09') do

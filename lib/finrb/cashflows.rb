@@ -31,7 +31,7 @@ module Finrb
       end
 
       def values(x)
-        value = @transactions.public_send(@function, Flt::DecNum.new(x[0].to_s))
+        value = @transactions.public_send(@function, Flt::DecNum.new(x.first.to_s))
         begin
           [BigDecimal(value.to_s)]
         rescue ArgumentError
@@ -55,7 +55,7 @@ module Finrb
       func = Function.new(self, :npv)
       rate = [valid(guess)]
       nlsolve(func, rate)
-      rate[0]
+      rate.first
     end
 
     def method_missing(name, *args, &block)
@@ -110,7 +110,7 @@ module Finrb
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]
       nlsolve(func, rate)
-      Rate.new(rate[0], :apr, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
+      Rate.new(rate.first, :apr, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
     end
 
     # calculate the net present value of a sequence of cash flows
@@ -149,11 +149,11 @@ module Finrb
     end
 
     def start
-      @start ||= self[0].date
+      @start ||= first.date
     end
 
     def stop
-      @stop ||= self[-1].date.to_date
+      @stop ||= last.date.to_date
     end
 
     def valid(guess)

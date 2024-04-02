@@ -58,7 +58,7 @@ module Finrb
       rate.first
     end
 
-    def method_missing(name, *args, &block)
+    def method_missing(name, *args, &)
       return sum if name.to_s == 'sum'
 
       super

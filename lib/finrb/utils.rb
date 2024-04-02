@@ -188,8 +188,8 @@ module Finrb
       end
 
       {
-        cost_of_goods: cost_of_goods,
-        ending_inventory: ending_inventory
+        cost_of_goods:,
+        ending_inventory:
       }
     end
 
@@ -236,7 +236,7 @@ module Finrb
           end
         end
       end
-      { t: (0...t).to_a, ddb: ddb }
+      { t: (0...t).to_a, ddb: }
     end
 
     # debt ratio -- Solvency ratios measure the firm's ability to satisfy its long-term obligations.
@@ -314,7 +314,7 @@ module Finrb
       nlfunc = NlFunctionStub.new
       nlfunc.func =
         lambda do |x|
-          [BigDecimal((Finrb::Utils.fv_simple(r: x.first, n: n, pv: pv) + Finrb::Utils.fv_annuity(r: x.first, n: n, pmt: pmt, type: type) - fv).to_s)]
+          [BigDecimal((Finrb::Utils.fv_simple(r: x.first, n:, pv:) + Finrb::Utils.fv_annuity(r: x.first, n:, pmt:, type:) - fv).to_s)]
         end
 
       root = [(upper - lower) / 2]
@@ -475,7 +475,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (Finrb::Utils.fv_simple(r: r, n: n, pv: pv) + Finrb::Utils.fv_annuity(r: r, n: n, pmt: pmt, type: type))
+        (Finrb::Utils.fv_simple(r:, n:, pv:) + Finrb::Utils.fv_annuity(r:, n:, pmt:, type:))
       end
     end
 
@@ -536,7 +536,7 @@ module Finrb
       sum = 0
       (0...m).each do |i|
         n = m - (i + 1)
-        sum += Finrb::Utils.fv_simple(r: r, n: n, pv: cf[i])
+        sum += Finrb::Utils.fv_simple(r:, n:, pv: cf[i])
       end
       sum
     end
@@ -746,7 +746,7 @@ module Finrb
       cf = Array.wrap(cf).map { |value| Flt::DecNum(value.to_s) }
 
       subcf = cf.drop(1)
-      ((Finrb::Utils.pv_uneven(r: r, cf: subcf) * -1) + cf.first)
+      ((Finrb::Utils.pv_uneven(r:, cf: subcf) * -1) + cf.first)
     end
 
     # Estimate period payment
@@ -800,7 +800,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        Finrb::Utils.pv_simple(r: r, n: n, fv: fv) + Finrb::Utils.pv_annuity(r: r, n: n, pmt: pmt, type: type)
+        Finrb::Utils.pv_simple(r:, n:, fv:) + Finrb::Utils.pv_annuity(r:, n:, pmt:, type:)
 
       end
     end
@@ -891,7 +891,7 @@ module Finrb
       n = cf.size
       sum = 0
       (0...n).each do |i|
-        sum += Finrb::Utils.pv_simple(r: r, n: i + 1, fv: cf[i])
+        sum += Finrb::Utils.pv_simple(r:, n: i + 1, fv: cf[i])
       end
       sum
     end

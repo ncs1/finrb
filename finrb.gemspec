@@ -17,7 +17,7 @@ SPEC =
 
     s.homepage = 'https://rubygems.org/gems/finrb'
 
-    s.required_ruby_version = '>= 3.0'
+    s.required_ruby_version = '>= 3.1'
 
     s.add_dependency('activesupport')
     s.add_dependency('bigdecimal', '>= 3.1.2')

@@ -3,7 +3,7 @@
 SPEC =
   Gem::Specification.new do |s|
     s.name = 'finrb'
-    s.version = '0.1.4'
+    s.version = '0.1.5'
     s.authors = ['Nadir Cohen']
     s.license = 'LGPL-3.0'
     s.email = ['nadircs11@gmail.com']

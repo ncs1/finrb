@@ -14,7 +14,7 @@ jobs:
         ruby_version: ["3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -31,7 +31,7 @@ jobs:
         ruby_version: ["3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: build test docker image
       run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .
 

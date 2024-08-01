@@ -1,5 +1,9 @@
 # finrb changelog
 
+## 0.1.6
+
+- bump gem versions
+
 ## 0.1.4
 
 - transactions rails fix

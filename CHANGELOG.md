@@ -1,5 +1,11 @@
 # finrb changelog
 
+## 0.1.7
+
+- rm ruby 3.1 support, set 3.2 as minimum
+- adds ruby 3.4 to ci
+- bump gem versions
+
 ## 0.1.6
 
 - bump gem versions

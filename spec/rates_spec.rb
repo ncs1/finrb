@@ -52,8 +52,8 @@ describe('Rates') do
     it('is comparable to other interest rates') do
       r1 = Rate.new(0.15, :nominal)
       r2 = Rate.new(0.16, :nominal)
-      expect((r2 <=> r1)).to(eq(1))
-      expect((r1 <=> r2)).to(eq(-1))
+      expect(r2 <=> r1).to(eq(1))
+      expect(r1 <=> r2).to(eq(-1))
     end
 
     it('converts to a monthly value') do

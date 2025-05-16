@@ -47,7 +47,7 @@ describe('Amortization') do
 
     it('has interest charges which agree with the standard formula') do
       0.upto(359) do |period|
-        expect(ipmt(@principal, @rate.monthly, @std.payment, (period + 1))).to(eq(@std.interest[period]))
+        expect(ipmt(@principal, @rate.monthly, @std.payment, period + 1)).to(eq(@std.interest[period]))
       end
     end
 
@@ -60,7 +60,7 @@ describe('Amortization') do
     before do
       @rates = []
       0.upto(9) do |adj|
-        (@rates << Rate.new(((D('0.01') * adj) + 0.0375), :apr, duration: (3 * 12)))
+        (@rates << Rate.new((D('0.01') * adj) + 0.0375, :apr, duration: (3 * 12)))
       end
       @principal = D(200_000)
       @arm = Amortization.new(@principal, *@rates)

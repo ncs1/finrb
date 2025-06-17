@@ -317,7 +317,7 @@ module Finrb
           [BigDecimal((Finrb::Utils.fv_simple(r: x.first, n:, pv:) + Finrb::Utils.fv_annuity(r: x.first, n:, pmt:, type:) - fv).to_s)]
         end
 
-      root = [(upper - lower) / 2]
+      root = [BigDecimal(((upper - lower) / 2).to_s)]
       nlsolve(nlfunc, root)
       root.first
     end

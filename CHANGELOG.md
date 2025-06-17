@@ -1,5 +1,10 @@
 # finrb changelog
 
+## 0.1.9
+
+- bump gem versions
+- fix BigDecimal 3.2 compatibility
+
 ## 0.1.8
 
 - bump gem versions

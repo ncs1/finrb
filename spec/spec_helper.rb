@@ -15,6 +15,7 @@
 # it.
 #
 
+require('amazing_print')
 require('flt')
 require('flt/d')
 require('pry')

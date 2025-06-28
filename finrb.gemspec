@@ -24,6 +24,7 @@ SPEC =
     s.add_dependency('business_time')
     s.add_dependency('flt')
 
+    s.add_development_dependency('amazing_print')
     s.add_development_dependency('pry')
     s.add_development_dependency('rake')
     s.add_development_dependency('rspec')

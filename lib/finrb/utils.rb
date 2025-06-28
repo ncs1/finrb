@@ -774,7 +774,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pv + (fv / ((r + 1)**n))) * r / (1 - (1.to_f / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
+        (pv + (fv / ((r + 1)**n))) * r / (1 - (1 / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
       end
     end
 

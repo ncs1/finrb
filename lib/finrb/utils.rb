@@ -360,7 +360,7 @@ module Finrb
     def self.ear2bey(ear:)
       ear = Flt::DecNum(ear.to_s)
 
-      ((((ear + 1).sqrt) - 1) * 2)
+      (((ear + 1).sqrt - 1) * 2)
     end
 
     # Computing HPR, the holding period return

@@ -1,5 +1,10 @@
 # finrb changelog
 
+## 0.1.10
+
+- bump gem versions
+- sanitize Float/BigDecimal return from Utils model, assert Flt::DecNum return type across.
+
 ## 0.1.9
 
 - bump gem versions

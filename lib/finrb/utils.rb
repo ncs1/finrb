@@ -500,7 +500,6 @@ module Finrb
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
         (pmt / r * (((r + 1)**n) - 1)) * ((r + 1)**type) * -1
-
       end
     end
 
@@ -801,7 +800,6 @@ module Finrb
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
         Finrb::Utils.pv_simple(r:, n:, fv:) + Finrb::Utils.pv_annuity(r:, n:, pmt:, type:)
-
       end
     end
 
@@ -856,7 +854,6 @@ module Finrb
         raise(FinrbError, 'Error: g is not smaller than r!')
       else
         (pmt / (r - g)) * ((r + 1)**type) * -1
-
       end
     end
 

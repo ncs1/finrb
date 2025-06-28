@@ -220,7 +220,7 @@ module Finrb
 
       raise(FinrbError, 't should be larger than 1') if t < 2
 
-      ddb = [0] * t
+      ddb = [Flt::DecNum(0)] * t
       ddb[0] = cost * 2 / t
       if cost - ddb.first <= rv
         ddb[0] = cost - rv
@@ -319,7 +319,7 @@ module Finrb
 
       root = [BigDecimal(((upper - lower) / 2).to_s)]
       nlsolve(nlfunc, root)
-      root.first
+      Flt::DecNum(root.first)
     end
 
     # Convert stated annual rate to the effective annual rate
@@ -360,7 +360,7 @@ module Finrb
     def self.ear2bey(ear:)
       ear = Flt::DecNum(ear.to_s)
 
-      ((((ear + 1)**0.5) - 1) * 2)
+      ((((ear + 1).sqrt) - 1) * 2)
     end
 
     # Computing HPR, the holding period return
@@ -549,7 +549,7 @@ module Finrb
       r = Array.wrap(r).map { |value| Flt::DecNum(value.to_s) }
 
       rs = r.map { |value| value + 1 }
-      ((rs.reduce(:*)**(1.to_f / rs.size)) - 1)
+      ((rs.reduce(:*)**(Flt::DecNum(1) / rs.size)) - 1)
     end
 
     # gross profit margin -- Evaluate a company's financial performance
@@ -572,7 +572,7 @@ module Finrb
     def self.harmonic_mean(p:)
       p = Array.wrap(p).map { |value| Flt::DecNum(value.to_s) }
 
-      (1.to_f / (p.sum { |val| 1.to_f / val } / p.size))
+      (Flt::DecNum(1) / (p.sum { |val| Flt::DecNum(1) / val } / p.size))
     end
 
     # Computing HPR, the holding period return
@@ -646,7 +646,7 @@ module Finrb
 
       root = [0]
       nlsolve(nlfunc, root)
-      root.first
+      Flt::DecNum(root.first)
     end
 
     # calculate the net increase in common shares from the potential exercise of stock options or warrants
@@ -716,8 +716,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (((fv * r) - (pmt * ((r + 1)**type))) * -1 / ((pv * r) + (pmt * ((r + 1)**type)))).to_dec.log / (r + 1).to_dec.log
-
+        (((fv * r) - (pmt * ((r + 1)**type))) * Flt::DecNum(-1) / ((pv * r) + (pmt * ((r + 1)**type)))).to_dec.log / (r + 1).to_dec.log
       end
     end
 
@@ -773,7 +772,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pv + (fv / ((r + 1)**n))) * r / (1 - (1 / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
+        (pv + (fv / ((r + 1)**n))) * r / (1 - (Flt::DecNum(1) / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
       end
     end
 
@@ -823,8 +822,7 @@ module Finrb
       if type != 0 && type != 1
         raise(FinrbError, 'Error: type should be 0 or 1!')
       else
-        (pmt / r * (1 - (1.to_f / ((r + 1)**n)))) * ((r + 1)**type) * -1
-
+        (pmt / r * (1 - (Flt::DecNum(1) / ((r + 1)**n)))) * ((r + 1)**type) * -1
       end
     end
 
@@ -949,7 +947,7 @@ module Finrb
       pmt = Flt::DecNum(pmt.to_s)
       pv = Flt::DecNum(pv.to_s)
 
-      (pmt * -1 / pv)
+      (pmt * Flt::DecNum(-1) / pv)
     end
 
     # Computing Sampling error
@@ -1038,14 +1036,14 @@ module Finrb
       r = ev.size
       s = bv.size
       t = cfr.size
-      wr = 1
+      wr = Flt::DecNum(1)
       if r != s || r != t || s != t
         raise(FinrbError, 'Different number of values!')
       else
         (0...r).each do |i|
           wr *= (Finrb::Utils.hpr(ev: ev[i], bv: bv[i], cfr: cfr[i]) + 1)
         end
-        ((wr**(1.to_f / r)) - 1)
+        ((wr**(Flt::DecNum(1) / r)) - 1)
       end
     end
 

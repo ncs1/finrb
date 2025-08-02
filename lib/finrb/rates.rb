@@ -8,6 +8,7 @@ module Finrb
   # @api public
   class Rate
     include Comparable
+
     # Accepted rate types
     TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
     public_constant :TYPES

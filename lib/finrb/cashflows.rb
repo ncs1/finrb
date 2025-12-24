@@ -100,12 +100,7 @@ module Finrb
     def xirr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
       positives, negatives = partition { |t| t.amount >= 0 }
-      if positives.empty? || negatives.empty?
-        raise(
-          ArgumentError,
-          'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.'
-        )
-      end
+      raise(ArgumentError, 'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.') if positives.empty? || negatives.empty?
 
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]

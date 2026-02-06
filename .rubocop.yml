@@ -85,3 +85,6 @@ Gemspec/DevelopmentDependencies:
 Lint/ConstantResolution:
   Enabled: false
 
+Style/HashLookupMethod:
+  Enabled: false
+

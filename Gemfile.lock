@@ -46,6 +46,7 @@ GEM
     method_source (1.1.0)
     minitest (6.0.1)
       prism (~> 1.5)
+    ostruct (0.6.3)
     parallel (1.27.0)
     parser (3.3.10.0)
       ast (~> 2.4.1)
@@ -118,6 +119,7 @@ PLATFORMS
 DEPENDENCIES
   amazing_print
   finrb!
+  ostruct
   pry
   rake
   rspec

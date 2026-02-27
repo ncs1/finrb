@@ -60,7 +60,7 @@ describe('Amortization') do
     before do
       @rates = []
       0.upto(9) do |adj|
-        (@rates << Rate.new((D('0.01') * adj) + 0.0375, :apr, duration: (3 * 12)))
+        @rates << Rate.new((D('0.01') * adj) + 0.0375, :apr, duration: (3 * 12))
       end
       @principal = D(200_000)
       @arm = Amortization.new(@principal, *@rates)
@@ -86,8 +86,8 @@ describe('Amortization') do
       values = ['926.23', '1033.73', '1137.32', '1235.39', '1326.30', '1408.27', '1479.28', '1537.03', '1578.84', '1601.66']
       values.map! { |v| -D(v) }
       payments = []
-      values[0, 9].each { |v| 36.times { (payments << v) } }
-      35.times { (payments << values[9]) }
+      values[0, 9].each { |v| 36.times { payments << v } }
+      35.times { payments << values[9] }
       payments[(0..-2)].each_with_index do |payment, index|
         expect(@arm.payments[index]).to(eq(payment))
       end
@@ -110,7 +110,7 @@ describe('Amortization') do
     before do
       @rate = Rate.new(0.0375, :apr, duration: (30 * 12))
       @principal = D(200_000)
-      @exp = Amortization.new(@principal, @rate) { |period| (period.payment - 100) }
+      @exp = Amortization.new(@principal, @rate) { |period| period.payment - 100 }
     end
 
     it('has a principal of $200,000') do
@@ -156,8 +156,8 @@ describe('Amortization') do
 
     it('works with block invocation') do
       rate = Rate.new(0.0375, :apr, duration: (30 * 12))
-      amt_method = 300_000.amortize(rate) { |period| (period.payment - 300) }
-      amt_class = Amortization.new(300_000, rate) { |period| (period.payment - 300) }
+      amt_method = 300_000.amortize(rate) { |period| period.payment - 300 }
+      amt_class = Amortization.new(300_000, rate) { |period| period.payment - 300 }
       expect(amt_class).to(eq(amt_method))
     end
   end

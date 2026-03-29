@@ -5,7 +5,7 @@ module Finrb
   private_constant :Config
 
   def self.config
-    @config ||= Config.new('1.0e-16', 1.0, false, false)
+    @config ||= Config.new(eps: '1.0e-16', guess: 1.0, business_days: false, periodic_compound: false)
   end
 
   def self.configure

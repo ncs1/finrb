@@ -1,6 +1,6 @@
 # finrb
 
-[![CI](https://github.com/ncs1/finrb/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
+[![CI](https://github.com/ncs1/finrb/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/ncs1/finrb/actions/workflows/codeql.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/codeql.yml)
 [![RuboCop](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml)
 

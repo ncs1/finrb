@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 module Finrb
-  include ActiveSupport::Configurable
+  Config = Struct.new(:eps, :guess, :business_days, :periodic_compound)
 
-  default_values = { eps: '1.0e-16', guess: 1.0, business_days: false, periodic_compound: false }
+  def self.config
+    @config ||= Config.new('1.0e-16', 1.0, false, false)
+  end
 
-  default_values.each do |key, value|
-    config.__send__(:"#{key.to_sym}=", value)
+  def self.configure
+    yield config
   end
 end

@@ -6,16 +6,15 @@ plugins:
   - rubocop-packaging
   - rubocop-rspec
 
-
 AllCops:
-  TargetRubyVersion: 3.2
+  TargetRubyVersion: 3.3
   EnabledByDefault: true
   NewCops: enable
   UseCache: true
   Exclude:
-    - '**/.git/**/*'
-    - '**/tmp/**/*'
-    - '**/vendor/**/*'
+    - "**/.git/**/*"
+    - "**/tmp/**/*"
+    - "**/vendor/**/*"
   CacheRootDirectory: tmp
   MaxFilesInCache: 36000
 
@@ -87,4 +86,3 @@ Lint/ConstantResolution:
 
 Style/HashLookupMethod:
   Enabled: false
-

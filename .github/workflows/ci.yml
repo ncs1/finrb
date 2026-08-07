@@ -4,34 +4,33 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: "0 12 * * *"
 
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        ruby_version: ["3.2", "3.3", "3.4", "4.0"]
+        ruby_version: ["3.3", "3.4", "4.0"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby_version }}
-    - name: Install dependencies
-      run: bundle install --jobs 4 --retry 3
-    - name: Run tests
-      run: bundle exec rake
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby_version }}
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+      - name: Run tests
+        run: bundle exec rake
 
   docker_build:
     strategy:
       fail-fast: false
       matrix:
-        ruby_version: ["3.2", "3.3", "3.4", "4.0"]
+        ruby_version: ["3.3", "3.4", "4.0"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - name: build test docker image
-      run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .
-
+      - uses: actions/checkout@v7
+      - name: build test docker image
+        run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .

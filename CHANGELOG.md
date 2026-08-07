@@ -1,5 +1,10 @@
 # finrb changelog
 
+## 0.1.12
+
+- bump gem versions
+- rm ruby 3.2 support, set 3.3 as minimum
+
 ## 0.1.11
 
 - fix activesupport configurable deprecation (thanks to @schinery)

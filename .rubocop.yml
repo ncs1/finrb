@@ -86,3 +86,6 @@ Lint/ConstantResolution:
 
 Style/HashLookupMethod:
   Enabled: false
+
+Style/Copyright:
+  Enabled: false

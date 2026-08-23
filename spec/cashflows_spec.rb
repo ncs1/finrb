@@ -46,6 +46,12 @@ describe('Cashflows') do
     it('calculates correct rate with new guess (0.5)') do
       expect(@transactions.xirr(0.5).effective.round(5)).to(eq(D('-0.00742')))
     end
+
+    it('counts weekdays from the start date up to the end date') do
+      expect(@transactions.__send__(:date_diff, Date.new(2026, 8, 21), Date.new(2026, 8, 24))).to(eq(1))
+      expect(@transactions.__send__(:date_diff, Date.new(2026, 8, 22), Date.new(2026, 8, 24))).to(eq(0))
+      expect(@transactions.__send__(:date_diff, Date.new(2026, 8, 24), Date.new(2026, 8, 31))).to(eq(5))
+    end
   end
 
   describe('guess') do

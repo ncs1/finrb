@@ -61,18 +61,15 @@ describe(Finrb::Cashflow) do
   end
 
   describe('guess with business days') do
+    around do |example|
+      Finrb.with_config(business_days: true, periodic_compound: true) { example.run }
+    end
+
     before do
-      Finrb.config.business_days = true
-      Finrb.config.periodic_compound = true
       @transactions = []
       (@transactions << Transaction.new(-2_906_071.23, date: Date.new(2017, 8, 31)))
       (@transactions << Transaction.new(8000.0, date: Date.new(2017, 9, 4)))
       (@transactions << Transaction.new(2_876_570.16, date: Date.new(2017, 9, 29)))
-    end
-
-    after do
-      Finrb.config.business_days = false
-      Finrb.config.periodic_compound = false
     end
 
     it('calculates with the default guess') do

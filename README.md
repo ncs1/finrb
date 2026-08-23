@@ -11,6 +11,7 @@
   - [Configuration](#configuration)
   - [API and examples](#api-and-examples)
 - [Resources](#resources)
+- [Quality checks](#quality-checks)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
 
@@ -188,6 +189,22 @@ See [api.md](docs/api.md)
 - [RubyGems Page](https://rubygems.org/gems/finrb)
 - [Source Code](https://github.com/ncs1/finrb)
 - [Bug Tracker](https://github.com/ncs1/finrb/issues)
+
+## Quality checks
+
+Run the self-contained suite with enforced line and branch coverage:
+
+```shell
+bundle exec rake quality
+```
+
+The suite includes deterministic generated-root properties and committed
+SciPy/QuantLib golden fixtures. Maintainers with the optional Python reference
+environment can run a larger seeded comparison using:
+
+```shell
+bundle exec rake solver:verify
+```
 
 ## Acknowledgements
 

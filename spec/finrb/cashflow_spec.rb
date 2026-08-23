@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe('Cashflows') do
+describe(Finrb::Cashflow) do
   describe('an array of numeric cashflows') do
     # TODO: fix slow test
     # it('has an Internal Rate of Return') do

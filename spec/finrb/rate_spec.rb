@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe('Rates') do
+describe(Finrb::Rate) do
   describe('an interest rate') do
     describe('can compound with different periods') do
       it('compounds monthly by default') do

@@ -35,15 +35,15 @@ RSpec/ExampleLength:
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
   Exclude:
-    - 'spec/amortization_spec.rb'
-    - 'spec/cashflows_spec.rb'
+    - 'spec/finrb/amortization_spec.rb'
+    - 'spec/finrb/cashflow_spec.rb'
 
 # Offense count: 1
 # Configuration parameters: AllowedPatterns.
 # AllowedPatterns: ^expect_, ^assert_
 RSpec/NoExpectationExample:
   Exclude:
-    - 'spec/amortization_spec.rb'
+    - 'spec/finrb/amortization_spec.rb'
 
 # Offense count: 6
 # Configuration parameters: AllowedConstants.

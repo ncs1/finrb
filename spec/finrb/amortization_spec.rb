@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe('Amortization') do
+describe(Finrb::Amortization) do
   # frozen_string_literal: true
   # @see https://tinyurl.com/6zroqvd for detailed calculations for the
   #   examples in these unit tests.

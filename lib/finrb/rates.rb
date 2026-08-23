@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'precision'
 require_relative 'validation'
 
 module Finrb
@@ -177,7 +178,7 @@ module Finrb
     #   rate.monthly.round(6) #=> Flt::DecNum('0.0125')
     # @api public
     def monthly
-      @monthly ||= (Rate.to_nominal(effective, 12) / 12).round(15)
+      @monthly ||= Precision.rate(Rate.to_nominal(effective, 12) / 12)
     end
 
     # set the nominal interest rate

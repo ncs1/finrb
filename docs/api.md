@@ -62,6 +62,12 @@
 <!-- /TOC -->
 ## Amortization
 
+Amortization treats payments and period interest as monetary postings. Each is
+rounded to two decimal places using `Finrb::Precision.money`, which applies
+half-up rounding. Any final balance caused by period-by-period cent rounding is
+allocated to the last payment. Other financial calculations retain decimal
+precision unless their API explicitly states otherwise.
+
 You are interested in borrowing $250,000 under a 30 year, fixed-rate
 loan with a 4.25% APR.
 

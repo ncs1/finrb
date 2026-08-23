@@ -28,6 +28,7 @@ SPEC =
     s.add_dependency('ostruct')
 
     s.add_development_dependency('amazing_print')
+    s.add_development_dependency('bundler-audit')
     s.add_development_dependency('pry')
     s.add_development_dependency('rake')
     s.add_development_dependency('rbs')

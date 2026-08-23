@@ -26,6 +26,12 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 26
 
+# Existing utility implementations retained during domain extraction.
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/finrb/accounting.rb'
+    - 'lib/finrb/ratios.rb'
+
 # Offense count: 5
 # Configuration parameters: CountAsOne.
 RSpec/ExampleLength:
@@ -54,7 +60,6 @@ Style/Documentation:
     - 'lib/finrb/amortization.rb'
     - 'lib/finrb/config.rb'
     - 'lib/finrb/decimal.rb'
-    - 'lib/finrb/utils.rb'
 
 # Offense count: 5
 # This cop supports safe autocorrection (--autocorrect).
@@ -62,8 +67,8 @@ Style/Documentation:
 # SupportedStyles: if, case, both
 Style/MissingElse:
   Exclude:
+    - 'lib/finrb/accounting.rb'
     - 'lib/finrb/amortization.rb'
-    - 'lib/finrb/utils.rb'
 
 # Offense count: 3
 # Configuration parameters: AllowedClasses.

@@ -9,6 +9,7 @@ require 'finrb/precision'
 require 'finrb/ratios'
 require 'finrb/returns'
 require 'finrb/tvm'
+require 'finrb/version'
 require 'finrb/yields'
 
 FinrbError = Finrb::Error

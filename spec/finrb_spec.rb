@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 describe(Finrb) do
+  it('exposes the gem version') do
+    expect(described_class::VERSION).to(eq('1.0.0'))
+  end
+
   describe('decimal interoperability') do
     it('converts between BigDecimal and Flt::DecNum') do
       decimal = Flt::DecNum(BigDecimal('1.25'))

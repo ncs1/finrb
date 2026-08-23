@@ -1,5 +1,29 @@
 # finrb changelog
 
+## 1.0.0
+
+This release intentionally breaks parts of the 0.1 public API.
+
+### Financial correctness
+
+- Normalize XNPV date calculations and distinguish nominal APR from effective APY.
+- Replace deprecated BigDecimal Newton solving with a decimal Brent–Dekker solver and explicit convergence/domain errors.
+- Validate public financial inputs and centralize amortization rounding policy.
+- Fix FIFO/LIFO ending inventory when a sale is satisfied before every layer is traversed.
+
+### Public API
+
+- Replace `Finrb::Utils` with `Finrb::TVM`, `Accounting`, `Ratios`, `Returns`, and `Yields`.
+- Expose IRR, NPV, XIRR, and XNPV through `Finrb::Cashflow`.
+- Stop modifying `Array` and `Numeric` by default; legacy fluent methods require `finrb/core_ext`.
+- Publish immutable configuration snapshots with thread-scoped temporary overrides.
+
+### Dependencies and assurance
+
+- Remove ActiveSupport and `business_time` production dependencies.
+- Add deterministic generated-root tests, SciPy/QuantLib reference verification, line and branch coverage, and packaged RBS signatures.
+- Support Ruby 3.3, 3.4, and 4.0.
+
 ## 0.1.12
 
 - bump gem versions

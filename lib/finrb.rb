@@ -5,6 +5,7 @@ require 'finrb/config'
 require 'finrb/decimal'
 require 'finrb/errors'
 require 'finrb/precision'
+require 'finrb/tvm'
 require 'finrb/utils'
 
 FinrbError = Finrb::Error

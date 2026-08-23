@@ -137,6 +137,17 @@ Finrb.configure do |config|
 end
 ```
 
+Configuration is validated and published as one immutable value after the
+block completes. Configure process-wide defaults during application startup;
+`Finrb.config` is read-only. For a temporary override that cannot leak into
+another thread, use:
+
+```ruby
+Finrb.with_config(guess: 0.25) do
+  cashflows.irr
+end
+```
+
 ### Precision and rounding
 
 Finrb converts validated numeric inputs to `Flt::DecNum` and retains the

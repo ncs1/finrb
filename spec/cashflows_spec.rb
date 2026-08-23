@@ -14,6 +14,15 @@ describe('Cashflows') do
     end
   end
 
+  describe('dated cashflows') do
+    it('calculates the same XNPV for equivalent Date and Time values') do
+      date_transactions = [Transaction.new(-1000, date: Date.new(2020, 1, 1)), Transaction.new(1100, date: Date.new(2021, 1, 1))]
+      time_transactions = [Transaction.new(-1000, date: Time.utc(2020, 1, 1)), Transaction.new(1100, date: Time.utc(2021, 1, 1))]
+
+      expect(date_transactions.xnpv(0.1)).to(eq(time_transactions.xnpv(0.1)))
+    end
+  end
+
   describe('guess with business days') do
     before do
       Finrb.config.business_days = true
@@ -47,7 +56,8 @@ describe('Cashflows') do
     end
 
     it('fails to calculate with default guess (1.0)') do
-      expect(@transactions.xirr.apr.to_i).to(eq(-9_999_999_999_998))
+      expect { @transactions.xirr }
+        .to(raise_error(Flt::Num::InvalidOperation))
     end
 
     it('calculates correct rate with new guess (0.1)') do

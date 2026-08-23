@@ -1,0 +1,28 @@
+# Solver oracle fixtures
+
+These fixtures validate finrb against independent implementations. They are test evidence, not runtime data.
+
+## SciPy
+
+`scipy_brentq_irr.json` was generated with `scipy.optimize.brentq` 1.18.1. SciPy solves the periodic NPV equation using binary double precision and a caller-supplied sign-changing bracket.
+
+## QuantLib
+
+`quantlib_yield_rate_xirr.json` was generated with QuantLib 1.43 `CashFlows.yieldRate`. The settings intentionally match finrb's current XIRR semantics:
+
+- Actual/365 Fixed day count;
+- annually compounded effective rate;
+- settlement-date cashflows excluded from the future leg, with the initial outlay supplied as NPV;
+- `1e-13` accuracy and 1000 maximum evaluations.
+
+QuantLib's cached bond-yield fixtures are not copied here. Those values incorporate coupon schedules, accrued interest, clean/dirty prices, market calendars, and bond-specific day-count conventions that finrb XIRR does not currently model. Treating them as plain XIRR fixtures would compare different financial contracts.
+
+## Live randomized comparison
+
+From an isolated Python environment containing SciPy and QuantLib, run:
+
+```shell
+python script/cross_validate_solver.py --count 100 --seed 20260825
+```
+
+The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/finrb_solver_adapter.rb`, and compares each result with both external oracles. QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. Neither Python package is a finrb dependency.

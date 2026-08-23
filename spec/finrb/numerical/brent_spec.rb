@@ -28,6 +28,15 @@ describe(Finrb::Numerical::Brent) do
       .to(raise_error(Finrb::ConvergenceError, /not bracketed/))
   end
 
+  it('rejects unordered and zero-width intervals') do
+    function = ->(value) { value - 1 }
+
+    expect { solver.solve(function, lower: 2, upper: 1) }
+      .to(raise_error(ArgumentError, /Lower bound/))
+    expect { solver.solve(function, lower: 1, upper: 1) }
+      .to(raise_error(ArgumentError, /Lower bound/))
+  end
+
   it('reports function domain failures') do
     expect { solver.solve(->(value) { 1 / value }, lower: -1, upper: 1) }
       .to(raise_error(Finrb::DomainError, /undefined/))

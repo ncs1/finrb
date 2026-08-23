@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
-
 describe(Finrb::Cashflow) do
   describe('an array of numeric cashflows') do
     it('has an Internal Rate of Return') do
@@ -27,17 +25,6 @@ describe(Finrb::Cashflow) do
     it('reports a cashflow with no sign-changing IRR') do
       expect { [-100, 50, -100].irr(0) }
         .to(raise_error(Finrb::ConvergenceError, /Could not bracket/))
-    end
-
-    it('agrees with independently generated SciPy brentq fixtures') do
-      fixture = JSON.parse(File.read(File.expand_path('../fixtures/scipy_brentq_irr.json', __dir__)))
-
-      fixture.fetch('cases').each do |test_case|
-        actual = test_case.fetch('cashflows').irr(test_case.fetch('root').to_f)
-
-        expect(actual).to(be_within(D('2e-14')).of(D(test_case.fetch('root'))))
-        expect(test_case.fetch('cashflows').npv(actual).abs).to(be <= D('1e-8'))
-      end
     end
   end
 

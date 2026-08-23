@@ -33,6 +33,7 @@ SPEC =
     s.add_development_dependency('rubocop-rake')
     s.add_development_dependency('rubocop-rspec')
     s.add_development_dependency('semver')
+    s.add_development_dependency('simplecov')
 
     s.files = Dir['CHANGELOG.md', 'COPYING*', 'README.md', 'lib/**/*']
 

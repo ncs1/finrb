@@ -10,6 +10,18 @@ end
 
 task default: %i[spec]
 
+desc 'Run the suite with line and branch coverage'
+task :coverage do
+  previous_coverage = ENV.fetch('COVERAGE', nil)
+  ENV['COVERAGE'] = 'true'
+  sh('bundle', 'exec', 'rspec')
+ensure
+  ENV['COVERAGE'] = previous_coverage
+end
+
+desc 'Run all self-contained quality checks'
+task quality: %i[coverage]
+
 namespace :solver do
   desc 'Verify IRR/XIRR against SciPy and QuantLib references'
   task :verify do

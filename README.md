@@ -208,11 +208,18 @@ Install the bundle and run the self-contained quality checks:
 bundle install
 bundle exec rake quality
 bundle exec rubocop
+bundle exec rake security:audit
+bundle exec rake package:verify
 ```
 
 The quality task runs the RSpec suite with line and branch coverage, generated
 IRR/XIRR properties, committed SciPy/QuantLib reference fixtures, and RBS
 validation.
+
+`security:audit` updates ruby-advisory-db and checks the locked dependencies.
+`package:verify` builds the gem, validates its contents and metadata, installs
+it with only its declared runtime dependencies, and runs packaged API smoke
+tests without publishing or retaining the temporary installation.
 
 CI also runs the quality suite on native ARM64 and compatibility specs on the
 current stable JRuby and TruffleRuby. Alternative Ruby jobs are initially

@@ -29,6 +29,42 @@ namespace :rbs do
   end
 end
 
+namespace :security do
+  desc 'Update ruby-advisory-db and audit locked dependencies'
+  task :audit do
+    sh('bundle', 'exec', 'bundle-audit', 'check', '--update')
+  end
+end
+
+namespace :package do
+  desc 'Build, inspect, install, and smoke-test the gem without publishing it'
+  task :verify do
+    require('bundler')
+    require('fileutils')
+    require('rbconfig')
+
+    scratch_dir = File.expand_path('tmp/finrb-package-verification', __dir__)
+    artifact = File.join(scratch_dir, 'finrb.gem')
+    gem_home = File.join(scratch_dir, 'gems')
+    gem_environment = { gem_home:, gem_path: gem_home }.transform_keys { |key| key.to_s.upcase }
+
+    FileUtils.rm_rf(scratch_dir)
+    FileUtils.mkdir_p(gem_home)
+
+    sh('gem', 'build', 'finrb.gemspec', '--output', artifact)
+    sh(RbConfig.ruby, File.join(__dir__, 'script', 'verify_gem.rb'), artifact)
+    Bundler.with_unbundled_env do
+      sh(gem_environment, 'gem', 'install', artifact, '--no-document')
+
+      Dir.chdir(scratch_dir) do
+        sh(gem_environment, RbConfig.ruby, File.join(__dir__, 'script', 'smoke_gem.rb'))
+      end
+    end
+  ensure
+    FileUtils.rm_rf(scratch_dir) if defined?(scratch_dir) && scratch_dir
+  end
+end
+
 namespace :solver do
   desc 'Verify IRR/XIRR against SciPy and QuantLib references'
   task :verify do

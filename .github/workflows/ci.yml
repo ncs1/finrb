@@ -6,8 +6,16 @@ on:
   schedule:
     - cron: "0 12 * * *"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -26,6 +34,7 @@ jobs:
   arm64:
     name: Ruby 4.0 on native ARM64
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - name: Set up Ruby
@@ -41,6 +50,7 @@ jobs:
   alternative_rubies:
     name: ${{ matrix.ruby }} compatibility
     continue-on-error: true
+    timeout-minutes: 30
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/engines.gemfile
     strategy:
@@ -61,6 +71,7 @@ jobs:
         run: bundle exec rspec
 
   docker_build:
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -70,3 +81,44 @@ jobs:
       - uses: actions/checkout@v7
       - name: build test docker image
         run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .
+
+  package:
+    name: Packaged gem
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FINRB_PACKAGE: ${{ runner.temp }}/finrb.gem
+      FINRB_GEM_HOME: ${{ runner.temp }}/finrb-package-gems
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - name: Run quality checks
+        run: bundle exec rake quality
+      - name: Build and inspect gem
+        run: |
+          gem build finrb.gemspec --output "$FINRB_PACKAGE"
+          ruby script/verify_gem.rb "$FINRB_PACKAGE"
+      - name: Install and smoke-test gem
+        run: |
+          mkdir -p "$FINRB_GEM_HOME"
+          GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" gem install "$FINRB_PACKAGE" --no-document
+          cd "${{ runner.temp }}"
+          GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" ruby "$GITHUB_WORKSPACE/script/smoke_gem.rb"
+
+  dependency_audit:
+    name: Ruby dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - name: Check Ruby advisories
+        run: bundle exec bundle-audit check --update

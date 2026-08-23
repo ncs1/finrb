@@ -21,4 +21,20 @@ describe(Finrb::Transaction) do
     expect(transaction.amount).to(eq(D('650.25')))
     expect(transaction.difference).to(eq(D('150.25')))
   end
+
+  it('rejects non-numeric or non-finite amounts') do
+    expect { described_class.new('500') }
+      .to(raise_error(ArgumentError, /amount must be numeric/))
+    expect { described_class.new(Float::INFINITY) }
+      .to(raise_error(ArgumentError, /amount must be finite/))
+  end
+
+  it('rejects invalid dates, periods, and unknown options') do
+    expect { described_class.new(500, date: '2026-08-23') }
+      .to(raise_error(ArgumentError, /date must respond/))
+    expect { described_class.new(500, period: -1) }
+      .to(raise_error(ArgumentError, /non-negative integer/))
+    expect { described_class.new(500, currency: :usd) }
+      .to(raise_error(ArgumentError, /options may only/))
+  end
 end

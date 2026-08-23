@@ -47,6 +47,9 @@ describe(Finrb::Rate) do
     it('accepts a duration if given') do
       rate = Rate.new(0.0375, :effective, duration: 360)
       expect(rate.duration).to(eq(360))
+
+      rate.duration = 24
+      expect(rate.duration).to(eq(24))
     end
 
     it('is comparable to other interest rates') do
@@ -85,6 +88,22 @@ describe(Finrb::Rate) do
     it('raises an exception if an unknown value is given for :type') do
       expect { Rate.new(0.0375, :foo) }
         .to(raise_error(ArgumentError))
+    end
+
+    it('rejects non-finite rates and invalid effective-rate domains') do
+      expect { Rate.new(Float::NAN, :apr) }
+        .to(raise_error(ArgumentError, /finite/))
+      expect { Rate.new(-1, :effective) }
+        .to(raise_error(ArgumentError, /greater than -1/))
+    end
+
+    it('rejects invalid compounding frequencies and durations') do
+      expect { Rate.new(0.05, :apr, compounds: 0) }
+        .to(raise_error(ArgumentError, /must be positive/))
+      expect { Rate.new(0.05, :apr, duration: 12.5) }
+        .to(raise_error(ArgumentError, /positive integer/))
+      expect { Rate.new(0.05, :apr, maturity: 12) }
+        .to(raise_error(ArgumentError, /options may only/))
     end
   end
 end

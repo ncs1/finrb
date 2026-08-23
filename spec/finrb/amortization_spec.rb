@@ -14,6 +14,33 @@ describe(Finrb::Amortization) do
     end
   end
 
+  describe('input validation') do
+    let(:rate) { Rate.new(0.05, :apr, duration: 12) }
+
+    it('requires a positive finite principal and at least one complete rate') do
+      expect { Amortization.new(0, rate) }
+        .to(raise_error(ArgumentError, /principal must be positive/))
+      expect { Amortization.new(Float::INFINITY, rate) }
+        .to(raise_error(ArgumentError, /principal must be finite/))
+      expect { Amortization.new(1000) }
+        .to(raise_error(ArgumentError, /at least one rate/))
+      expect { Amortization.new(1000, Rate.new(0.05, :apr)) }
+        .to(raise_error(ArgumentError, /must have a duration/))
+    end
+
+    it('validates the public payment calculation') do
+      expect { Amortization.payment(1000, -1, 12) }
+        .to(raise_error(ArgumentError, /greater than -1/))
+      expect { Amortization.payment(1000, 0.01, 0) }
+        .to(raise_error(ArgumentError, /positive integer/))
+    end
+
+    it('rejects payment modifications that do not pay down the balance') do
+      expect { Amortization.new(1000, rate) { 10 } }
+        .to(raise_error(ArgumentError, /must produce a negative amount/))
+    end
+  end
+
   describe('a fixed-rate amortization of 200000 at 3.75% over 30 years') do
     before do
       @rate = Rate.new(0.0375, :apr, duration: (30 * 12))

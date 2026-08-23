@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'decimal'
+require_relative 'validation'
 
 module Finrb
   # the Transaction class provides a general interface for working with individual cash flows.
@@ -12,10 +12,10 @@ module Finrb
     # @return [Integer] the period number of the transaction
     # @note this attribute is mainly used in the case of mortgage amortization with no dates
     # @api public
-    attr_accessor :period
+    attr_reader :period
     # @return [Date] the date of the transaction
     # @api public
-    attr_accessor :date
+    attr_reader :date
 
     # create a new Transaction
     # @return [Transaction]
@@ -28,6 +28,9 @@ module Finrb
     #   t = Transaction.new(400, :period => 3)
     # @api public
     def initialize(amount, opts = {})
+      raise(ArgumentError, 'options must be a Hash.') unless opts.is_a?(Hash)
+      raise(ArgumentError, 'options may only contain date and period.') unless (opts.keys - %i[date period]).empty?
+
       self.amount = amount
       @original = @amount
 
@@ -46,7 +49,20 @@ module Finrb
     #   t.amount #=> 750
     # @api public
     def amount=(value)
-      @amount = Flt::DecNum.new(value.to_s) || 0
+      @amount = Validation.decimal(value, name: 'amount')
+    end
+
+    def date=(value)
+      raise(ArgumentError, 'date must respond to to_date.') unless value.nil? || value.respond_to?(:to_date)
+
+      @date = value
+    end
+
+    def period=(value)
+      valid = value.nil? || (value.is_a?(Integer) && !value.negative?)
+      raise(ArgumentError, 'period must be a non-negative integer.') unless valid
+
+      @period = value
     end
 
     # @return [Flt::DecNum] the difference between the original transaction

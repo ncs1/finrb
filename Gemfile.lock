@@ -38,7 +38,7 @@ GEM
     flt (1.5.4)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    io-console (0.8.2)
+    io-console (0.9.2)
     json (2.21.2)
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
@@ -133,4 +133,4 @@ DEPENDENCIES
   semver
 
 BUNDLED WITH
-  4.0.18
+  4.0.19

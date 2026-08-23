@@ -53,6 +53,23 @@ namespace :docker do
     end
   end
 
+  namespace :arm64 do
+    desc 'Build an ARM64 development image with Docker Buildx'
+    task :build do
+      sh('docker', 'buildx', 'build', '--platform', 'linux/arm64', '--target', 'development', '--tag', 'finrb:1.0-arm64', '--load', '--file', 'Dockerfile', '.')
+    end
+
+    desc 'Run the quality suite in an emulated ARM64 Docker build'
+    task :test do
+      sh('docker', 'buildx', 'build', '--platform', 'linux/arm64', '--target', 'testing', '--tag', 'finrb:testing-arm64', '--load', '--file', 'Dockerfile', '.')
+    end
+
+    desc 'Run the ARM64 development image on this Docker host'
+    task :run do
+      sh('docker', 'run', '--platform', 'linux/arm64', '--init', '--interactive', '--tty', '--rm', 'finrb:1.0-arm64')
+    end
+  end
+
   desc 'Build and run solver reference verification in Docker'
   task :verify_solver do
     image = 'finrb:solver-verification'

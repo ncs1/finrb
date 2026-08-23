@@ -24,6 +24,41 @@ jobs:
       - name: Run tests
         run: bundle exec rake quality
 
+  arm64:
+    name: Ruby 4.0 on native ARM64
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - name: Report runtime
+        run: ruby -v && ruby -e 'puts RUBY_DESCRIPTION; puts RUBY_PLATFORM'
+      - name: Run quality checks
+        run: bundle exec rake quality
+
+  alternative_rubies:
+    name: ${{ matrix.ruby }} compatibility
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [jruby, truffleruby]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Report runtime
+        run: ruby -v && ruby -e 'puts RUBY_DESCRIPTION; puts RUBY_PLATFORM'
+      - name: Run compatibility specs
+        run: bundle exec rspec
+
   docker_build:
     strategy:
       fail-fast: false

@@ -214,6 +214,23 @@ The quality task runs the RSpec suite with line and branch coverage, generated
 IRR/XIRR properties, committed SciPy/QuantLib reference fixtures, and RBS
 validation.
 
+CI also runs the quality suite on native ARM64 and compatibility specs on the
+current stable JRuby and TruffleRuby. Alternative Ruby jobs are initially
+informational while their dependency and numerical compatibility is assessed.
+
+On an x86-64 development machine with Docker Buildx and ARM64 emulation
+available, build, test, and run the ARM64 development image with:
+
+```shell
+bundle exec rake docker:arm64:build
+bundle exec rake docker:arm64:test
+bundle exec rake docker:arm64:run
+```
+
+Docker Desktop normally provides the required emulation. A Linux Docker Engine
+installation must have an ARM64-capable Buildx builder and binfmt/QEMU support
+configured by the operator.
+
 Maintainers with the optional Python environment can run the larger seeded
 solver verification campaign:
 

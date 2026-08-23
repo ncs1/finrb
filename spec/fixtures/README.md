@@ -22,7 +22,13 @@ QuantLib's cached bond-yield fixtures are not copied here. Those values incorpor
 From an isolated Python environment containing SciPy and QuantLib, run:
 
 ```shell
-python script/cross_validate_solver.py --count 100 --seed 20260825
+python script/cross_validate_solver.py \
+  --count 100 \
+  --seed 20260825 \
+  --workers 4 \
+  --batch-size 50
 ```
 
-The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/finrb_solver_adapter.rb`, and compares each result with both external oracles. QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. Neither Python package is a finrb dependency.
+The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/finrb_solver_adapter.rb`, and compares each result with both external oracles. It sends bounded newline-delimited JSON batches through persistent Ruby worker processes instead of constructing one unbounded stdin payload. Ruby workers and SciPy comparisons run concurrently; QuantLib comparisons stay sequential because its Python binding returned invalid results under concurrent access.
+
+QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. Neither Python package is a finrb dependency.

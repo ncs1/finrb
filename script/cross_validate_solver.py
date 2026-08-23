@@ -8,6 +8,7 @@ in an isolated environment with: pip install scipy QuantLib
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import datetime as dt
 import json
 import os
@@ -33,9 +34,18 @@ GUESSES = (0.01, 0.05, 0.5, 1.0, 3.0)
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--count", type=int, default=100, help="cases of each kind")
+    parser.add_argument("--count", type=positive_integer, default=100, help="cases of each kind")
     parser.add_argument("--seed", type=int, default=20260825)
+    parser.add_argument("--batch-size", type=positive_integer, default=50)
+    parser.add_argument("--workers", type=positive_integer, default=min(4, os.cpu_count() or 1))
     return parser.parse_args()
+
+
+def positive_integer(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
 
 
 def periodic_cases(randomizer: random.Random, count: int) -> list[dict]:
@@ -79,16 +89,53 @@ def dated_cases(randomizer: random.Random, count: int) -> list[dict]:
     return cases
 
 
-def finrb_results(cases: list[dict]) -> list[dict]:
-    completed = subprocess.run(
+def batches(cases: list[dict], batch_size: int) -> list[tuple[int, list[dict]]]:
+    return [(start, cases[start : start + batch_size]) for start in range(0, len(cases), batch_size)]
+
+
+def run_ruby_partition(partition: list[tuple[int, list[dict]]]) -> list[tuple[int, list[dict]]]:
+    process = subprocess.Popen(
         [os.environ.get("RUBY", "ruby"), f"-I{ROOT / 'lib'}", str(ADAPTER)],
         cwd=ROOT,
-        input=json.dumps({"cases": cases}),
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        capture_output=True,
-        check=True,
+        bufsize=1,
     )
-    return json.loads(completed.stdout)["results"]
+    results = []
+    assert process.stdin is not None and process.stdout is not None
+
+    try:
+        for start, batch in partition:
+            process.stdin.write(json.dumps({"cases": batch}, separators=(",", ":")) + "\n")
+            process.stdin.flush()
+            response = process.stdout.readline()
+            if not response:
+                stderr = process.stderr.read() if process.stderr is not None else ""
+                raise RuntimeError(f"finrb adapter stopped before batch {start}: {stderr.strip()}")
+            results.append((start, json.loads(response)["results"]))
+    finally:
+        process.stdin.close()
+
+    stderr = process.stderr.read() if process.stderr is not None else ""
+    if process.wait() != 0:
+        raise RuntimeError(f"finrb adapter failed: {stderr.strip()}")
+    return results
+
+
+def finrb_results(cases: list[dict], batch_size: int, workers: int) -> list[dict]:
+    indexed_batches = batches(cases, batch_size)
+    worker_count = min(workers, len(indexed_batches))
+    partitions = [indexed_batches[index::worker_count] for index in range(worker_count)]
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_count) as executor:
+        completed = [batch for partition in executor.map(run_ruby_partition, partitions) for batch in partition]
+
+    results = []
+    for _, batch_results in sorted(completed):
+        results.extend(batch_results)
+    return results
 
 
 def npv(amounts: list[float], rate: float) -> float:
@@ -122,9 +169,10 @@ def quantlib_result(test_case: dict) -> float:
         transactions = test_case["transactions"]
 
     settlement = ql.DateParser.parseISO(transactions[0]["date"])
-    leg = ql.Leg(
-        [ql.SimpleCashFlow(item["amount"], ql.DateParser.parseISO(item["date"])) for item in transactions[1:]]
-    )
+    cashflows = [
+        ql.SimpleCashFlow(item["amount"], ql.DateParser.parseISO(item["date"])) for item in transactions[1:]
+    ]
+    leg = ql.Leg(cashflows)
     return ql.CashFlows.yieldRate(
         leg,
         -transactions[0]["amount"],
@@ -140,28 +188,52 @@ def quantlib_result(test_case: dict) -> float:
     )
 
 
+def actual_result(item: tuple[int, dict, dict]) -> tuple[int, dict, float]:
+    index, test_case, result = item
+    if "error" in result:
+        raise AssertionError(f"finrb case {index} failed: {result}")
+    return index, test_case, float(result["value"])
+
+
+def compare_scipy(item: tuple[int, dict, float]) -> float:
+    index, test_case, actual = item
+    expected = scipy_result(test_case)
+    error = abs(actual - expected)
+    if error > MAX_ERROR:
+        raise AssertionError(f"case {index} differs: finrb={actual}, scipy={expected}, input={test_case}")
+    return error
+
+
+def compare_quantlib(item: tuple[int, dict, float]) -> float:
+    index, test_case, actual = item
+    expected = quantlib_result(test_case)
+    if expected is None:
+        raise RuntimeError(f"QuantLib returned no result for case {index}: {test_case}")
+    error = abs(actual - expected)
+    if error > MAX_ERROR:
+        raise AssertionError(f"case {index} differs: finrb={actual}, quantlib={expected}, input={test_case}")
+    return error
+
+
 def main() -> None:
     args = parse_args()
     randomizer = random.Random(args.seed)
     cases = periodic_cases(randomizer, args.count) + dated_cases(randomizer, args.count)
-    finrb = finrb_results(cases)
-    worst_scipy = 0.0
-    worst_quantlib = 0.0
+    finrb = finrb_results(cases, args.batch_size, args.workers)
+    raw_results = [(index, test_case, result) for index, (test_case, result) in enumerate(zip(cases, finrb, strict=True))]
+    indexed = [actual_result(item) for item in raw_results]
 
-    for index, (test_case, result) in enumerate(zip(cases, finrb, strict=True)):
-        if "error" in result:
-            raise AssertionError(f"finrb case {index} failed: {result}")
-        actual = float(result["value"])
-        scipy = scipy_result(test_case)
-        quantlib = quantlib_result(test_case)
-        worst_scipy = max(worst_scipy, abs(actual - scipy))
-        worst_quantlib = max(worst_quantlib, abs(actual - quantlib))
-        if abs(actual - scipy) > MAX_ERROR or abs(actual - quantlib) > MAX_ERROR:
-            raise AssertionError(
-                f"case {index} differs: finrb={actual}, scipy={scipy}, quantlib={quantlib}, input={test_case}"
-            )
+    # QuantLib's Python binding returned invalid results under concurrent
+    # access, so evaluate it sequentially before starting SciPy threads.
+    quantlib_errors = [compare_quantlib(item) for item in indexed]
 
-    print(f"seed={args.seed} cases={len(cases)}")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
+        scipy_errors = list(executor.map(compare_scipy, indexed))
+
+    worst_scipy = max(scipy_errors)
+    worst_quantlib = max(quantlib_errors)
+
+    print(f"seed={args.seed} cases={len(cases)} workers={args.workers} batch_size={args.batch_size}")
     print(f"SciPy {__import__('scipy').__version__}: worst absolute difference={worst_scipy:.3g}")
     print(f"QuantLib {ql.__version__}: worst absolute difference={worst_quantlib:.3g}")
 

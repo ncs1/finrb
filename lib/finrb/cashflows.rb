@@ -14,6 +14,32 @@ module Finrb
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow
+    class << self
+      def irr(cashflows, guess = nil)
+        sequence(cashflows).irr(guess)
+      end
+
+      def npv(cashflows, rate)
+        sequence(cashflows).npv(rate)
+      end
+
+      def xirr(transactions, guess = nil)
+        sequence(transactions).xirr(guess)
+      end
+
+      def xnpv(transactions, rate)
+        sequence(transactions).xnpv(rate)
+      end
+
+      private
+
+      def sequence(cashflows)
+        raise(ArgumentError, 'cashflows must be an enumerable collection') unless cashflows.respond_to?(:to_a)
+
+        cashflows.to_a.extend(Finrb::Cashflow)
+      end
+    end
+
     # Calculate the per-period internal rate of return for an ordered sequence
     # of equally spaced cashflows.
     #
@@ -27,7 +53,7 @@ module Finrb
     # @raise [DomainError] if the rate domain or function evaluation is invalid
     # @raise [ConvergenceError] if no root can be bracketed or solved
     # @example
-    #   [-4000,1200,1410,1875,1050].irr #=> 0.143
+    #   Finrb::Cashflow.irr([-4000,1200,1410,1875,1050]) #=> 0.143
     # @see https://en.wikipedia.org/wiki/Internal_rate_of_return
     # @api public
     def irr(guess = nil)
@@ -53,7 +79,7 @@ module Finrb
     # @return [Flt::DecNum] the net present value
     # @param [Numeric] rate the discount rate to be applied
     # @example
-    #   [-100.0, 60, 60, 60].npv(0.1) #=> 49.211
+    #   Finrb::Cashflow.npv([-100.0, 60, 60, 60], 0.1) #=> 49.211
     # @see https://en.wikipedia.org/wiki/Net_present_value
     # @api public
     def npv(rate)
@@ -91,7 +117,7 @@ module Finrb
     #   @transactions << Transaction.new(-1000, :date => Time.new(1985,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1990,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1995,01,01))
-    #   @transactions.xirr(0.6) #=> Rate("0.024851", :effective, :compounds => :annually)
+    #   Finrb::Cashflow.xirr(@transactions, 0.6) #=> Rate("0.024851", :effective, :compounds => :annually)
     # @api public
     def xirr(guess = nil)
       validate_dated_cashflows!
@@ -110,7 +136,7 @@ module Finrb
     #   @transactions << Transaction.new(-1000, :date => Time.new(1985,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1990,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1995,01,01))
-    #   @transactions.xnpv(0.6).round(2) #=> -937.41
+    #   Finrb::Cashflow.xnpv(@transactions, 0.6).round(2) #=> -937.41
     # @api public
     def xnpv(rate)
       validate_dated_cashflows!
@@ -186,8 +212,4 @@ module Finrb
       end.then { |value| Flt::DecNum.new(value.to_s) }
     end
   end
-end
-
-class Array
-  include Finrb::Cashflow
 end

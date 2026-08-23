@@ -61,7 +61,7 @@ module Finrb
     def self.ear_continuous(r:)
       r = Flt::DecNum(r.to_s)
 
-      (r.to_dec.exp - 1)
+      (r.exp - 1)
     end
 
     # bond-equivalent yield (BEY), 2 x the semiannual discount rate
@@ -202,7 +202,7 @@ module Finrb
       r = Flt::DecNum(r.to_s)
       m = Flt::DecNum(m.to_s)
 
-      (m * ((r / m) + 1).to_dec.log)
+      (m * ((r / m) + 1).log)
     end
 
     # Convert a given continuous compounded rate to a norminal rate
@@ -218,7 +218,7 @@ module Finrb
       rc = Flt::DecNum(rc.to_s)
       m = Flt::DecNum(m.to_s)
 
-      (m * ((rc / m).to_dec.exp - 1))
+      (m * ((rc / m).exp - 1))
     end
   end
 end

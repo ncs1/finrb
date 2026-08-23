@@ -30,6 +30,7 @@ Metrics/PerceivedComplexity:
 Metrics/ModuleLength:
   Exclude:
     - 'lib/finrb/accounting.rb'
+    - 'lib/finrb/cashflows.rb'
     - 'lib/finrb/ratios.rb'
 
 # Offense count: 5

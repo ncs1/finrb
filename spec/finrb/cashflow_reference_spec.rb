@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'finrb/core_ext'
 require 'json'
 
 # Split from cashflow_spec.rb so external references have explicit provenance.

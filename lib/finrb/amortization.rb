@@ -8,19 +8,16 @@ require_relative 'validation'
 
 module Finrb
   # the Amortization class provides an interface for working with loan amortizations.
-  # @note There are _two_ ways to create an amortization.  The first
-  #   example uses the amortize method for the Numeric class.  The second
-  #   calls Amortization.new directly.
   # @example Borrow $250,000 under a 30 year, fixed-rate loan with a 4.25% APR
   #   rate = Rate.new(0.0425, :apr, :duration => (30 * 12))
-  #   amortization = 250000.amortize(rate)
+  #   amortization = Finrb::Amortization.new(250000, rate)
   # @example Borrow $250,000 under a 30 year, adjustable rate loan, with an APR starting at 4.25%, and increasing by 1% every five years
   #   values = %w{ 0.0425 0.0525 0.0625 0.0725 0.0825 0.0925 }
   #   rates = values.collect { |value| Rate.new( value, :apr, :duration = (5 * 12) ) }
   #   arm = Amortization.new(250000, *rates)
   # @example Borrow $250,000 under a 30 year, fixed-rate loan with a 4.25% APR, but pay $150 extra each month
   #   rate = Rate.new(0.0425, :apr, :duration => (5 * 12))
-  #   extra_payments = 250000.amortize(rate){ |period| period.payment - 150 }
+  #   extra_payments = Finrb::Amortization.new(250000, rate){ |period| period.payment - 150 }
   # @api public
   class Amortization
     # @return [Flt::DecNum] the balance of the loan at the end of the amortization period (usually zero)
@@ -98,7 +95,7 @@ module Finrb
     # @return [Array] the amount of any additional payments in each period
     # @example
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate){ |payment| payment.amount-100}
+    #   amt = Finrb::Amortization.new(300000, rate){ |payment| payment.amount-100}
     #   amt.additional_payments #=> [Flt::DecNum('-100.00'), Flt::DecNum('-100.00'), ... ]
     # @api public
     def additional_payments
@@ -164,11 +161,11 @@ module Finrb
     # @return [Integer] the time required to pay off the loan, in months
     # @example In most cases, the duration is equal to the total duration of all rates
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate)
+    #   amt = Finrb::Amortization.new(300000, rate)
     #   amt.duration #=> 360
     # @example Extra payments may reduce the duration
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate){ |payment| payment.amount-100}
+    #   amt = Finrb::Amortization.new(300000, rate){ |payment| payment.amount-100}
     #   amt.duration #=> 319
     # @api public
     def duration
@@ -183,11 +180,11 @@ module Finrb
     # @return [Array] the amount of interest charged in each period
     # @example find the total cost of interest for a loan
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate)
+    #   amt = Finrb::Amortization.new(300000, rate)
     #   amt.interest.sum #=> Flt::DecNum('200163.94')
     # @example find the total interest charges in the first six months
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate)
+    #   amt = Finrb::Amortization.new(300000, rate)
     #   amt.interest[0,6].sum #=> Flt::DecNum('5603.74')
     # @api public
     def interest
@@ -197,19 +194,11 @@ module Finrb
     # @return [Array] the amount of the payment in each period
     # @example find the total payments for a loan
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate)
+    #   amt = Finrb::Amortization.new(300000, rate)
     #   amt.payments.sum #=> Flt::DecNum('-500163.94')
     # @api public
     def payments
       @transactions.filter_map { |trans| trans.amount if trans.payment? }
     end
-  end
-end
-
-class Numeric
-  # @see Amortization#new
-  # @api public
-  def amortize(...)
-    Finrb::Amortization.new(self, ...)
   end
 end

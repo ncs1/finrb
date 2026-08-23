@@ -1,0 +1,202 @@
+module Flt
+  class DecNum < Numeric
+  end
+end
+
+module Finrb
+  type number = Numeric
+  type decimal = Flt::DecNum
+  type numbers = Array[number] | Enumerable[number]
+
+  interface _Configuration
+    def eps: () -> decimal
+    def guess: () -> decimal
+    def business_days: () -> bool
+    def periodic_compound: () -> bool
+    def to_h: () -> Hash[Symbol, untyped]
+  end
+
+  interface _ConfigurationBuilder
+    def eps: () -> untyped
+    def eps=: (untyped) -> untyped
+    def guess: () -> untyped
+    def guess=: (untyped) -> untyped
+    def business_days: () -> untyped
+    def business_days=: (untyped) -> untyped
+    def periodic_compound: () -> untyped
+    def periodic_compound=: (untyped) -> untyped
+  end
+
+  def self.config: () -> _Configuration
+  def self.configure: () { (_ConfigurationBuilder) -> void } -> _Configuration
+  def self.with_config: [A] (**untyped) { () -> A } -> A
+
+  class Error < StandardError
+  end
+
+  class ConvergenceError < Error
+  end
+
+  class DomainError < Error
+  end
+
+  class InvalidCashflowError < Error
+  end
+
+  module Precision
+    def self.money: (number) -> decimal
+    def self.rate: (number) -> decimal
+    def self.round: (number, places: Integer) -> decimal
+  end
+
+  class Rate
+    include Comparable
+
+    TYPES: Hash[Symbol, String]
+
+    def self.to_effective: (number, number) -> decimal
+    def self.to_nominal: (number, number) -> decimal
+
+    def initialize: (number, Symbol, ?Hash[Symbol, untyped]) -> void
+    def duration: () -> Integer?
+    def effective: () -> decimal
+    def nominal: () -> decimal
+    def <=>: (Rate) -> Integer?
+    def apr: () -> decimal
+    def apy: () -> decimal
+    def duration=: (Integer) -> Integer
+    def inspect: () -> String
+    def monthly: () -> decimal
+  end
+
+  class Transaction
+    def initialize: (number, ?Hash[Symbol, untyped]) -> void
+    def amount: () -> decimal
+    def amount=: (number) -> number
+    def period: () -> Integer?
+    def period=: (Integer?) -> Integer?
+    def date: () -> untyped
+    def date=: (untyped) -> untyped
+    def difference: () -> decimal
+    def interest?: () -> bool
+    def inspect: () -> String
+    def modify: () { (Transaction) -> number } -> number
+    def payment: () -> decimal
+    def payment?: () -> bool
+  end
+
+  class Interest < Transaction
+  end
+
+  class Payment < Transaction
+  end
+
+  class Amortization
+    def self.payment: (number, number, Integer) -> decimal
+
+    def initialize: (number, *Rate) ?{ (Transaction) -> number } -> void
+    def ==: (untyped) -> bool
+    def balance: () -> decimal
+    def payment: () -> decimal?
+    def principal: () -> decimal
+    def rates: () -> Array[Rate]
+    def additional_payments: () -> Array[decimal]
+    def duration: () -> Integer
+    def inspect: () -> String
+    def interest: () -> Array[decimal]
+    def payments: () -> Array[decimal]
+  end
+
+  module Cashflow
+    def self.irr: (Enumerable[number], ?number) -> decimal
+    def self.npv: (Enumerable[number], number) -> decimal
+    def self.xirr: (Enumerable[Transaction], ?number) -> Rate
+    def self.xnpv: (Enumerable[Transaction], number) -> decimal
+
+    def irr: (?number) -> decimal
+    def npv: (number) -> decimal
+    def xirr: (?number) -> Rate
+    def xnpv: (number) -> decimal
+  end
+
+  module TVM
+    def self.discount_rate: (n: number, pv: number, fv: number, pmt: number, ?type: Integer, ?lower: number, ?upper: number) -> decimal
+    def self.fv: (r: number, n: number, ?pv: number, ?pmt: number, ?type: Integer) -> decimal
+    def self.fv_annuity: (r: number, n: number, pmt: number, ?type: Integer) -> decimal
+    def self.fv_simple: (r: number, n: number, pv: number) -> decimal
+    def self.fv_uneven: (r: number, cf: number | numbers) -> decimal
+    def self.n_period: (r: number, pv: number, fv: number, pmt: number, ?type: Integer) -> decimal
+    def self.npv: (r: number, cf: number | numbers) -> decimal
+    def self.pmt: (r: number, n: number, pv: number, fv: number, ?type: Integer) -> decimal
+    def self.pv: (r: number, n: number, ?fv: number, ?pmt: number, ?type: Integer) -> decimal
+    def self.pv_annuity: (r: number, n: number, pmt: number, ?type: Integer) -> decimal
+    def self.pv_perpetuity: (r: number, pmt: number, ?g: number, ?type: Integer) -> decimal
+    def self.pv_simple: (r: number, n: number, fv: number) -> decimal
+    def self.pv_uneven: (r: number, cf: number | numbers) -> decimal
+    def self.r_perpetuity: (pmt: number, pv: number) -> decimal
+  end
+
+  module Accounting
+    type inventory_result = { cost_of_goods: decimal, ending_inventory: decimal }
+
+    def self.cogs: (uinv: number, pinv: number, units: number | numbers, price: number | numbers, sinv: number, ?method: String) -> inventory_result
+    def self.ddb: (cost: number, rv: number, t: Integer) -> { t: Array[Integer], ddb: Array[decimal] }
+    def self.slde: (cost: number, rv: number, t: number) -> decimal
+  end
+
+  module Ratios
+    def self.cash_ratio: (cash: number, ms: number, cl: number) -> decimal
+    def self.current_ratio: (ca: number, cl: number) -> decimal
+    def self.debt_ratio: (td: number, ta: number) -> decimal
+    def self.diluted_eps: (ni: number, pd: number, w: number, ?cpd: number, ?cdi: number, ?tax: number, ?cps: number, ?cds: number, ?iss: number) -> decimal
+    def self.eps: (ni: number, pd: number, w: number) -> decimal
+    def self.financial_leverage: (te: number, ta: number) -> decimal
+    def self.gpm: (gp: number, rv: number) -> decimal
+    def self.iss: (amp: number, ep: number, n: number) -> decimal
+    def self.lt_d2e: (ltd: number, te: number) -> decimal
+    def self.npm: (ni: number, rv: number) -> decimal
+    def self.quick_ratio: (cash: number, ms: number, rc: number, cl: number) -> decimal
+    def self.total_d2e: (td: number, te: number) -> decimal
+    def self.was: (ns: number | numbers | nil, nm: number | numbers | nil) -> (decimal | Integer)
+  end
+
+  module Returns
+    def self.coefficient_variation: (sd: number, avg: number) -> decimal
+    def self.geometric_mean: (r: number | numbers) -> decimal
+    def self.harmonic_mean: (p: number | numbers) -> decimal
+    def self.hpr: (ev: number, bv: number, ?cfr: number) -> decimal
+    def self.sampling_error: (sm: number, mu: number) -> decimal
+    def self.sf_ratio: (rp: number, rl: number, sd: number) -> decimal
+    def self.sharpe_ratio: (rp: number, rf: number, sd: number) -> decimal
+    def self.twrr: (ev: number | numbers, bv: number | numbers, cfr: number | numbers) -> decimal
+    def self.wpr: (r: number | numbers, w: number | numbers) -> decimal
+  end
+
+  module Yields
+    def self.bdy: (d: number, f: number, t: number) -> decimal
+    def self.bdy2mmy: (bdy: number, t: number) -> decimal
+    def self.ear: (r: number, m: number) -> decimal
+    def self.ear_continuous: (r: number) -> decimal
+    def self.ear2bey: (ear: number) -> decimal
+    def self.ear2hpr: (ear: number, t: number) -> decimal
+    def self.eir: (r: number, ?n: number, ?p: number, ?type: String) -> decimal
+    def self.hpr2bey: (hpr: number, t: number) -> decimal
+    def self.hpr2ear: (hpr: number, t: number) -> decimal
+    def self.hpr2mmy: (hpr: number, t: number) -> decimal
+    def self.mmy2hpr: (mmy: number, t: number) -> decimal
+    def self.r_continuous: (r: number, m: number) -> decimal
+    def self.r_norminal: (rc: number, m: number) -> decimal
+  end
+
+  module Numerical
+    class Brent
+      def initialize: (tolerance: number, ?relative_tolerance: number, ?max_iterations: Integer) -> void
+      def solve: (^(decimal) -> number, lower: number, upper: number) -> decimal
+    end
+
+    class RateSearch
+      def initialize: (?step: number, ?max_steps: Integer) -> void
+      def bracket: (^(decimal) -> number, guess: number) -> [decimal, decimal]
+    end
+  end
+end

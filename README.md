@@ -199,8 +199,9 @@ bundle exec rake quality
 ```
 
 The suite includes deterministic generated-root properties and committed
-SciPy/QuantLib golden fixtures. Maintainers with the optional Python reference
-environment can run a larger seeded comparison using:
+SciPy/QuantLib golden fixtures, enforces coverage floors, and validates the
+packaged RBS declarations under `sig/`. Maintainers with the optional Python
+reference environment can run a larger seeded comparison using:
 
 ```shell
 bundle exec rake solver:verify

@@ -6,7 +6,7 @@ require_relative 'rates'
 
 require 'bigdecimal'
 require 'bigdecimal/newton'
-require 'business_time'
+require 'date'
 
 module Finrb
   # Provides methods for working with cash flows (collections of transactions)
@@ -129,15 +129,19 @@ module Finrb
 
     def date_diff(from, to)
       if Finrb.config.business_days
-        from.to_date.business_days_until(to)
+        business_days_between(from.to_date, to.to_date)
       else
         to.to_date - from.to_date
       end
     end
 
+    def business_days_between(from, to)
+      (from...to).count { |date| (1..5).cover?(date.wday) }
+    end
+
     def days_in_period
       if Finrb.config.periodic_compound && Finrb.config.business_days
-        start.to_date.business_days_until(stop).to_f
+        business_days_between(start.to_date, stop).to_f
       else
         Flt::DecNum.new(365)
       end

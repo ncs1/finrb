@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
+require 'finrb/accounting'
 require 'finrb/cashflows'
 require 'finrb/config'
 require 'finrb/decimal'
 require 'finrb/errors'
 require 'finrb/precision'
+require 'finrb/ratios'
+require 'finrb/returns'
 require 'finrb/tvm'
-require 'finrb/utils'
+require 'finrb/yields'
 
 FinrbError = Finrb::Error
 
@@ -21,5 +24,4 @@ module Finrb
   autoload :Amortization, 'finrb/amortization'
   autoload :Rate,         'finrb/rates'
   autoload :Transaction,  'finrb/transaction'
-  autoload :Utils,        'finrb/utils'
 end

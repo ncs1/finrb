@@ -13,9 +13,18 @@ module Finrb
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow
-    # calculate the internal rate of return for a sequence of cash flows
-    # @return [Flt::DecNum] the internal rate of return
-    # @param [Numeric] guess Initial guess rate, Defaults to 1.0
+    # Calculate the per-period internal rate of return for an ordered sequence
+    # of equally spaced cashflows.
+    #
+    # For cashflows with multiple sign-changing roots, the guess determines
+    # which nearby root is selected. Rates must be greater than -1.
+    # @return [Flt::DecNum] the per-period internal rate of return
+    # @param [Numeric, nil] guess initial rate used for root selection; defaults
+    #   to +Finrb.config.guess+
+    # @raise [InvalidCashflowError] if the sequence lacks both cashflow signs
+    # @raise [ArgumentError] if the guess is not numeric
+    # @raise [DomainError] if the rate domain or function evaluation is invalid
+    # @raise [ConvergenceError] if no root can be bracketed or solved
     # @example
     #   [-4000,1200,1410,1875,1050].irr #=> 0.143
     # @see https://en.wikipedia.org/wiki/Internal_rate_of_return
@@ -57,15 +66,27 @@ module Finrb
       total
     end
 
-    # calculate the internal rate of return for a sequence of cash flows with dates
-    # @param[Numeric] Initial guess rate, Deafults to 1.0
-    # @return [Rate] the internal rate of return
+    # Calculate the effective annual internal rate of return for an ordered
+    # sequence of dated transactions.
+    #
+    # Under the default configuration, date offsets are actual calendar days
+    # from the first transaction and a 365-day year is used. Transactions
+    # should be supplied chronologically and their dates must respond to
+    # +to_date+. For multiple roots, the guess determines which nearby root is
+    # selected. Rates must be greater than -1.
+    # @param [Numeric, nil] guess initial rate used for root selection; defaults
+    #   to +Finrb.config.guess+
+    # @return [Rate] the effective annual internal rate of return
+    # @raise [InvalidCashflowError] if the sequence lacks both cashflow signs
+    # @raise [ArgumentError] if the guess is not numeric
+    # @raise [DomainError] if the rate domain or function evaluation is invalid
+    # @raise [ConvergenceError] if no root can be bracketed or solved
     # @example
     #   @transactions = []
     #   @transactions << Transaction.new(-1000, :date => Time.new(1985,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1990,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1995,01,01))
-    #   @transactions.xirr(0.6) #=> Rate("0.024851", :apr, :compounds => :annually)
+    #   @transactions.xirr(0.6) #=> Rate("0.024851", :effective, :compounds => :annually)
     # @api public
     def xirr(guess = nil)
       # Make sure we have a valid sequence of cash flows.

@@ -3,6 +3,9 @@
 [![CI](https://github.com/ncs1/finrb/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/ncs1/finrb/actions/workflows/codeql.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/codeql.yml)
 [![RuboCop](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml)
+[![MRI](https://img.shields.io/badge/MRI-3.3_%7C_3.4_%7C_4.0-CC342D?logo=ruby&logoColor=white)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
+[![Architectures](https://img.shields.io/badge/architectures-x86__64_%7C_arm64-4169E1)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
+[![Experimental engines](https://img.shields.io/badge/experimental-JRuby_%7C_TruffleRuby-F0AD4E)](https://github.com/ncs1/finrb/actions/workflows/ci.yml)
 
 Precision-first financial mathematics for Ruby.
 

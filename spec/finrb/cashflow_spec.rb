@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
+require 'json'
+
 describe(Finrb::Cashflow) do
   describe('an array of numeric cashflows') do
-    # TODO: fix slow test
-    # it('has an Internal Rate of Return') do
-    #   expect([-4000, 1200, 1410, 1875, 1050].irr.round(3)).to(eq(D('0.143')))
-    #   expect { [10, 20, 30].irr }
-    #     .to(raise_error(ArgumentError))
-    # end
+    it('has an Internal Rate of Return') do
+      expect([-4000, 1200, 1410, 1875, 1050].irr.round(3)).to(eq(D('0.143')))
+    end
 
     it('has a Net Present Value') do
       expect([-100.0, 60, 60, 60].npv(0.1).round(3)).to(eq(D('49.211')))
@@ -16,6 +15,29 @@ describe(Finrb::Cashflow) do
     it('rejects cashflows without both positive and negative values') do
       expect { [10, 20, 30].irr }
         .to(raise_error(Finrb::InvalidCashflowError))
+    end
+
+    it('selects between multiple IRRs using the guess') do
+      cashflows = [-100, 230, -132]
+
+      expect(cashflows.irr(0.05)).to(be_within(D('1e-14')).of(D('0.1')))
+      expect(cashflows.irr(0.25)).to(be_within(D('1e-14')).of(D('0.2')))
+    end
+
+    it('reports a cashflow with no sign-changing IRR') do
+      expect { [-100, 50, -100].irr(0) }
+        .to(raise_error(Finrb::ConvergenceError, /Could not bracket/))
+    end
+
+    it('agrees with independently generated SciPy brentq fixtures') do
+      fixture = JSON.parse(File.read(File.expand_path('../fixtures/scipy_brentq_irr.json', __dir__)))
+
+      fixture.fetch('cases').each do |test_case|
+        actual = test_case.fetch('cashflows').irr(test_case.fetch('root').to_f)
+
+        expect(actual).to(be_within(D('2e-14')).of(D(test_case.fetch('root'))))
+        expect(test_case.fetch('cashflows').npv(actual).abs).to(be <= D('1e-8'))
+      end
     end
   end
 
@@ -43,9 +65,8 @@ describe(Finrb::Cashflow) do
       Finrb.config.periodic_compound = false
     end
 
-    it('fails to calculate with default guess (1.0)') do
-      expect { @transactions.xirr.apr.to_i }
-        .to(raise_error(Finrb::DomainError, /non-numeric/))
+    it('calculates with the default guess') do
+      expect(@transactions.xirr.effective.round(5)).to(eq(D('-0.00742')))
     end
 
     it('calculates correct rate with new guess (0.5)') do
@@ -66,9 +87,8 @@ describe(Finrb::Cashflow) do
       (@transactions << Transaction.new(390_000, date: Time.new(2013, 1, 1)))
     end
 
-    it('fails to calculate with default guess (1.0)') do
-      expect { @transactions.xirr }
-        .to(raise_error(Finrb::ConvergenceError, /guess/))
+    it('calculates with the default guess') do
+      expect(@transactions.xirr.apr.round(5)).to(eq(D('0.11234')))
     end
 
     it('calculates correct rate with new guess (0.1)') do

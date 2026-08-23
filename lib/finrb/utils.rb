@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'decimal'
-require 'bigdecimal'
-require 'bigdecimal/newton'
+require_relative 'errors'
+require_relative 'numerical/brent'
+require_relative 'numerical/rate_search'
 
 module Finrb
-  include Newton
-
   class Utils
     def self.wrap_array(object)
       if object.nil?
@@ -18,22 +17,6 @@ module Finrb
       end
     end
     private_class_method :wrap_array
-
-    class NlFunctionStub
-      attr_accessor :func
-
-      values = { eps: Finrb.config.eps, one: '1.0', two: '2.0', ten: '10.0', zero: '0.0' }
-
-      values.each do |key, value|
-        define_method key do
-          BigDecimal(value)
-        end
-      end
-
-      def values(x)
-        @func.call(x)
-      end
-    end
 
     # Computing bank discount yield (BDY) for a T-bill
     #
@@ -321,15 +304,8 @@ module Finrb
       lower = Flt::DecNum(lower.to_s)
       upper = Flt::DecNum(upper.to_s)
 
-      nlfunc = NlFunctionStub.new
-      nlfunc.func =
-        lambda do |x|
-          [BigDecimal((Finrb::Utils.fv_simple(r: x.first, n:, pv:) + Finrb::Utils.fv_annuity(r: x.first, n:, pmt:, type:) - fv).to_s)]
-        end
-
-      root = [BigDecimal(((upper - lower) / 2).to_s)]
-      nlsolve(nlfunc, root)
-      Flt::DecNum(root.first)
+      function = ->(rate) { Finrb::Utils.fv_simple(r: rate, n:, pv:) + Finrb::Utils.fv_annuity(r: rate, n:, pmt:, type:) - fv }
+      Numerical::Brent.new(tolerance: Finrb.config.eps).solve(function, lower:, upper:)
     end
 
     # Convert stated annual rate to the effective annual rate
@@ -647,16 +623,12 @@ module Finrb
     def self.irr(cf:)
       cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
 
-      subcf = cf.drop(1)
-      nlfunc = NlFunctionStub.new
-      nlfunc.func =
-        lambda do |x|
-          [BigDecimal(((Finrb::Utils.pv_uneven(r: x.first, cf: subcf) * -1) + cf.first).to_s)]
+      function =
+        lambda do |rate|
+          cf.each_with_index.sum(Flt::DecNum(0)) { |cashflow, period| cashflow / ((rate + 1)**period) }
         end
-
-      root = [0]
-      nlsolve(nlfunc, root)
-      Flt::DecNum(root.first)
+      bounds = Numerical::RateSearch.new.bracket(function, guess: 0)
+      Numerical::Brent.new(tolerance: Finrb.config.eps).solve(function, lower: bounds.first, upper: bounds.last)
     end
 
     # calculate the net increase in common shares from the potential exercise of stock options or warrants

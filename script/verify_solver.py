@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Cross-check finrb IRR/XIRR against SciPy and QuantLib.
+"""Verify finrb IRR/XIRR against SciPy and QuantLib references.
 
-This is an optional maintainer tool, not a gem dependency. Install its oracles
-in the active Python environment from script/requirements-cross-validation.txt.
+This is an optional maintainer tool, not a gem dependency. Install its
+references from script/requirements-solver-verification.txt.
 """
 
 from __future__ import annotations
@@ -22,12 +22,12 @@ try:
     from scipy.optimize import brentq
 except ImportError as error:
     raise SystemExit(
-        "Install oracle dependencies from script/requirements-cross-validation.txt"
+        "Install reference dependencies from script/requirements-solver-verification.txt"
     ) from error
 
 
 ROOT = Path(__file__).resolve().parent.parent
-ADAPTER = ROOT / "script" / "finrb_solver_adapter.rb"
+ADAPTER = ROOT / "script" / "solver_adapter.rb"
 LOWER_RATE = -0.999999999
 UPPER_RATE = 100.0
 MAX_ERROR = 2.0e-11
@@ -61,7 +61,7 @@ def periodic_cases(randomizer: random.Random, count: int) -> list[dict]:
                 "kind": "irr",
                 "amounts": [initial, *positive],
                 "guess": randomizer.choice(GUESSES),
-                "oracle_guess": expected,
+                "reference_guess": expected,
             }
         )
     return cases
@@ -85,7 +85,7 @@ def dated_cases(randomizer: random.Random, count: int) -> list[dict]:
                 "kind": "xirr",
                 "transactions": transactions,
                 "guess": randomizer.choice(GUESSES),
-                "oracle_guess": expected,
+                "reference_guess": expected,
             }
         )
     return cases
@@ -186,7 +186,7 @@ def quantlib_result(test_case: dict) -> float:
         settlement,
         1.0e-13,
         1000,
-        test_case["oracle_guess"],
+        test_case["reference_guess"],
     )
 
 
@@ -236,8 +236,8 @@ def main() -> None:
     worst_quantlib = max(quantlib_errors)
 
     print(f"seed={args.seed} cases={len(cases)} workers={args.workers} batch_size={args.batch_size}")
-    print(f"SciPy {__import__('scipy').__version__}: worst absolute difference={worst_scipy:.3g}")
-    print(f"QuantLib {ql.__version__}: worst absolute difference={worst_quantlib:.3g}")
+    print(f"SciPy reference {__import__('scipy').__version__}: worst absolute difference={worst_scipy:.3g}")
+    print(f"QuantLib reference {ql.__version__}: worst absolute difference={worst_quantlib:.3g}")
 
 
 if __name__ == "__main__":

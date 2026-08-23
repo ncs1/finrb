@@ -1,4 +1,4 @@
-# Optional numerical oracles used by script/cross_validate_solver.py.
+# Optional numerical references used by script/verify_solver.py.
 # These are maintainer dependencies, not finrb runtime dependencies.
 QuantLib==1.43
 scipy==1.18.1

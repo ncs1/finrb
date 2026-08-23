@@ -2,7 +2,7 @@
 
 require 'json'
 
-# Split from cashflow_spec.rb so external oracles have explicit provenance.
+# Split from cashflow_spec.rb so external references have explicit provenance.
 
 describe(Finrb::Cashflow) do
   let(:quantlib_fixture) { load_fixture('quantlib_yield_rate_xirr.json') }

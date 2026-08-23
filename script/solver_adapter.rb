@@ -4,7 +4,7 @@ require 'date'
 require 'json'
 require_relative '../lib/finrb'
 
-# Evaluates bounded batches for the external solver oracle harness.
+# Evaluates bounded batches for external solver reference verification.
 module FinrbSolverAdapter
   module_function
 

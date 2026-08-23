@@ -20,7 +20,14 @@ ensure
 end
 
 desc 'Run all self-contained quality checks'
-task quality: %i[coverage]
+task quality: %i[coverage rbs:validate]
+
+namespace :rbs do
+  desc 'Validate packaged RBS signatures'
+  task :validate do
+    sh('bundle', 'exec', 'rbs', '-I', 'sig', 'validate')
+  end
+end
 
 namespace :solver do
   desc 'Verify IRR/XIRR against SciPy and QuantLib references'

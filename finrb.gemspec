@@ -26,6 +26,7 @@ SPEC =
     s.add_development_dependency('ostruct')
     s.add_development_dependency('pry')
     s.add_development_dependency('rake')
+    s.add_development_dependency('rbs')
     s.add_development_dependency('rspec')
     s.add_development_dependency('rubocop')
     s.add_development_dependency('rubocop-packaging')
@@ -35,7 +36,7 @@ SPEC =
     s.add_development_dependency('semver')
     s.add_development_dependency('simplecov')
 
-    s.files = Dir['CHANGELOG.md', 'COPYING*', 'README.md', 'lib/**/*']
+    s.files = Dir['CHANGELOG.md', 'COPYING*', 'README.md', 'lib/**/*', 'sig/**/*']
 
     s.extra_rdoc_files = ['README.md', 'COPYING', 'COPYING.LESSER', 'CHANGELOG.md']
 

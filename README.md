@@ -137,6 +137,22 @@ Finrb.configure do |config|
 end
 ```
 
+### Precision and rounding
+
+Finrb converts validated numeric inputs to `Flt::DecNum` and retains the
+active decimal context throughout general calculations. It does not round NPV,
+IRR, XNPV, XIRR, APR, or APY results for display; callers choose presentation
+precision with `round` or their formatter.
+
+Amortization is the deliberate exception: scheduled payments and each period's
+interest charge are monetary postings, so they are rounded to two decimal
+places using half-up rounding. Monthly rate conversion retains 15 decimal
+places, also using half-up rounding, for compatibility and deterministic loan
+schedules. These policies are exposed by `Finrb::Precision`.
+
+`Finrb.config.eps` controls numerical root-solver convergence. It does not set
+decimal arithmetic precision or monetary rounding.
+
 ### API and examples
 
 See [api.md](docs/api.md)

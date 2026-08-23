@@ -10,7 +10,7 @@ module Finrb
     def decimal(value, name:)
       raise(ArgumentError, "#{name} must be numeric.") unless value.is_a?(Numeric)
 
-      decimal = Flt::DecNum.new(value.to_s)
+      decimal = value.is_a?(Flt::DecNum) ? value : Flt::DecNum.new(value.to_s)
       raise(ArgumentError, "#{name} must be finite.") unless decimal.finite?
 
       decimal

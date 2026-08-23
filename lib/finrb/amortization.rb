@@ -2,6 +2,7 @@
 
 require_relative 'cashflows'
 require_relative 'decimal'
+require_relative 'precision'
 require_relative 'transaction'
 require_relative 'validation'
 
@@ -57,9 +58,9 @@ module Finrb
 
       if rate.zero?
         # simplified formula to avoid division-by-zero when interest rate is zero
-        -(principal / periods).round(2)
+        -Precision.money(principal / periods)
       else
-        -(principal * (rate + (rate / (((rate + 1)**periods) - 1)))).round(2)
+        -Precision.money(principal * (rate + (rate / (((rate + 1)**periods) - 1))))
       end
     end
 
@@ -124,7 +125,7 @@ module Finrb
         break if @balance.zero?
 
         # Compute and record interest on the outstanding balance.
-        int = (@balance * rate.monthly).round(2)
+        int = Precision.money(@balance * rate.monthly)
         interest = Interest.new(int, period: @period)
         @balance += interest.amount
         @transactions << interest.dup

@@ -39,6 +39,13 @@ namespace :solver do
 end
 
 namespace :docker do
+  alternative_dockerfile = 'Dockerfile.engines'
+  alternative_images = { jruby: ENV.fetch('JRUBY_IMAGE', 'jruby:10.1-jdk21'), truffleruby: ENV.fetch('TRUFFLERUBY_IMAGE', 'ghcr.io/graalvm/truffleruby-community:latest') }
+  build_alternative =
+    lambda do |engine, target, tag|
+      sh('docker', 'build', '--build-arg', "RUBY_IMAGE=#{alternative_images.fetch(engine)}", '--build-arg', "EXPECTED_RUBY_ENGINE=#{engine}", '--target', target, '--tag', tag, '--file', alternative_dockerfile, '.')
+    end
+
   desc 'Build docker instance'
   task :build do
     Dir.chdir(__dir__.to_s) do
@@ -67,6 +74,40 @@ namespace :docker do
     desc 'Run the ARM64 development image on this Docker host'
     task :run do
       sh('docker', 'run', '--platform', 'linux/arm64', '--init', '--interactive', '--tty', '--rm', 'finrb:1.0-arm64')
+    end
+  end
+
+  namespace :jruby do
+    desc 'Build the JRuby development image'
+    task :build do
+      build_alternative.call(:jruby, 'development', 'finrb:jruby')
+    end
+
+    desc 'Build finrb and run its specs on JRuby'
+    task :test do
+      build_alternative.call(:jruby, 'testing', 'finrb:jruby-testing')
+    end
+
+    desc 'Run the JRuby development image'
+    task :run do
+      sh('docker', 'run', '--init', '--interactive', '--tty', '--rm', 'finrb:jruby')
+    end
+  end
+
+  namespace :truffleruby do
+    desc 'Build the TruffleRuby development image'
+    task :build do
+      build_alternative.call(:truffleruby, 'development', 'finrb:truffleruby')
+    end
+
+    desc 'Build finrb and run its specs on TruffleRuby'
+    task :test do
+      build_alternative.call(:truffleruby, 'testing', 'finrb:truffleruby-testing')
+    end
+
+    desc 'Run the TruffleRuby development image'
+    task :run do
+      sh('docker', 'run', '--init', '--interactive', '--tty', '--rm', 'finrb:truffleruby')
     end
   end
 

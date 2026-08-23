@@ -25,9 +25,9 @@ SPEC =
 
     s.add_dependency('bigdecimal', '>= 3.1.2')
     s.add_dependency('flt')
+    s.add_dependency('ostruct')
 
     s.add_development_dependency('amazing_print')
-    s.add_development_dependency('ostruct')
     s.add_development_dependency('pry')
     s.add_development_dependency('rake')
     s.add_development_dependency('rbs')

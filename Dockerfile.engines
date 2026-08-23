@@ -1,0 +1,28 @@
+ARG RUBY_IMAGE=jruby:10.1-jdk21
+ARG EXPECTED_RUBY_ENGINE=jruby
+
+FROM ${RUBY_IMAGE} AS development
+
+ARG EXPECTED_RUBY_ENGINE
+ENV EXPECTED_RUBY_ENGINE=${EXPECTED_RUBY_ENGINE}
+
+WORKDIR /app
+
+ENV BUNDLE_GEMFILE=/app/gemfiles/engines.gemfile
+
+RUN gem install bundler
+RUN bundle config --global jobs 16
+
+COPY *.gemspec ./
+COPY gemfiles/engines.gemfile ./gemfiles/engines.gemfile
+COPY lib/finrb/version.rb ./lib/finrb/version.rb
+RUN bundle install
+
+COPY . .
+
+ENTRYPOINT ["/bin/bash"]
+
+FROM development AS testing
+
+RUN ruby -e 'expected = ENV.fetch("EXPECTED_RUBY_ENGINE"); raise "expected #{expected}, got #{RUBY_ENGINE}" unless RUBY_ENGINE == expected' && \
+  bundle exec rspec

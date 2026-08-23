@@ -231,6 +231,26 @@ Docker Desktop normally provides the required emulation. A Linux Docker Engine
 installation must have an ARM64-capable Buildx builder and binfmt/QEMU support
 configured by the operator.
 
+The alternative Ruby development images share a minimal, package-manager-
+independent Dockerfile. Build, test, and run either implementation with:
+
+```shell
+bundle exec rake docker:jruby:build
+bundle exec rake docker:jruby:test
+bundle exec rake docker:jruby:run
+
+bundle exec rake docker:truffleruby:build
+bundle exec rake docker:truffleruby:test
+bundle exec rake docker:truffleruby:run
+```
+
+The defaults track JRuby 10.1 on JDK 21 and the current TruffleRuby Community
+image. Override them with `JRUBY_IMAGE` or `TRUFFLERUBY_IMAGE` when testing a
+specific release. These images use `gemfiles/engines.gemfile`, which contains
+only finrb's runtime dependencies and RSpec; MRI-only development tooling such
+as RBS, RuboCop, and coverage is deliberately excluded from engine
+compatibility runs.
+
 Maintainers with the optional Python environment can run the larger seeded
 solver verification campaign:
 

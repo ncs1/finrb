@@ -76,7 +76,7 @@ end
 
 namespace :docker do
   alternative_dockerfile = 'Dockerfile.engines'
-  alternative_images = { jruby: ENV.fetch('JRUBY_IMAGE', 'jruby:10.1-jdk21'), truffleruby: ENV.fetch('TRUFFLERUBY_IMAGE', 'ghcr.io/graalvm/truffleruby-community:latest') }
+  alternative_images = { jruby: ENV.fetch('JRUBY_IMAGE', 'jruby:10-jdk21'), truffleruby: ENV.fetch('TRUFFLERUBY_IMAGE', 'ghcr.io/graalvm/truffleruby-community:latest') }
   build_alternative =
     lambda do |engine, target, tag|
       sh('docker', 'build', '--build-arg', "RUBY_IMAGE=#{alternative_images.fetch(engine)}", '--build-arg', "EXPECTED_RUBY_ENGINE=#{engine}", '--target', target, '--tag', tag, '--file', alternative_dockerfile, '.')

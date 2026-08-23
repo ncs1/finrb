@@ -32,15 +32,19 @@ jobs:
         run: bundle exec rake quality
 
   arm64:
-    name: Ruby 4.0 on native ARM64
+    name: Ruby ${{ matrix.ruby_version }} on native ARM64
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby_version: ["3.3", "3.4", "4.0"]
     steps:
       - uses: actions/checkout@v7
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "4.0"
+          ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
       - name: Report runtime
         run: ruby -v && ruby -e 'puts RUBY_DESCRIPTION; puts RUBY_PLATFORM'
@@ -81,6 +85,25 @@ jobs:
       - uses: actions/checkout@v7
       - name: build test docker image
         run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .
+
+  alternative_ruby_docker:
+    name: ${{ matrix.engine }} Docker compatibility
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [jruby, truffleruby]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - name: Build and test ${{ matrix.engine }} image
+        run: bundle exec rake docker:${{ matrix.engine }}:test
 
   package:
     name: Packaged gem

@@ -15,6 +15,7 @@ import os
 import random
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 try:
@@ -31,6 +32,7 @@ ADAPTER = ROOT / "script" / "solver_adapter.rb"
 LOWER_RATE = -0.999999999
 UPPER_RATE = 100.0
 MAX_ERROR = 2.0e-11
+MAX_NORMALIZED_RESIDUAL = 1.0e-12
 GUESSES = (0.01, 0.05, 0.5, 1.0, 3.0)
 
 
@@ -197,6 +199,21 @@ def actual_result(item: tuple[int, dict, dict]) -> tuple[int, dict, float]:
     return index, test_case, float(result["value"])
 
 
+def normalized_residual(item: tuple[int, dict, float]) -> float:
+    index, test_case, actual = item
+    if test_case["kind"] == "irr":
+        amounts = test_case["amounts"]
+        residual = npv(amounts, actual)
+    else:
+        amounts = [transaction["amount"] for transaction in test_case["transactions"]]
+        residual = xnpv(test_case["transactions"], actual)
+
+    result = abs(residual) / sum(abs(amount) for amount in amounts)
+    if result > MAX_NORMALIZED_RESIDUAL:
+        raise AssertionError(f"case {index} has normalized residual {result}: input={test_case}")
+    return result
+
+
 def compare_scipy(item: tuple[int, dict, float]) -> float:
     index, test_case, actual = item
     expected = scipy_result(test_case)
@@ -221,23 +238,45 @@ def main() -> None:
     args = parse_args()
     randomizer = random.Random(args.seed)
     cases = periodic_cases(randomizer, args.count) + dated_cases(randomizer, args.count)
+
+    started = time.perf_counter()
     finrb = finrb_results(cases, args.batch_size, args.workers)
+    finrb_seconds = time.perf_counter() - started
     raw_results = [(index, test_case, result) for index, (test_case, result) in enumerate(zip(cases, finrb, strict=True))]
+    failures = [item for item in raw_results if "error" in item[2]]
+    if failures:
+        index, test_case, result = failures[0]
+        raise AssertionError(
+            f"finrb converged for {len(cases) - len(failures)}/{len(cases)} cases; "
+            f"case {index} failed: {result}, input={test_case}"
+        )
     indexed = [actual_result(item) for item in raw_results]
+    residuals = [normalized_residual(item) for item in indexed]
 
     # QuantLib's Python binding returned invalid results under concurrent
     # access, so evaluate it sequentially before starting SciPy threads.
+    started = time.perf_counter()
     quantlib_errors = [compare_quantlib(item) for item in indexed]
+    quantlib_seconds = time.perf_counter() - started
 
+    started = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
         scipy_errors = list(executor.map(compare_scipy, indexed))
+    scipy_seconds = time.perf_counter() - started
 
     worst_scipy = max(scipy_errors)
     worst_quantlib = max(quantlib_errors)
 
     print(f"seed={args.seed} cases={len(cases)} workers={args.workers} batch_size={args.batch_size}")
+    print(f"finrb convergence={len(indexed)}/{len(cases)} normalized residual={max(residuals):.3g}")
     print(f"SciPy reference {__import__('scipy').__version__}: worst absolute difference={worst_scipy:.3g}")
     print(f"QuantLib reference {ql.__version__}: worst absolute difference={worst_quantlib:.3g}")
+    print(
+        "wall time: "
+        f"finrb={finrb_seconds:.3f}s "
+        f"SciPy={scipy_seconds:.3f}s "
+        f"QuantLib={quantlib_seconds:.3f}s"
+    )
 
 
 if __name__ == "__main__":

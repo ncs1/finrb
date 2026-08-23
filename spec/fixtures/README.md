@@ -58,4 +58,11 @@ COUNT=500 SEED=17 WORKERS=8 BATCH_SIZE=25 bundle exec rake docker:verify_solver
 
 The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/solver_adapter.rb`, and compares each result with both external reference implementations. It sends bounded newline-delimited JSON batches through persistent Ruby worker processes instead of constructing one unbounded stdin payload. Ruby workers and SciPy comparisons run concurrently; QuantLib comparisons stay sequential because its Python binding returned invalid results under concurrent access.
 
+Verification reports finrb's convergence count and worst normalized NPV
+residual before the differences from the external references. A run fails when
+any generated conventional cashflow does not converge, its normalized residual
+exceeds `1e-12`, or its rate differs from a reference by more than `2e-11`.
+Wall-clock timings are secondary diagnostics: they include different process
+startup and concurrency costs and are not direct solver microbenchmarks.
+
 QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. The versions used by the maintained fixtures are pinned in `script/requirements-solver-verification.txt`. Neither Python package is a finrb runtime dependency.

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'finrb/core_ext'
 require 'open3'
 require 'rbconfig'
 
@@ -23,5 +24,10 @@ describe(Finrb::CoreExt) do
     expect(status).to(be_success)
     expect(stderr).to(be_empty)
     expect(stdout).to(eq('0.1,1'))
+  end
+
+  it('converts ordinary and decimal numerics through the compatibility method') do
+    expect(1.to_dec).to(eq(D(1)))
+    expect(D('1.25').to_dec).to(eq(D('1.25')))
   end
 end

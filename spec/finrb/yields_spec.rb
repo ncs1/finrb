@@ -109,6 +109,11 @@ describe(Finrb::Yields) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.004166667')))
     end
+
+    it('rejects unknown conversion types') do
+      expect { Yields.eir(r: 0.05, type: 'unknown') }
+        .to(raise_error(Finrb::Error, /type must be/))
+    end
   end
 
   describe('hpr2bey') do

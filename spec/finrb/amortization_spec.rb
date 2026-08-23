@@ -54,6 +54,10 @@ describe(Finrb::Amortization) do
       expect(@std.principal).to(eq(@principal))
     end
 
+    it('has a concise inspection string') do
+      expect(@std.inspect).to(eq('Amortization.new(200000)'))
+    end
+
     it('has a final balance of zero') do
       expect(@std.balance).to(be_zero)
     end

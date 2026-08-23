@@ -65,16 +65,6 @@ module Finrb
       solve(:npv, valid(guess))
     end
 
-    def method_missing(name, *args, &)
-      return sum if name.to_s == 'sum'
-
-      super
-    end
-
-    def respond_to_missing?(name, include_private = false)
-      name.to_s == 'sum' || super
-    end
-
     # calculate the net present value of a sequence of cash flows
     # @return [Flt::DecNum] the net present value
     # @param [Numeric] rate the discount rate to be applied

@@ -67,6 +67,11 @@ describe(Finrb::Returns) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.1584472')))
     end
+
+    it('rejects mismatched valuation periods') do
+      expect { Returns.twrr(ev: [120], bv: [100, 110], cfr: [2]) }
+        .to(raise_error(Finrb::Error, /Different number/))
+    end
   end
 
   describe('wpr') do

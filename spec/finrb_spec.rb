@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 describe(Finrb) do
+  describe('decimal interoperability') do
+    it('converts between BigDecimal and Flt::DecNum') do
+      decimal = Flt::DecNum(BigDecimal('1.25'))
+
+      expect(decimal).to(eq(D('1.25')))
+      expect(decimal.convert_to(BigDecimal)).to(eq(BigDecimal('1.25')))
+    end
+  end
+
   describe('default values') do
     it('has default values') do
       expect(D(described_class.config.guess.to_s)).to(eq(D('1.0')))

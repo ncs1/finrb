@@ -68,7 +68,7 @@ module Finrb
                   end
                 end
                 sinv = 0
-                next
+                break
               else
                 cost_of_goods += (units[i] * price[i])
                 sinv -= units[i]
@@ -103,7 +103,7 @@ module Finrb
               end
               ending_inventory += (uinv * pinv)
               sinv = 0
-              next
+              break
             else
               cost_of_goods += (units[i] * price[i])
               sinv -= units[i]

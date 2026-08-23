@@ -42,4 +42,9 @@ describe(Finrb::Numerical::RateSearch) do
     expect { bounded_search.bracket(->(rate) { (rate * rate) + 1 }, guess: 0) }
       .to(raise_error(Finrb::ConvergenceError, /Could not bracket/))
   end
+
+  it('reports domain failures raised while evaluating the rate function') do
+    expect { search.bracket(->(_rate) { raise(ZeroDivisionError, 'undefined') }, guess: 0) }
+      .to(raise_error(Finrb::DomainError, /undefined at 0/))
+  end
 end

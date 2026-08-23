@@ -64,6 +64,10 @@ describe(Finrb::Rate) do
       expect(rate.monthly).to(eq(D('0.003072541703256')))
     end
 
+    it('has a concise inspection string') do
+      expect(Rate.new(0.12, :apr).inspect).to(eq('Rate.new(0.120000, :apr)'))
+    end
+
     it('distinguishes nominal APR from effective APY') do
       rate = Rate.new(0.12, :apr)
 

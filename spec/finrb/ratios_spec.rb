@@ -81,6 +81,11 @@ describe(Finrb::Ratios) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('2500')))
     end
+
+    it('rejects options that are not in the money') do
+      expect { Ratios.iss(amp: 15, ep: 15, n: 10_000) }
+        .to(raise_error(Finrb::Error, /amp must larger/))
+    end
   end
 
   describe('lt_d2e') do
@@ -130,6 +135,16 @@ describe(Finrb::Ratios) do
       res = Ratios.was(ns: s, nm: m)
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('13300')))
+    end
+
+    it('rejects mismatched share and month vectors') do
+      expect { Ratios.was(ns: [100], nm: []) }
+        .to(raise_error(Finrb::Error, /must be equal/))
+    end
+
+    it('accepts scalar and empty share histories') do
+      expect(Ratios.was(ns: 100, nm: 12)).to(eq(D(100)))
+      expect(Ratios.was(ns: nil, nm: nil)).to(eq(0))
     end
   end
 end

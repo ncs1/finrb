@@ -163,6 +163,10 @@ describe(Finrb::TVM) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('-4711.912262')))
     end
+
+    it('accepts a single cashflow') do
+      expect(TVM.pv_uneven(r: 0.1, cf: 100)).to(eq(D('-90.90909090909090909090909091')))
+    end
   end
 
   describe('r_perpetuity') do

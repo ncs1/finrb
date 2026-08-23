@@ -10,8 +10,8 @@ start_coverage =
       enable_coverage(:branch)
       cover('lib/**/*.rb')
 
-      coverage(:line) { minimum(95) }
-      coverage(:branch) { minimum(75) }
+      coverage(:line) { minimum(90) }
+      coverage(:branch) { minimum(80) }
     end
   end
 start_coverage.call

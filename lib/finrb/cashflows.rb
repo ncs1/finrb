@@ -131,7 +131,7 @@ module Finrb
       if Finrb.config.business_days
         from.to_date.business_days_until(to)
       else
-        to - from
+        to.to_date - from.to_date
       end
     end
 
@@ -139,7 +139,7 @@ module Finrb
       if Finrb.config.periodic_compound && Finrb.config.business_days
         start.to_date.business_days_until(stop).to_f
       else
-        Flt::DecNum.new(365.days.to_s)
+        Flt::DecNum.new(365)
       end
     end
 

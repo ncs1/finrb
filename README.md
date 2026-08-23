@@ -221,9 +221,18 @@ validation.
 it with only its declared runtime dependencies, and runs packaged API smoke
 tests without publishing or retaining the temporary installation.
 
-CI also runs the quality suite on native ARM64 and compatibility specs on the
-current stable JRuby and TruffleRuby. Alternative Ruby jobs are initially
-informational while their dependency and numerical compatibility is assessed.
+CI runs every supported MRI version on x86-64, native ARM64, and Docker, plus
+compatibility specs and Docker builds for the current stable JRuby and
+TruffleRuby. Alternative Ruby jobs are initially informational while their
+dependency and numerical compatibility is assessed.
+
+Select the MRI version used by the ordinary Docker tasks with `RUBY_VER`:
+
+```shell
+RUBY_VER=3.3 bundle exec rake docker:build
+RUBY_VER=3.3 bundle exec rake docker:test
+RUBY_VER=3.3 bundle exec rake docker:run
+```
 
 On an x86-64 development machine with Docker Buildx and ARM64 emulation
 available, build, test, and run the ARM64 development image with:

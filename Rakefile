@@ -84,15 +84,17 @@ namespace :docker do
 
   desc 'Build docker instance'
   task :build do
-    Dir.chdir(__dir__.to_s) do
-      system 'docker build --target development -t finrb:1.0 -f Dockerfile .'
+    ruby_version = ENV.fetch('RUBY_VER', '4.0')
+    Dir.chdir(__dir__) do
+      sh('docker', 'build', '--build-arg', "RUBY_VER=#{ruby_version}", '--target', 'development', '--tag', "finrb:ruby-#{ruby_version}", '--file', 'Dockerfile', '.')
     end
   end
 
   desc 'Run test docker build'
   task :test do
-    Dir.chdir(__dir__.to_s) do
-      system 'docker build --target testing -t finrb:1.0 -f Dockerfile .'
+    ruby_version = ENV.fetch('RUBY_VER', '4.0')
+    Dir.chdir(__dir__) do
+      sh('docker', 'build', '--build-arg', "RUBY_VER=#{ruby_version}", '--target', 'testing', '--tag', "finrb:ruby-#{ruby_version}-testing", '--file', 'Dockerfile', '.')
     end
   end
 
@@ -161,6 +163,7 @@ namespace :docker do
 
   desc 'Run dev docker instance'
   task :run do
-    system 'docker run --init -it --rm finrb:1.0'
+    ruby_version = ENV.fetch('RUBY_VER', '4.0')
+    sh('docker', 'run', '--init', '--interactive', '--tty', '--rm', "finrb:ruby-#{ruby_version}")
   end
 end

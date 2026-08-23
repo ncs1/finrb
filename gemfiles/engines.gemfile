@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+# Gem under compatibility test, with runtime dependencies only.
+gem 'finrb', path: '..'
+# Test runner supported across the selected Ruby implementations.
+gem 'rspec', '~> 3.13'

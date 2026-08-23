@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_support'
-require 'active_support/core_ext/array/wrap'
 require_relative 'decimal'
 require 'bigdecimal'
 require 'bigdecimal/newton'
@@ -10,6 +8,17 @@ module Finrb
   include Newton
 
   class Utils
+    def self.wrap_array(object)
+      if object.nil?
+        []
+      elsif object.respond_to?(:to_ary)
+        object.to_ary || [object]
+      else
+        [object]
+      end
+    end
+    private_class_method :wrap_array
+
     class NlFunctionStub
       attr_accessor :func
 
@@ -101,8 +110,8 @@ module Finrb
     def self.cogs(uinv:, pinv:, units:, price:, sinv:, method: 'FIFO')
       uinv = Flt::DecNum(uinv.to_s)
       pinv = Flt::DecNum(pinv.to_s)
-      units = Array.wrap(units).map { |value| Flt::DecNum(value.to_s) }
-      price = Array.wrap(price).map { |value| Flt::DecNum(value.to_s) }
+      units = wrap_array(units).map { |value| Flt::DecNum(value.to_s) }
+      price = wrap_array(price).map { |value| Flt::DecNum(value.to_s) }
       sinv = Flt::DecNum(sinv.to_s)
       method = method.to_s
 
@@ -530,7 +539,7 @@ module Finrb
     #   Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.fv_uneven(r:, cf:)
       r = Flt::DecNum(r.to_s)
-      cf = Array.wrap(cf).map { |value| Flt::DecNum(value.to_s) }
+      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
 
       m = cf.size
       sum = 0
@@ -547,7 +556,7 @@ module Finrb
     # @example
     #   Finrb::Utils.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
     def self.geometric_mean(r:)
-      r = Array.wrap(r).map { |value| Flt::DecNum(value.to_s) }
+      r = wrap_array(r).map { |value| Flt::DecNum(value.to_s) }
 
       rs = r.map { |value| value + 1 }
       ((rs.reduce(:*)**(Flt::DecNum(1) / rs.size)) - 1)
@@ -571,7 +580,7 @@ module Finrb
     # @example
     #   Finrb::Utils.harmonic_mean(p=[8,9,10])
     def self.harmonic_mean(p:)
-      p = Array.wrap(p).map { |value| Flt::DecNum(value.to_s) }
+      p = wrap_array(p).map { |value| Flt::DecNum(value.to_s) }
 
       (Flt::DecNum(1) / (p.sum { |val| Flt::DecNum(1) / val } / p.size))
     end
@@ -636,7 +645,7 @@ module Finrb
     # @example
     #   Finrb::Utils.irr(cf=[-5, 1.6, 2.4, 2.8])
     def self.irr(cf:)
-      cf = Array.wrap(cf).map { |value| Flt::DecNum(value.to_s) }
+      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
 
       subcf = cf.drop(1)
       nlfunc = NlFunctionStub.new
@@ -742,7 +751,7 @@ module Finrb
     #   Finrb::Utils.npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
     def self.npv(r:, cf:)
       r = Flt::DecNum(r.to_s)
-      cf = Array.wrap(cf).map { |value| Flt::DecNum(value.to_s) }
+      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
 
       subcf = cf.drop(1)
       ((Finrb::Utils.pv_uneven(r:, cf: subcf) * -1) + cf.first)
@@ -882,7 +891,7 @@ module Finrb
     #   Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
     def self.pv_uneven(r:, cf:)
       r = Flt::DecNum(r.to_s)
-      cf = Array.wrap(cf).map { |value| Flt::DecNum(value.to_s) }
+      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
 
       n = cf.size
       sum = 0
@@ -1030,9 +1039,9 @@ module Finrb
     # @example
     #   Finrb::Utils.twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
     def self.twrr(ev:, bv:, cfr:)
-      ev = Array.wrap(ev).map { |value| Flt::DecNum(value.to_s) }
-      bv = Array.wrap(bv).map { |value| Flt::DecNum(value.to_s) }
-      cfr = Array.wrap(cfr).map { |value| Flt::DecNum(value.to_s) }
+      ev = wrap_array(ev).map { |value| Flt::DecNum(value.to_s) }
+      bv = wrap_array(bv).map { |value| Flt::DecNum(value.to_s) }
+      cfr = wrap_array(cfr).map { |value| Flt::DecNum(value.to_s) }
 
       r = ev.size
       s = bv.size
@@ -1058,8 +1067,8 @@ module Finrb
     # @example
     #   s=[11000,4400,-3000];m=[12,9,4];Finrb::Utils.was(ns=s,nm=m)
     def self.was(ns:, nm:)
-      ns = Array.wrap(ns).map { |value| Flt::DecNum(value.to_s) }
-      nm = Array.wrap(nm).map { |value| Flt::DecNum(value.to_s) }
+      ns = wrap_array(ns).map { |value| Flt::DecNum(value.to_s) }
+      nm = wrap_array(nm).map { |value| Flt::DecNum(value.to_s) }
 
       m = ns.size
       n = nm.size
@@ -1082,8 +1091,8 @@ module Finrb
     # @example
     #   Finrb::Utils.wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
     def self.wpr(r:, w:)
-      r = Array.wrap(r).map { |value| Flt::DecNum(value.to_s) }
-      w = Array.wrap(w).map { |value| Flt::DecNum(value.to_s) }
+      r = wrap_array(r).map { |value| Flt::DecNum(value.to_s) }
+      w = wrap_array(w).map { |value| Flt::DecNum(value.to_s) }
 
       # TODO: need to change
       puts('sum of weights is NOT equal to 1!') if w.sum != 1

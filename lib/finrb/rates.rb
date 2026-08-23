@@ -10,7 +10,7 @@ module Finrb
     include Comparable
 
     # Accepted rate types
-    TYPES = { apr: 'effective', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
+    TYPES = { apr: 'nominal', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
     public_constant :TYPES
 
     # convert a nominal interest rate to an effective interest rate
@@ -46,7 +46,7 @@ module Finrb
       if periods.infinite?
         (rate + 1).log
       else
-        periods * (((rate + 1)**(1.to_f / periods)) - 1)
+        periods * (((rate + 1)**(Flt::DecNum.new(1) / periods)) - 1)
       end
     end
 
@@ -101,13 +101,15 @@ module Finrb
       @effective <=> other.effective
     end
 
-    # (see #effective)
+    # Return the nominal annual percentage rate for the configured compounding frequency.
+    # @return [Flt::DecNum] the nominal annual percentage rate
     # @api public
     def apr
-      effective
+      nominal
     end
 
-    # (see #effective)
+    # Return the effective annual percentage yield.
+    # @return [Flt::DecNum] the effective annual percentage yield
     # @api public
     def apy
       effective
@@ -145,14 +147,15 @@ module Finrb
       "Rate.new(#{apr.round(6)}, :apr)"
     end
 
-    # @return [Flt::DecNum] the monthly effective interest rate
+    # @return [Flt::DecNum] the equivalent monthly effective interest rate
     # @example
     #   rate = Rate.new(0.15, :nominal)
-    #   rate.apr.round(6) #=> Flt::DecNum('0.160755')
-    #   rate.monthly.round(6) #=> Flt::DecNum('0.013396')
+    #   rate.apr.round(6) #=> Flt::DecNum('0.15')
+    #   rate.apy.round(6) #=> Flt::DecNum('0.160755')
+    #   rate.monthly.round(6) #=> Flt::DecNum('0.0125')
     # @api public
     def monthly
-      (effective / 12).round(15)
+      @monthly ||= (Rate.to_nominal(effective, 12) / 12).round(15)
     end
 
     # set the nominal interest rate

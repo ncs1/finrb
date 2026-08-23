@@ -10,6 +10,15 @@ end
 
 task default: %i[spec]
 
+namespace :oracle do
+  desc 'Cross-validate IRR/XIRR against SciPy and QuantLib'
+  task :cross_validate do
+    options = { count: ENV.fetch('COUNT', '100'), seed: ENV.fetch('SEED', '20260825'), workers: ENV.fetch('WORKERS', '4'), batch_size: ENV.fetch('BATCH_SIZE', '50') }
+    arguments = options.flat_map { |name, value| ["--#{name.to_s.tr('_', '-')}", value] }
+    sh ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'cross_validate_solver.py'), *arguments
+  end
+end
+
 namespace :docker do
   desc 'Build docker instance'
   task :build do

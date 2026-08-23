@@ -2,7 +2,7 @@
 """Cross-check finrb IRR/XIRR against SciPy and QuantLib.
 
 This is an optional maintainer tool, not a gem dependency. Install its oracles
-in an isolated environment with: pip install scipy QuantLib
+in the active Python environment from script/requirements-cross-validation.txt.
 """
 
 from __future__ import annotations
@@ -21,7 +21,9 @@ try:
     import QuantLib as ql
     from scipy.optimize import brentq
 except ImportError as error:
-    raise SystemExit("Install oracle dependencies with: pip install scipy QuantLib") from error
+    raise SystemExit(
+        "Install oracle dependencies from script/requirements-cross-validation.txt"
+    ) from error
 
 
 ROOT = Path(__file__).resolve().parent.parent

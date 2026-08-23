@@ -28,8 +28,8 @@ module Finrb
     #   t = Transaction.new(400, :period => 3)
     # @api public
     def initialize(amount, opts = {})
-      @amount = amount
-      @original = amount
+      self.amount = amount
+      @original = @amount
 
       # Set optional attributes..
       opts.each do |key, value|
@@ -85,7 +85,7 @@ module Finrb
     #   pmt.amount #=> -600
     # @api public
     def modify
-      @amount = yield(self)
+      self.amount = yield(self)
     end
 
     # (see #amount)

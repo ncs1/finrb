@@ -163,13 +163,87 @@ extra_payments_2 = 250000.amortize(rate){ -1500 }
 
 ## IRR and XIRR
 
+`irr` solves for the per-period rate that makes the net present value of an
+ordered sequence of equally spaced cashflows equal to zero:
+
+```text
+sum(cashflow[t] / (1 + rate)^t) = 0
+```
+
 ```ruby
-guess = 0.1
-transactions = []
-transactions << Transaction.new(-10000, date: Time.utc(2010, 1, 1))
-transactions << Transaction.new(123000, date: Time.utc(2012, 1, 1))
-transactions.xirr(guess)
-#  => Finrb::Rate.new(2.507136, :apr)
+[-4000, 1200, 1410, 1875, 1050].irr
+# => Flt::DecNum('0.142993...')
+```
+
+The first entry is period zero, the second is period one, and so on. Inputs
+must contain both a positive and a negative cashflow. The result is an
+`Flt::DecNum` per-period rate.
+
+`xirr` applies the same idea to irregularly dated `Finrb::Transaction`
+objects. Under the default configuration, exponents use actual calendar days
+divided by 365 and the result is an effective annual `Finrb::Rate`:
+
+```ruby
+transactions = [
+  Finrb::Transaction.new(-10_000, date: Date.new(2010, 1, 1)),
+  Finrb::Transaction.new(12_300, date: Date.new(2012, 1, 1))
+]
+
+rate = transactions.xirr(0.1)
+rate.effective
+# => Flt::DecNum('0.10905...')
+```
+
+Transactions are evaluated in the supplied order and date offsets are
+measured from the first transaction. Supply them chronologically, with every
+transaction having a `Date`, `Time`, or another date value that responds to
+`to_date`. As with `irr`, the amounts must contain both signs. Valid discrete
+rates are greater than `-1` (greater than -100%).
+
+### Guess and multiple roots
+
+The optional guess is not merely a performance hint. A non-conventional
+cashflow can have multiple valid IRRs, and finrb selects the sign-changing root
+nearest the guess it can bracket. If omitted, the guess comes from
+`Finrb.config.guess`.
+
+```ruby
+cashflows = [-100, 230, -132] # roots at 10% and 20%
+
+cashflows.irr(0.05) # => approximately 0.10
+cashflows.irr(0.25) # => approximately 0.20
+```
+
+An even-multiplicity root only touches zero rather than crossing it, so a
+bracketing search cannot generally discover it. Finrb returns such a root only
+when the supplied guess evaluates exactly to that root:
+
+```ruby
+cashflows = [1, -2.2, 1.21] # repeated root at 10%
+
+cashflows.irr(0.1) # => approximately 0.10
+cashflows.irr(0.0) # raises Finrb::ConvergenceError
+```
+
+### Precision and failures
+
+Calculations use `Flt::DecNum`. `Finrb.config.eps`, which defaults to
+`1.0e-16`, controls both the absolute and relative bracket-width tolerance.
+The returned value therefore satisfies the configured numerical stopping
+criterion; its displayed digits should not be interpreted as guaranteed
+economic accuracy beyond the cashflow inputs.
+
+- `Finrb::InvalidCashflowError` is raised when the cashflows do not contain
+  both positive and negative amounts.
+- `ArgumentError` is raised for a non-numeric guess.
+- `Finrb::DomainError` is raised when the guess is at or below `-1`, or the
+  rate function is undefined or non-finite.
+- `Finrb::ConvergenceError` is raised when no sign-changing root can be
+  bracketed or the numerical solver does not converge.
+
+The `business_days` and `periodic_compound` configuration options alter XIRR's
+date and compounding conventions. They are compatibility options, not market
+holiday calendars; `business_days` excludes weekends only.
 ```
 
 ## Utils

@@ -106,7 +106,7 @@ module Finrb
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]
       solve(func, rate)
-      Rate.new(rate.first, :apr, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
+      Rate.new(rate.first, :effective, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
     end
 
     # calculate the net present value of a sequence of cash flows

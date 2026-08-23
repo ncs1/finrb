@@ -58,7 +58,23 @@ describe(Finrb::Rate) do
 
     it('converts to a monthly value') do
       rate = Rate.new(0.0375, :effective)
-      expect(rate.monthly).to(eq(D('0.003125')))
+      expect(rate.monthly).to(eq(D('0.003072541703256')))
+    end
+
+    it('distinguishes nominal APR from effective APY') do
+      rate = Rate.new(0.12, :apr)
+
+      expect(rate.apr).to(eq(D('0.12')))
+      expect(rate.apy.round(6)).to(eq(D('0.126825')))
+      expect(rate.monthly).to(eq(D('0.01')))
+    end
+
+    it('treats APY as an effective annual rate') do
+      rate = Rate.new(0.1268250301319697, :apy)
+
+      expect(rate.apy.round(6)).to(eq(D('0.126825')))
+      expect(rate.apr.round(6)).to(eq(D('0.12')))
+      expect(rate.monthly.round(6)).to(eq(D('0.01')))
     end
 
     it('converts effective interest rates to nominal') do

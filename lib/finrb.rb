@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_support'
 require 'finrb/cashflows'
 require 'finrb/config'
 require 'finrb/decimal'

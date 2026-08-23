@@ -294,6 +294,10 @@ describe('Utils') do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(EPSILON_ERR).of(D('0.0682465')))
     end
+
+    it('accepts a single return') do
+      expect(Utils.geometric_mean(r: 0.1)).to(eq(D('0.1')))
+    end
   end
 
   describe('gpm') do

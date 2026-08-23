@@ -19,7 +19,6 @@ SPEC =
 
     s.required_ruby_version = '>= 3.3'
 
-    s.add_dependency('activesupport')
     s.add_dependency('bigdecimal', '>= 3.1.2')
     s.add_dependency('business_time')
     s.add_dependency('flt')

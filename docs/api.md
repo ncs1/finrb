@@ -166,8 +166,8 @@ extra_payments_2 = 250000.amortize(rate){ -1500 }
 ```ruby
 guess = 0.1
 transactions = []
-transactions << Transaction.new(-10000, date: '2010-01-01'.to_time(:utc))
-transactions << Transaction.new(123000, date: '2012-01-01'.to_time(:utc))
+transactions << Transaction.new(-10000, date: Time.utc(2010, 1, 1))
+transactions << Transaction.new(123000, date: Time.utc(2012, 1, 1))
 transactions.xirr(guess)
 #  => Finrb::Rate.new(2.507136, :apr)
 ```

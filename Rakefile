@@ -34,6 +34,18 @@ namespace :docker do
     end
   end
 
+  desc 'Build and run solver cross-validation in Docker'
+  task :oracle do
+    image = 'finrb:solver-validation'
+    sh 'docker', 'build', '--target', 'solver-validation', '--tag', image, '--file', 'Dockerfile', '.'
+
+    command = ['docker', 'run', '--rm']
+    %w[COUNT SEED WORKERS BATCH_SIZE].each do |name|
+      command.push('--env', "#{name}=#{ENV.fetch(name)}") if ENV.key?(name)
+    end
+    sh(*command, image)
+  end
+
   desc 'Run dev docker instance'
   task :run do
     system 'docker run --init -it --rm finrb:1.0'

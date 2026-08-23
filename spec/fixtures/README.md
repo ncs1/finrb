@@ -43,6 +43,19 @@ The default run generates 100 periodic and 100 dated cases with seed `20260825`,
 COUNT=500 SEED=17 WORKERS=8 BATCH_SIZE=25 bundle exec rake oracle:cross_validate
 ```
 
+Alternatively, build and run the isolated solver-validation Docker target. It
+contains its own Python environment with the pinned oracle dependencies:
+
+```shell
+bundle exec rake docker:oracle
+```
+
+The Docker wrapper accepts the same environment-variable overrides:
+
+```shell
+COUNT=500 SEED=17 WORKERS=8 BATCH_SIZE=25 bundle exec rake docker:oracle
+```
+
 The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/finrb_solver_adapter.rb`, and compares each result with both external oracles. It sends bounded newline-delimited JSON batches through persistent Ruby worker processes instead of constructing one unbounded stdin payload. Ruby workers and SciPy comparisons run concurrently; QuantLib comparisons stay sequential because its Python binding returned invalid results under concurrent access.
 
 QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. The versions used by the maintained fixtures are pinned in `script/requirements-cross-validation.txt`. Neither Python package is a finrb runtime dependency.

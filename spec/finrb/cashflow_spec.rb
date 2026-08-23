@@ -12,6 +12,11 @@ describe(Finrb::Cashflow) do
     it('has a Net Present Value') do
       expect([-100.0, 60, 60, 60].npv(0.1).round(3)).to(eq(D('49.211')))
     end
+
+    it('rejects cashflows without both positive and negative values') do
+      expect { [10, 20, 30].irr }
+        .to(raise_error(Finrb::InvalidCashflowError))
+    end
   end
 
   describe('dated cashflows') do
@@ -40,7 +45,7 @@ describe(Finrb::Cashflow) do
 
     it('fails to calculate with default guess (1.0)') do
       expect { @transactions.xirr.apr.to_i }
-        .to(raise_error(Flt::Num::InvalidOperation))
+        .to(raise_error(Finrb::DomainError, /non-numeric/))
     end
 
     it('calculates correct rate with new guess (0.5)') do
@@ -63,7 +68,7 @@ describe(Finrb::Cashflow) do
 
     it('fails to calculate with default guess (1.0)') do
       expect { @transactions.xirr }
-        .to(raise_error(Flt::Num::InvalidOperation))
+        .to(raise_error(Finrb::ConvergenceError, /guess/))
     end
 
     it('calculates correct rate with new guess (0.1)') do

@@ -2,6 +2,7 @@
 
 require_relative 'config'
 require_relative 'decimal'
+require_relative 'errors'
 require_relative 'rates'
 
 require 'bigdecimal'
@@ -34,8 +35,8 @@ module Finrb
         value = @transactions.public_send(@function, Flt::DecNum.new(x.first.to_s))
         begin
           [BigDecimal(value.to_s)]
-        rescue ArgumentError
-          [0]
+        rescue ArgumentError => e
+          raise(DomainError, "Solver function returned a non-numeric value: #{value.inspect}", e.backtrace)
         end
       end
     end
@@ -50,11 +51,11 @@ module Finrb
     def irr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
       positives, negatives = partition { |i| i >= 0 }
-      raise(ArgumentError, 'Calculation does not converge.') if positives.empty? || negatives.empty?
+      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if positives.empty? || negatives.empty?
 
       func = Function.new(self, :npv)
       rate = [valid(guess)]
-      nlsolve(func, rate)
+      solve(func, rate)
       rate.first
     end
 
@@ -100,11 +101,11 @@ module Finrb
     def xirr(guess = nil)
       # Make sure we have a valid sequence of cash flows.
       positives, negatives = partition { |t| t.amount >= 0 }
-      raise(ArgumentError, 'Calculation does not converge. Cashflow needs to have a least one positive and one negative value.') if positives.empty? || negatives.empty?
+      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if positives.empty? || negatives.empty?
 
       func = Function.new(self, :xnpv)
       rate = [valid(guess)]
-      nlsolve(func, rate)
+      solve(func, rate)
       Rate.new(rate.first, :apr, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
     end
 
@@ -149,6 +150,12 @@ module Finrb
 
     def start
       @start ||= first.date
+    end
+
+    def solve(function, rate)
+      nlsolve(function, rate)
+    rescue Flt::Num::InvalidOperation, FloatDomainError, Math::DomainError, ZeroDivisionError => e
+      raise(ConvergenceError, "Calculation did not converge from guess #{rate.first}.", e.backtrace)
     end
 
     def stop

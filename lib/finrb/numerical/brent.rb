@@ -27,6 +27,8 @@ module Finrb
       def solve(function, lower:, upper:)
         left = decimal(lower)
         right = decimal(upper)
+        raise(ArgumentError, 'Lower bound must be less than upper bound.') if left >= right
+
         left_value = evaluate(function, left)
         right_value = evaluate(function, right)
 

@@ -628,6 +628,8 @@ module Finrb
           cf.each_with_index.sum(Flt::DecNum(0)) { |cashflow, period| cashflow / ((rate + 1)**period) }
         end
       bounds = Numerical::RateSearch.new.bracket(function, guess: 0)
+      return bounds.first if bounds.first == bounds.last
+
       Numerical::Brent.new(tolerance: Finrb.config.eps).solve(function, lower: bounds.first, upper: bounds.last)
     end
 

@@ -122,6 +122,7 @@ module Finrb
     def solve(function, guess)
       rate_function = ->(rate) { public_send(function, rate) }
       bounds = Numerical::RateSearch.new.bracket(rate_function, guess:)
+      return bounds.first if bounds.first == bounds.last
 
       Numerical::Brent.new(tolerance: Finrb.config.eps).solve(rate_function, lower: bounds.first, upper: bounds.last)
     end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'decimal'
+require_relative 'validation'
 
 module Finrb
   # the Rate class provides an interface for working with interest rates.
@@ -13,6 +13,17 @@ module Finrb
     TYPES = { apr: 'nominal', apy: 'effective', effective: 'effective', nominal: 'nominal' }.freeze
     public_constant :TYPES
 
+    def self.compounding_periods(value)
+      infinite = value.infinite? if value.respond_to?(:infinite?)
+      return Flt::DecNum.infinity if [true, 1].include?(infinite)
+
+      periods = Validation.decimal(value, name: 'compounding periods')
+      raise(ArgumentError, 'compounding periods must be positive.') unless periods.positive?
+
+      periods
+    end
+    private_class_method :compounding_periods
+
     # convert a nominal interest rate to an effective interest rate
     # @return [Flt::DecNum] the effective interest rate
     # @param [Numeric] rate the nominal interest rate
@@ -21,8 +32,8 @@ module Finrb
     #   Rate.to_effective(0.05, 4) #=> Flt::DecNum('0.05095')
     # @api public
     def self.to_effective(rate, periods)
-      rate = Flt::DecNum.new(rate.to_s)
-      periods = Flt::DecNum.new(periods.to_s)
+      rate = Validation.decimal(rate, name: 'rate')
+      periods = compounding_periods(periods)
 
       if periods.infinite?
         rate.exp - 1
@@ -40,8 +51,10 @@ module Finrb
     # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
     # @api public
     def self.to_nominal(rate, periods)
-      rate = Flt::DecNum.new(rate.to_s)
-      periods = Flt::DecNum.new(periods.to_s)
+      rate = Validation.decimal(rate, name: 'rate')
+      raise(ArgumentError, 'effective rate must be greater than -1.') if rate <= -1
+
+      periods = compounding_periods(periods)
 
       if periods.infinite?
         (rate + 1).log
@@ -63,6 +76,9 @@ module Finrb
     # @see https://en.wikipedia.org/wiki/Nominal_interest_rate
     # @api public
     def initialize(rate, type, opts = {})
+      raise(ArgumentError, 'options must be a Hash.') unless opts.is_a?(Hash)
+      raise(ArgumentError, 'options may only contain compounds and duration.') unless (opts.keys - %i[compounds duration]).empty?
+
       # Default monthly compounding.
       opts = { compounds: :monthly }.merge(opts)
 
@@ -73,7 +89,7 @@ module Finrb
 
       # Set the rate in the proper way, based on the value of type.
       begin
-        __send__(:"#{TYPES.fetch(type)}=", Flt::DecNum.new(rate.to_s))
+        __send__(:"#{TYPES.fetch(type)}=", Validation.decimal(rate, name: 'rate'))
       rescue KeyError
         raise(ArgumentError, "type must be one of #{TYPES.keys.join(', ')}", caller)
       end
@@ -81,7 +97,7 @@ module Finrb
 
     # @return [Integer] the duration for which the rate is valid, in months
     # @api public
-    attr_accessor :duration
+    attr_reader :duration
     # @return [Flt::DecNum] the effective interest rate
     # @api public
     attr_reader :effective
@@ -129,9 +145,13 @@ module Finrb
         when :monthly      then Flt::DecNum.new(12)
         when :quarterly    then Flt::DecNum.new(4)
         when :semiannually then Flt::DecNum.new(2)
-        when Numeric       then Flt::DecNum.new(input.to_s)
-        else raise(ArgumentError)
+        when Numeric       then self.class.__send__(:compounding_periods, input)
+        else raise(ArgumentError, 'compounds must be a known frequency or a positive number.')
         end
+    end
+
+    def duration=(value)
+      @duration = Validation.positive_integer(value, name: 'duration')
     end
 
     # set the effective interest rate
@@ -139,6 +159,8 @@ module Finrb
     # @param [Flt::DecNum] rate the effective interest rate
     # @api private
     def effective=(rate)
+      raise(ArgumentError, 'effective rate must be greater than -1.') if rate <= -1
+
       @effective = rate
       @nominal = Rate.to_nominal(rate, @periods)
     end
@@ -163,6 +185,8 @@ module Finrb
     # @param [Flt::DecNum] rate the nominal interest rate
     # @api private
     def nominal=(rate)
+      raise(ArgumentError, 'nominal rate must keep every compounded period greater than -100%.') if !@periods.infinite? && rate <= -@periods
+
       @nominal = rate
       @effective = Rate.to_effective(rate, @periods)
     end

@@ -6,6 +6,7 @@ require_relative 'errors'
 require_relative 'numerical/brent'
 require_relative 'numerical/rate_search'
 require_relative 'rates'
+require_relative 'validation'
 
 require 'date'
 
@@ -30,9 +31,10 @@ module Finrb
     # @see https://en.wikipedia.org/wiki/Internal_rate_of_return
     # @api public
     def irr(guess = nil)
+      validate_numeric_cashflows!
+
       # Make sure we have a valid sequence of cash flows.
-      positives, negatives = partition { |i| i >= 0 }
-      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if positives.empty? || negatives.empty?
+      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if none?(&:positive?) || none?(&:negative?)
 
       solve(:npv, valid(guess))
     end
@@ -55,9 +57,12 @@ module Finrb
     # @see https://en.wikipedia.org/wiki/Net_present_value
     # @api public
     def npv(rate)
-      cashflows = map { |entry| Flt::DecNum.new(entry.to_s) }
+      validate_numeric_cashflows!
+      cashflows = map { |entry| Validation.decimal(entry, name: 'cashflow amount') }
 
-      rate = Flt::DecNum.new(rate.to_s)
+      rate = Validation.decimal(rate, name: 'rate')
+      raise(DomainError, 'Rate must be greater than -1.') if rate <= -1
+
       total = Flt::DecNum.new(0.to_s)
       cashflows.each_with_index do |cashflow, index|
         total += cashflow / ((rate + 1)**index)
@@ -89,9 +94,10 @@ module Finrb
     #   @transactions.xirr(0.6) #=> Rate("0.024851", :effective, :compounds => :annually)
     # @api public
     def xirr(guess = nil)
+      validate_dated_cashflows!
+
       # Make sure we have a valid sequence of cash flows.
-      positives, negatives = partition { |t| t.amount >= 0 }
-      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if positives.empty? || negatives.empty?
+      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if none? { |transaction| transaction.amount.positive? } || none? { |transaction| transaction.amount.negative? }
 
       rate = solve(:xnpv, valid(guess))
       Rate.new(rate, :effective, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
@@ -107,7 +113,9 @@ module Finrb
     #   @transactions.xnpv(0.6).round(2) #=> -937.41
     # @api public
     def xnpv(rate)
-      rate = Flt::DecNum.new(rate.to_s)
+      validate_dated_cashflows!
+      rate = Validation.decimal(rate, name: 'rate')
+      raise(DomainError, 'Rate must be greater than -1.') if rate <= -1
 
       sum do |t|
         t.amount / ((rate + 1)**(date_diff(start, t.date) / days_in_period))
@@ -115,6 +123,20 @@ module Finrb
     end
 
     private
+
+    def validate_numeric_cashflows!
+      raise(InvalidCashflowError, 'Cashflow cannot be empty.') if empty?
+
+      each { |amount| Validation.decimal(amount, name: 'cashflow amount') }
+    rescue ArgumentError => e
+      raise(InvalidCashflowError, e.message, e.backtrace)
+    end
+
+    def validate_dated_cashflows!
+      raise(InvalidCashflowError, 'Dated cashflow cannot be empty.') if empty?
+      raise(InvalidCashflowError, 'Dated cashflows require Finrb::Transaction instances with dates.') unless all? { |transaction| transaction.is_a?(Transaction) && transaction.date.respond_to?(:to_date) }
+      raise(InvalidCashflowError, 'Dated cashflows must be in chronological order.') unless each_cons(2).all? { |left, right| left.date.to_date <= right.date.to_date }
+    end
 
     def date_diff(from, to)
       if Finrb.config.business_days

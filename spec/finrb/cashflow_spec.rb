@@ -13,6 +13,19 @@ describe(Finrb::Cashflow) do
     it('rejects cashflows without both positive and negative values') do
       expect { [10, 20, 30].irr }
         .to(raise_error(Finrb::InvalidCashflowError))
+      expect { [-10, 0].irr }
+        .to(raise_error(Finrb::InvalidCashflowError))
+    end
+
+    it('rejects empty, non-numeric, non-finite, and invalid-rate inputs') do
+      expect { [].irr }
+        .to(raise_error(Finrb::InvalidCashflowError, /cannot be empty/))
+      expect { [-10, '20'].irr }
+        .to(raise_error(Finrb::InvalidCashflowError, /must be numeric/))
+      expect { [-10, Float::INFINITY].irr }
+        .to(raise_error(Finrb::InvalidCashflowError, /must be finite/))
+      expect { [-10, 20].npv(-1) }
+        .to(raise_error(Finrb::DomainError, /greater than -1/))
     end
 
     it('selects between multiple IRRs using the guess') do
@@ -34,6 +47,16 @@ describe(Finrb::Cashflow) do
       time_transactions = [Transaction.new(-1000, date: Time.utc(2020, 1, 1)), Transaction.new(1100, date: Time.utc(2021, 1, 1))]
 
       expect(date_transactions.xnpv(0.1)).to(eq(time_transactions.xnpv(0.1)))
+    end
+
+    it('rejects missing dates and non-chronological transactions') do
+      missing_date = [Transaction.new(-100), Transaction.new(110, date: Date.new(2027, 1, 1))]
+      reversed = [Transaction.new(-100, date: Date.new(2027, 1, 1)), Transaction.new(110, date: Date.new(2026, 1, 1))]
+
+      expect { missing_date.xirr }
+        .to(raise_error(Finrb::InvalidCashflowError, /with dates/))
+      expect { reversed.xirr }
+        .to(raise_error(Finrb::InvalidCashflowError, /chronological/))
     end
   end
 

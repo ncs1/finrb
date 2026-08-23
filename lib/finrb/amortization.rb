@@ -3,6 +3,7 @@
 require_relative 'cashflows'
 require_relative 'decimal'
 require_relative 'transaction'
+require_relative 'validation'
 
 module Finrb
   # the Amortization class provides an interface for working with loan amortizations.
@@ -46,6 +47,14 @@ module Finrb
     # @see https://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
     def self.payment(principal, rate, periods)
+      principal = Validation.decimal(principal, name: 'principal')
+      raise(ArgumentError, 'principal must be positive.') unless principal.positive?
+
+      rate = Validation.decimal(rate, name: 'rate')
+      raise(ArgumentError, 'periodic rate must be greater than -1.') if rate <= -1
+
+      periods = Validation.positive_integer(periods, name: 'periods')
+
       if rate.zero?
         # simplified formula to avoid division-by-zero when interest rate is zero
         -(principal / periods).round(2)
@@ -61,7 +70,12 @@ module Finrb
     # @param [Proc] block
     # @api public
     def initialize(principal, *rates, &block)
-      @principal = Flt::DecNum.new(principal.to_s)
+      @principal = Validation.decimal(principal, name: 'principal')
+      raise(ArgumentError, 'principal must be positive.') unless @principal.positive?
+      raise(ArgumentError, 'at least one rate is required.') if rates.empty?
+      raise(ArgumentError, 'rates must be Finrb::Rate instances.') unless rates.all?(Rate)
+      raise(ArgumentError, 'every rate must have a duration.') if rates.any? { |rate| rate.duration.nil? }
+
       @rates     = rates
       @block     = block
 
@@ -103,6 +117,7 @@ module Finrb
 
       pmt = Payment.new(amount, period: @period)
       pmt.modify(&@block) if @block
+      raise(ArgumentError, 'payment modification must produce a negative amount.') unless pmt.amount.negative?
 
       rate.duration.to_i.times do
         # Do this first in case the balance is zero already.

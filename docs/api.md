@@ -143,7 +143,7 @@ payment by $150, do:
 
 ```ruby
 rate = Finrb::Rate.new(0.0425, :apr, :duration => (30 * 12))
-extra_payments = 250000.amortize(rate){ |period| period.payment - 150 }
+extra_payments = Finrb::Amortization.new(250000, rate){ |period| period.payment - 150 }
 ```
 
 Disregarding the block, we have used the same parameters as the first
@@ -163,8 +163,12 @@ extra_payments.interest.sum
 You can also increase your payment to a specific amount:
 
 ```ruby
-extra_payments_2 = 250000.amortize(rate){ -1500 }
+extra_payments_2 = Finrb::Amortization.new(250000, rate){ -1500 }
 ```
+
+The legacy `Array#irr`, `Array#xirr`, and `Numeric#amortize` forms are
+available only after explicitly loading `finrb/core_ext`. Loading `finrb`
+alone leaves Ruby's core classes unchanged.
 
 ## IRR and XIRR
 
@@ -176,7 +180,7 @@ sum(cashflow[t] / (1 + rate)^t) = 0
 ```
 
 ```ruby
-[-4000, 1200, 1410, 1875, 1050].irr
+Finrb::Cashflow.irr([-4000, 1200, 1410, 1875, 1050])
 # => Flt::DecNum('0.142993...')
 ```
 
@@ -194,7 +198,7 @@ transactions = [
   Finrb::Transaction.new(12_300, date: Date.new(2012, 1, 1))
 ]
 
-rate = transactions.xirr(0.1)
+rate = Finrb::Cashflow.xirr(transactions, 0.1)
 rate.effective
 # => Flt::DecNum('0.10905...')
 ```
@@ -215,8 +219,8 @@ nearest the guess it can bracket. If omitted, the guess comes from
 ```ruby
 cashflows = [-100, 230, -132] # roots at 10% and 20%
 
-cashflows.irr(0.05) # => approximately 0.10
-cashflows.irr(0.25) # => approximately 0.20
+Finrb::Cashflow.irr(cashflows, 0.05) # => approximately 0.10
+Finrb::Cashflow.irr(cashflows, 0.25) # => approximately 0.20
 ```
 
 An even-multiplicity root only touches zero rather than crossing it, so a
@@ -226,8 +230,8 @@ when the supplied guess evaluates exactly to that root:
 ```ruby
 cashflows = [1, -2.2, 1.21] # repeated root at 10%
 
-cashflows.irr(0.1) # => approximately 0.10
-cashflows.irr(0.0) # raises Finrb::ConvergenceError
+Finrb::Cashflow.irr(cashflows, 0.1) # => approximately 0.10
+Finrb::Cashflow.irr(cashflows, 0.0) # raises Finrb::ConvergenceError
 ```
 
 ### Precision and failures

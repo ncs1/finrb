@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'finrb/core_ext'
+
 # Split from cashflow_spec.rb because these slower metamorphic scenarios form a
 # distinct test concern.
 

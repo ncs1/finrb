@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
+require 'finrb/core_ext'
+
 describe(Finrb::Cashflow) do
+  it('supports cashflow calculations without extending Array') do
+    expect(described_class.irr([-4000, 1200, 1410, 1875, 1050]).round(3)).to(eq(D('0.143')))
+    expect(described_class.npv([-100.0, 60, 60, 60], 0.1).round(3)).to(eq(D('49.211')))
+  end
+
   describe('an array of numeric cashflows') do
     it('has an Internal Rate of Return') do
       expect([-4000, 1200, 1410, 1875, 1050].irr.round(3)).to(eq(D('0.143')))

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'finrb/core_ext'
+
 describe(Finrb::Amortization) do
   # frozen_string_literal: true
   # @see https://tinyurl.com/6zroqvd for detailed calculations for the

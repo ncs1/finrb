@@ -144,9 +144,24 @@ another thread, use:
 
 ```ruby
 Finrb.with_config(guess: 0.25) do
-  cashflows.irr
+  Finrb::Cashflow.irr(cashflows)
 end
 ```
+
+### Optional core extensions
+
+Loading `finrb` does not add methods to Ruby's `Array` or `Numeric` classes.
+Applications migrating from the legacy fluent API can enable it explicitly:
+
+```ruby
+require 'finrb/core_ext'
+
+[-4000, 1200, 1410, 1875, 1050].irr
+250000.amortize(rate)
+```
+
+New code should prefer `Finrb::Cashflow.irr(cashflows)` and
+`Finrb::Amortization.new(principal, rate)`.
 
 ### Precision and rounding
 

@@ -4,7 +4,7 @@
 
 - [Amortization](#amortization)
 - [IRR and XIRR](#irr-and-xirr)
-- [Utils](#utils)
+- [Financial calculations](#financial-calculations)
   - [Computing bank discount yield BDY for a T-bill](#computing-bank-discount-yield-bdy-for-a-t-bill)
   - [Computing money market yield MMY for a T-bill](#computing-money-market-yield-mmy-for-a-t-bill)
   - [Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due](#cash-ratio---liquidity-ratios-measure-the-firms-ability-to-satisfy-its-short-term-obligations-as-they-come-due)
@@ -252,11 +252,11 @@ date and compounding conventions. They are compatibility options, not market
 holiday calendars; `business_days` excludes weekends only.
 ```
 
-## Utils
+## Financial calculations
 
-Utils is a static class providing basic financial functions for modeling.
+The following functions are grouped by their owning financial modules.
 
-Utils is based on R's [FinCal](https://github.com/felixfan/FinCal) library (ported to Ruby).
+Several calculations originated in R's [FinCal](https://github.com/felixfan/FinCal) library (ported to Ruby).
 
 Provides the following functions:
 
@@ -526,7 +526,7 @@ Finrb::Utils.diluted_eps(ni=115600,pd=10000,cpd=10000,cdi=42000,tax=0.4,w=200000
 Examples:
 
 ```ruby
-Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
+Finrb::TVM.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
 ```
 
 ### Convert stated annual rate to the effective annual rate
@@ -681,7 +681,7 @@ Finrb::Utils.financial_leverage(te=16000,ta=20000)
 Examples:
 
 ```ruby
-Finrb::Utils.fv(r=0.07,n=10,pv=1000,pmt=10)
+Finrb::TVM.fv(r=0.07,n=10,pv=1000,pmt=10)
 ```
 
 ### Estimate future value of an annuity
@@ -697,11 +697,11 @@ Finrb::Utils.fv(r=0.07,n=10,pv=1000,pmt=10)
 Examples:
 
 ```ruby
-Finrb::Utils.fv_annuity(0.03,12,-1000)
+Finrb::TVM.fv_annuity(0.03,12,-1000)
 ```
 
 ```ruby
-Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
+Finrb::TVM.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
 ```
 
 ### Estimate future value (fv) of a single sum
@@ -715,11 +715,11 @@ Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
 Examples:
 
 ```ruby
-Finrb::Utils.fv_simple(0.08,10,-300)
+Finrb::TVM.fv_simple(0.08,10,-300)
 ```
 
 ```ruby
-Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
+Finrb::TVM.fv_simple(r=0.04,n=20,pv=-50000)
 ```
 
 ### Computing the future value of an uneven cash flow series
@@ -731,7 +731,7 @@ Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
 Examples:
 
 ```ruby
-Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
+Finrb::TVM.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
 ```
 
 ### Geometric mean return
@@ -880,11 +880,11 @@ Finrb::Utils.mmy2hpr(mmy=0.04898,t=150)
 Examples:
 
 ```ruby
-Finrb::Utils.n_period(0.1,-10000,60000000,-50000,0)
+Finrb::TVM.n_period(0.1,-10000,60000000,-50000,0)
 ```
 
 ```ruby
-Finrb::Utils.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
+Finrb::TVM.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
 ```
 
 ### Net profit margin - Evaluate a company's financial performance
@@ -908,7 +908,7 @@ Finrb::Utils.npm(ni=8000,rv=20000)
 Examples:
 
 ```ruby
-Finrb::Utils.npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
+Finrb::TVM.npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
 ```
 
 ### Estimate period payment
@@ -926,15 +926,15 @@ Finrb::Utils.npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
 Examples:
 
 ```ruby
-Finrb::Utils.pmt(0.08,10,-1000,10)
+Finrb::TVM.pmt(0.08,10,-1000,10)
 ```
 
 ```ruby
-Finrb::Utils.pmt(r=0.08,n=10,pv=-1000,fv=0)
+Finrb::TVM.pmt(r=0.08,n=10,pv=-1000,fv=0)
 ```
 
 ```ruby
-Finrb::Utils.pmt(0.08,10,-1000,10,1)
+Finrb::TVM.pmt(0.08,10,-1000,10,1)
 ```
 
 ### Estimate present value (pv)
@@ -952,11 +952,11 @@ Finrb::Utils.pmt(0.08,10,-1000,10,1)
 Examples:
 
 ```ruby
-Finrb::Utils.pv(0.07,10,1000,10)
+Finrb::TVM.pv(0.07,10,1000,10)
 ```
 
 ```ruby
-Finrb::Utils.pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
+Finrb::TVM.pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
 ```
 
 ### Estimate present value (pv) of an annuity
@@ -972,11 +972,11 @@ Finrb::Utils.pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
 Examples:
 
 ```ruby
-Finrb::Utils.pv_annuity(0.03,12,1000)
+Finrb::TVM.pv_annuity(0.03,12,1000)
 ```
 
 ```ruby
-Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
+Finrb::TVM.pv_annuity(r=0.0425,n=3,pmt=30000)
 ```
 
 ### Estimate present value of a perpetuity
@@ -992,15 +992,15 @@ Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
 Examples:
 
 ```ruby
-Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,g=0.02)
+Finrb::TVM.pv_perpetuity(r=0.1,pmt=1000,g=0.02)
 ```
 
 ```ruby
-Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,type=1)
+Finrb::TVM.pv_perpetuity(r=0.1,pmt=1000,type=1)
 ```
 
 ```ruby
-Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
+Finrb::TVM.pv_perpetuity(r=0.1,pmt=1000)
 ```
 
 ### Estimate present value (pv) of a single sum
@@ -1014,11 +1014,11 @@ Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
 Examples:
 
 ```ruby
-Finrb::Utils.pv_simple(0.07,10,100)
+Finrb::TVM.pv_simple(0.07,10,100)
 ```
 
 ```ruby
-Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
+Finrb::TVM.pv_simple(r=0.03,n=3,fv=1000)
 ```
 
 ### Computing the present value of an uneven cash flow series
@@ -1030,7 +1030,7 @@ Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
 Examples:
 
 ```ruby
-Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
+Finrb::TVM.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
 ```
 
 ### Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due
@@ -1086,7 +1086,7 @@ Finrb::Utils.r_norminal(rc=0.03,m=4)
 Examples:
 
 ```ruby
-Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
+Finrb::TVM.r_perpetuity(pmt=4.5,pv=-75)
 ```
 
 ### Computing Sampling error

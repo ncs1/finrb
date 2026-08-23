@@ -284,30 +284,6 @@ module Finrb
       diluted
     end
 
-    # Computing the rate of return for each period
-    #
-    # @param n number of periods
-    # @param pv present value
-    # @param fv future value
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @param lower the lower end points of the rate of return to be searched.
-    # @param upper the upper end points of the rate of return to be searched.
-    # @example
-    #   Finrb::Utils.discount_rate(n=5,pv=0,fv=600,pmt=-100,type=0)
-    def self.discount_rate(n:, pv:, fv:, pmt:, type: 0, lower: 0.0001, upper: 100)
-      n = Flt::DecNum(n.to_s)
-      pv = Flt::DecNum(pv.to_s)
-      fv = Flt::DecNum(fv.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      type = Flt::DecNum(type.to_s)
-      lower = Flt::DecNum(lower.to_s)
-      upper = Flt::DecNum(upper.to_s)
-
-      function = ->(rate) { Finrb::Utils.fv_simple(r: rate, n:, pv:) + Finrb::Utils.fv_annuity(r: rate, n:, pmt:, type:) - fv }
-      Numerical::Brent.new(tolerance: Finrb.config.eps).solve(function, lower:, upper:)
-    end
-
     # Convert stated annual rate to the effective annual rate
     #
     # @param r stated annual rate
@@ -440,90 +416,6 @@ module Finrb
       ta = Flt::DecNum(ta.to_s)
 
       (ta / te)
-    end
-
-    # Estimate future value (fv)
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param pv present value
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.fv(r=0.07,n=10,pv=1000,pmt=10)
-    def self.fv(r:, n:, pv: 0, pmt: 0, type: 0)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      pv = Flt::DecNum(pv.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      else
-        (Finrb::Utils.fv_simple(r:, n:, pv:) + Finrb::Utils.fv_annuity(r:, n:, pmt:, type:))
-      end
-    end
-
-    # Estimate future value of an annuity
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.fv_annuity(0.03,12,-1000)
-    #
-    # @example
-    #   Finrb::Utils.fv_annuity(r=0.03,n=12,pmt=-1000,type=1)
-    def self.fv_annuity(r:, n:, pmt:, type: 0)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      else
-        (pmt / r * (((r + 1)**n) - 1)) * ((r + 1)**type) * -1
-      end
-    end
-
-    # Estimate future value (fv) of a single sum
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param pv present value
-    # @example
-    #   Finrb::Utils.fv_simple(0.08,10,-300)
-    #
-    # @example
-    #   Finrb::Utils.fv_simple(r=0.04,n=20,pv=-50000)
-    def self.fv_simple(r:, n:, pv:)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      pv = Flt::DecNum(pv.to_s)
-
-      ((pv * ((r + 1)**n)) * -1)
-    end
-
-    # Computing the future value of an uneven cash flow series
-    #
-    # @param r stated annual rate
-    # @param cf uneven cash flow
-    # @example
-    #   Finrb::Utils.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
-    def self.fv_uneven(r:, cf:)
-      r = Flt::DecNum(r.to_s)
-      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
-
-      m = cf.size
-      sum = 0
-      (0...m).each do |i|
-        n = m - (i + 1)
-        sum += Finrb::Utils.fv_simple(r:, n:, pv: cf[i])
-      end
-      sum
     end
 
     # Geometric mean return
@@ -678,32 +570,6 @@ module Finrb
       (mmy * t / 360)
     end
 
-    # Estimate the number of periods
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param pv present value
-    # @param fv future value
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.n_period(0.1,-10000,60000000,-50000,0)
-    #
-    # @example
-    #   Finrb::Utils.n_period(r=0.1,pv=-10000,fv=60000000,pmt=-50000,type=1)
-    def self.n_period(r:, pv:, fv:, pmt:, type: 0)
-      r = Flt::DecNum(r.to_s)
-      pv = Flt::DecNum(pv.to_s)
-      fv = Flt::DecNum(fv.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      else
-        (((fv * r) - (pmt * ((r + 1)**type))) * Flt::DecNum(-1) / ((pv * r) + (pmt * ((r + 1)**type)))).to_dec.log / (r + 1).to_dec.log
-      end
-    end
-
     # net profit margin -- Evaluate a company's financial performance
     #
     # @param ni net income
@@ -715,164 +581,6 @@ module Finrb
       rv = Flt::DecNum(rv.to_s)
 
       (ni / rv)
-    end
-
-    # Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param cf cash flow,the first cash flow is the initial outlay
-    # @example
-    #   Finrb::Utils.npv(r=0.12, cf=[-5, 1.6, 2.4, 2.8])
-    def self.npv(r:, cf:)
-      r = Flt::DecNum(r.to_s)
-      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
-
-      subcf = cf.drop(1)
-      ((Finrb::Utils.pv_uneven(r:, cf: subcf) * -1) + cf.first)
-    end
-
-    # Estimate period payment
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param pv present value
-    # @param fv future value
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.pmt(0.08,10,-1000,10)
-    #
-    # @example
-    #   Finrb::Utils.pmt(r=0.08,n=10,pv=-1000,fv=0)
-    #
-    # @example
-    #   Finrb::Utils.pmt(0.08,10,-1000,10,1)
-    def self.pmt(r:, n:, pv:, fv:, type: 0)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      pv = Flt::DecNum(pv.to_s)
-      fv = Flt::DecNum(fv.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      else
-        (pv + (fv / ((r + 1)**n))) * r / (1 - (Flt::DecNum(1) / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
-      end
-    end
-
-    # Estimate present value (pv)
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param fv future value
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.pv(0.07,10,1000,10)
-    #
-    # @example
-    #   Finrb::Utils.pv(r=0.05,n=20,fv=1000,pmt=10,type=1)
-    def self.pv(r:, n:, fv: 0, pmt: 0, type: 0)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      fv = Flt::DecNum(fv.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      else
-        Finrb::Utils.pv_simple(r:, n:, fv:) + Finrb::Utils.pv_annuity(r:, n:, pmt:, type:)
-      end
-    end
-
-    # Estimate present value (pv) of an annuity
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.pv_annuity(0.03,12,1000)
-    #
-    # @example
-    #   Finrb::Utils.pv_annuity(r=0.0425,n=3,pmt=30000)
-    def self.pv_annuity(r:, n:, pmt:, type: 0)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      else
-        (pmt / r * (1 - (Flt::DecNum(1) / ((r + 1)**n)))) * ((r + 1)**type) * -1
-      end
-    end
-
-    # Estimate present value of a perpetuity
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param g growth rate of perpetuity
-    # @param pmt payment per period
-    # @param type payments occur at the end of each period (type=0); payments occur at the beginning of each period (type=1)
-    # @example
-    #   Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,g=0.02)
-    #
-    # @example
-    #   Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000,type=1)
-    #
-    # @example
-    #   Finrb::Utils.pv_perpetuity(r=0.1,pmt=1000)
-    def self.pv_perpetuity(r:, pmt:, g: 0, type: 0)
-      r = Flt::DecNum(r.to_s)
-      pmt = Flt::DecNum(pmt.to_s)
-      g = Flt::DecNum(g.to_s)
-      type = Flt::DecNum(type.to_s)
-
-      if type != 0 && type != 1
-        raise(FinrbError, 'Error: type should be 0 or 1!')
-      elsif g >= r
-        raise(FinrbError, 'Error: g is not smaller than r!')
-      else
-        (pmt / (r - g)) * ((r + 1)**type) * -1
-      end
-    end
-
-    # Estimate present value (pv) of a single sum
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param n number of periods
-    # @param fv future value
-    # @example
-    #   Finrb::Utils.pv_simple(0.07,10,100)
-    #
-    # @example
-    #   Finrb::Utils.pv_simple(r=0.03,n=3,fv=1000)
-    def self.pv_simple(r:, n:, fv:)
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      fv = Flt::DecNum(fv.to_s)
-
-      ((fv / ((r + 1)**n)) * -1)
-    end
-
-    # Computing the present value of an uneven cash flow series
-    #
-    # @param r discount rate, or the interest rate at which the amount will be compounded each period
-    # @param cf uneven cash flow
-    # @example
-    #   Finrb::Utils.pv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
-    def self.pv_uneven(r:, cf:)
-      r = Flt::DecNum(r.to_s)
-      cf = wrap_array(cf).map { |value| Flt::DecNum(value.to_s) }
-
-      n = cf.size
-      sum = 0
-      (0...n).each do |i|
-        sum += Finrb::Utils.pv_simple(r:, n: i + 1, fv: cf[i])
-      end
-      sum
     end
 
     # quick ratio -- Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
@@ -919,19 +627,6 @@ module Finrb
       m = Flt::DecNum(m.to_s)
 
       (m * ((rc / m).to_dec.exp - 1))
-    end
-
-    # Rate of return for a perpetuity
-    #
-    # @param pmt payment per period
-    # @param pv present value
-    # @example
-    #   Finrb::Utils.r_perpetuity(pmt=4.5,pv=-75)
-    def self.r_perpetuity(pmt:, pv:)
-      pmt = Flt::DecNum(pmt.to_s)
-      pv = Flt::DecNum(pv.to_s)
-
-      (pmt * Flt::DecNum(-1) / pv)
     end
 
     # Computing Sampling error

@@ -4,6 +4,8 @@ module Flt
 end
 
 module Finrb
+  VERSION: String
+
   type number = Numeric
   type decimal = Flt::DecNum
   type numbers = Array[number] | Enumerable[number]

@@ -1,21 +1,25 @@
 # frozen_string_literal: true
 
+require_relative 'lib/finrb/version'
+
+repository_uri = 'https://github.com/ncs1/finrb'
+
 SPEC =
   Gem::Specification.new do |s|
     s.name = 'finrb'
-    s.version = '0.1.12'
+    s.version = Finrb::VERSION
     s.authors = ['Nadir Cohen']
     s.license = 'LGPL-3.0-or-later'
     s.email = ['nadircs11@gmail.com']
     s.platform = Gem::Platform::RUBY
-    s.summary = 'Ruby gem for financial calculations/modeling'
+    s.summary = 'Precision-first financial mathematics for Ruby'
 
     s.description = <<~EOF
-      The finrb library (forked from the finance gem) provides a Ruby interface for financial calculations/modeling. Working with interest rates, Mortgage amortization, Cashflows (NPV, IRR, etc.) and other basic utilities.
-
+      Decimal financial calculations for cashflows, rates, loan amortization,
+      time value of money, investment returns, ratios, and accounting.
     EOF
 
-    s.homepage = 'https://rubygems.org/gems/finrb'
+    s.homepage = repository_uri
 
     s.required_ruby_version = '>= 3.3'
 
@@ -36,9 +40,11 @@ SPEC =
     s.add_development_dependency('semver')
     s.add_development_dependency('simplecov')
 
-    s.files = Dir['CHANGELOG.md', 'COPYING*', 'README.md', 'lib/**/*', 'sig/**/*']
+    s.files = Dir['CHANGELOG.md', 'COPYING*', 'NOTICE.md', 'README.md', 'lib/**/*', 'sig/**/*'].sort
+    s.require_paths = ['lib']
 
-    s.extra_rdoc_files = ['README.md', 'COPYING', 'COPYING.LESSER', 'CHANGELOG.md']
+    s.extra_rdoc_files = ['README.md', 'CHANGELOG.md', 'NOTICE.md', 'COPYING', 'COPYING.LESSER']
 
-    s.metadata['rubygems_mfa_required'] = 'true'
+    # RubyGems requires metadata keys and values to be strings.
+    s.metadata = { bug_tracker_uri: "#{repository_uri}/issues", changelog_uri: "#{repository_uri}/blob/main/CHANGELOG.md", documentation_uri: "#{repository_uri}#readme", rubygems_mfa_required: 'true', source_code_uri: repository_uri }.transform_keys(&:to_s)
   end

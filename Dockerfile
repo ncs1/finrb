@@ -19,9 +19,9 @@ RUN bundle config --global jobs 16
 RUN mkdir -pv /app
 WORKDIR /app
 
-RUN mkdir -pv ./lib/
 COPY *.gemspec ./
 COPY Gemfile* ./
+COPY lib/finrb/version.rb ./lib/finrb/version.rb
 RUN bundle install
 
 WORKDIR /app

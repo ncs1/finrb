@@ -251,7 +251,7 @@ bundle exec rake docker:truffleruby:test
 bundle exec rake docker:truffleruby:run
 ```
 
-The defaults track JRuby 10.1 on JDK 21 and the current TruffleRuby Community
+The defaults track JRuby 10 on JDK 21 and the current TruffleRuby Community
 image. Override them with `JRUBY_IMAGE` or `TRUFFLERUBY_IMAGE` when testing a
 specific release. These images use `gemfiles/engines.gemfile`, which contains
 only finrb's runtime dependencies and RSpec; MRI-only development tooling such

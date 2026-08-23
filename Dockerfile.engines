@@ -1,4 +1,4 @@
-ARG RUBY_IMAGE=jruby:10.1-jdk21
+ARG RUBY_IMAGE=jruby:10-jdk21
 ARG EXPECTED_RUBY_ENGINE=jruby
 
 FROM ${RUBY_IMAGE} AS development

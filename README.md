@@ -4,144 +4,149 @@
 [![CodeQL](https://github.com/ncs1/finrb/actions/workflows/codeql.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/codeql.yml)
 [![RuboCop](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml/badge.svg)](https://github.com/ncs1/finrb/actions/workflows/rubocop.yml)
 
-<!-- TOC depthfrom:2 -->
+Precision-first financial mathematics for Ruby.
 
-- [Overview](#overview)
-  - [Features](#features)
-  - [Configuration](#configuration)
-  - [API and examples](#api-and-examples)
-- [Resources](#resources)
-- [Quality checks](#quality-checks)
-- [Acknowledgements](#acknowledgements)
-- [License](#license)
+finrb provides decimal calculations for cashflows, interest rates, loan
+amortization, time value of money, investment returns, financial ratios, and
+basic accounting. Public APIs live under explicit `Finrb` namespaces, and
+loading the gem does not modify Ruby's core classes.
 
-<!-- /TOC -->
+finrb is a fork of the Ruby [finance](https://github.com/Edward-Intelligence/finance)
+gem and includes calculations ported from R's
+[FinCal](https://github.com/felixfan/FinCal) package.
 
-Ruby gem for financial calculations/modeling.
+## Installation
 
-finrb forked from the ruby [finance](https://github.com/Edward-Intelligence/finance) gem.
+Add finrb to your bundle:
 
-## Overview
+```shell
+bundle add finrb
+```
 
-### Features
+Or install it directly:
 
-Currently implemented features include:
+```shell
+gem install finrb
+```
 
-- Uses the [flt](https://github.com/jgoizueta/flt) gem to ensure precision decimal arithmetic in all calculations.
-- Fixed-rate mortgage amortization (30/360).
-- Interest rates
-- Various cash flow computations, such as NPV and IRR.
-- Adjustable rate mortgage amortization.
-- Payment modifications (i.e., how does paying an additional $75 per month affect the amortization?)
-- Utils class provides basic financial calculation utilities (ported from R's [FinCal](https://github.com/felixfan/FinCal) library):
+finrb requires Ruby 3.3 or newer.
 
-  - Basic Earnings Per Share
-
-  - Bond-equivalent yield (BEY), 2 x the semiannual discount rate
-
-  - Calculate the net increase in common shares from the potential exercise of stock options or warrants
-
-  - Calculate weighted average shares - weighted average number of common shares
-
-  - Cash ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
-
-  - Computing Coefficient of variation
-
-  - Computing HPR, the holding period return
-
-  - Computing IRR, the internal rate of return
-
-  - Computing NPV, the PV of the cash flows less the initial (time = 0) outlay
-
-  - Computing Roy's safety-first ratio
-
-  - Computing Sampling error
-
-  - Computing Sharpe Ratio
-
-  - Computing TWRR, the time-weighted rate of return
-
-  - Computing bank discount yield (BDY) for a T-bill
-
-  - Computing money market yield (MMY) for a T-bill
-
-  - Computing the future value of an uneven cash flow series
-
-  - Computing the present value of an uneven cash flow series
-
-  - Computing the rate of return for each period
-
-  - Convert a given continuous compounded rate to a norminal rate
-
-  - Convert a given norminal rate to a continuous compounded rate
-
-  - Convert holding period return to the effective annual rate
-
-  - Convert stated annual rate to the effective annual rate (with continuous compounding)
-
-  - Cost of goods sold and ending inventory under three methods (FIFO,LIFO,Weighted average)
-
-  - Current ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
-
-  - Debt ratio - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
-
-  - Depreciation Expense Recognition - Straight-line depreciation (SL) allocates an equal amount of depreciation each year over the asset's useful life
-
-  - Depreciation Expense Recognition - double-declining balance (DDB), the most common declining balance method, which applies two times the straight-line rate to the declining balance.
-
-  - Diluted Earnings Per Share
-
-  - Equivalent/proportional Interest Rates
-
-  - Estimate future value (fv) (of a single sum)
-
-  - Estimate future value of an annuity
-
-  - Estimate period payment
-
-  - Estimate present value (pv) (of a single sum) (of an annuity)
-
-  - Estimate present value of a perpetuity
-
-  - Estimate the number of periods
-
-  - Financial leverage - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
-
-  - Geometric mean return
-
-  - Gross profit margin - Evaluate a company's financial performance
-
-  - Harmonic mean, average price
-
-  - Long-term debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
-
-  - Net profit margin - Evaluate a company's financial performance
-
-  - Quick ratio - Liquidity ratios measure the firm's ability to satisfy its short-term obligations as they come due.
-
-  - Rate of return for a perpetuity
-
-  - Total debt-to-equity - Solvency ratios measure the firm's ability to satisfy its long-term obligations.
-
-  - Weighted mean as a portfolio return
-
-### Configuration
-
-In `config/initializers/finrb.rb` Finrb allows to set tolerance (eps) and default guess for IRR and XIRR calculations, such as:
+## Quick start
 
 ```ruby
-Finrb.configure do |config|
-  config.eps = '1.0e-12'
-  config.guess = 0.5
-  config.business_days = false # only relevant when using Transaction object, skips weekends
-  config.periodic_compound = false # only relevant when using Transaction object
+require 'finrb'
+
+cashflows = [-4000, 1200, 1410, 1875, 1050]
+
+Finrb::Cashflow.irr(cashflows).round(6)
+# => Flt::DecNum('0.142993')
+
+Finrb::Cashflow.npv(cashflows, 0.10).round(2)
+# => Flt::DecNum('382.08')
+```
+
+Inputs are validated and calculations return `Flt::DecNum` values unless an
+API explicitly returns another financial object, such as `Finrb::Rate`.
+
+## Financial domains
+
+| Namespace | Purpose |
+| --- | --- |
+| `Finrb::Cashflow` | NPV, XNPV, IRR, and XIRR |
+| `Finrb::Rate` | Nominal APR, effective APY, and compounding conversions |
+| `Finrb::Amortization` | Fixed and adjustable-rate loan amortization |
+| `Finrb::TVM` | Present value, future value, payments, periods, and perpetuities |
+| `Finrb::Returns` | Holding-period, time-weighted, portfolio, and risk-adjusted returns |
+| `Finrb::Yields` | Money-market, bond-equivalent, effective, and continuous yield conversions |
+| `Finrb::Ratios` | Liquidity, leverage, profitability, and per-share ratios |
+| `Finrb::Accounting` | Inventory costing and depreciation |
+
+The detailed [API and examples guide](docs/api.md) lists each calculation and
+its parameters. Packaged RBS declarations are available under `sig/`.
+
+## Cashflows
+
+Periodic IRR is a per-period rate. XIRR evaluates irregularly dated
+`Finrb::Transaction` objects and returns an effective annual `Finrb::Rate`.
+
+```ruby
+require 'date'
+
+transactions = [
+  Finrb::Transaction.new(-10_000, date: Date.new(2020, 1, 1)),
+  Finrb::Transaction.new(12_500, date: Date.new(2022, 1, 1))
+]
+
+rate = Finrb::Cashflow.xirr(transactions, 0.10)
+rate.apy.round(6)
+# => Flt::DecNum('0.117863')
+```
+
+Cashflows must contain at least one positive and one negative amount. Dated
+cashflows must be chronological and every transaction must have a date. For
+ordinary discrete discounting, rates and guesses must be greater than `-1`.
+
+IRR and XIRR can have more than one economically valid root. The optional
+guess controls which nearby sign-changing root finrb selects:
+
+```ruby
+cashflows = [-100, 230, -132] # roots at 10% and 20%
+
+Finrb::Cashflow.irr(cashflows, 0.05).round(2) # => 0.10
+Finrb::Cashflow.irr(cashflows, 0.25).round(2) # => 0.20
+```
+
+## Rates and amortization
+
+APR is a nominal annual rate; APY is an effective annual rate. They are not
+aliases:
+
+```ruby
+rate = Finrb::Rate.new(0.12, :apr)
+
+rate.monthly # => Flt::DecNum('0.01')
+rate.apy.round(6) # => Flt::DecNum('0.126825')
+```
+
+Create a fixed-rate loan by giving the rate a duration in months:
+
+```ruby
+rate = Finrb::Rate.new(0.0425, :apr, duration: 30 * 12)
+loan = Finrb::Amortization.new(250_000, rate)
+
+loan.payment      # => Flt::DecNum('-1229.85')
+loan.interest.sum # => Flt::DecNum('192745.98')
+loan.balance      # => Flt::DecNum('0.00')
+```
+
+Pass several duration-bearing rates for an adjustable-rate schedule. A block
+can modify each scheduled payment, for example to add a $150 principal payment:
+
+```ruby
+faster = Finrb::Amortization.new(250_000, rate) do |period|
+  period.payment - 150
 end
 ```
 
-Configuration is validated and published as one immutable value after the
-block completes. Configure process-wide defaults during application startup;
-`Finrb.config` is read-only. For a temporary override that cannot leak into
-another thread, use:
+Payments and interest follow the sign convention used throughout finrb:
+money received is positive and money paid is negative.
+
+## Configuration
+
+Configure process-wide defaults during application startup:
+
+```ruby
+Finrb.configure do |config|
+  config.eps = '1e-12'
+  config.guess = 0.10
+  config.business_days = false
+  config.periodic_compound = false
+end
+```
+
+Configuration is validated and published as one immutable snapshot.
+`Finrb.config` is read-only. Use `Finrb.with_config` for a temporary override
+that is restored afterward and does not leak into another thread:
 
 ```ruby
 Finrb.with_config(guess: 0.25) do
@@ -149,69 +154,92 @@ Finrb.with_config(guess: 0.25) do
 end
 ```
 
-### Optional core extensions
+The `business_days` compatibility option excludes weekends only. It is not a
+holiday calendar or a market business-day convention.
 
-Loading `finrb` does not add methods to Ruby's `Array` or `Numeric` classes.
-Applications migrating from the legacy fluent API can enable it explicitly:
+## Precision, rounding, and failures
+
+General calculations retain the active `Flt::DecNum` context and are not
+rounded for display. Callers choose presentation precision with `round` or a
+formatter. `Finrb.config.eps` controls root-solver convergence; it does not set
+decimal arithmetic precision.
+
+Amortization is deliberately different because payments and interest are
+monetary postings. They are rounded to cents using half-up rounding, and any
+remaining cent-level balance is allocated to the final payment. These policies
+are exposed through `Finrb::Precision`.
+
+finrb reports invalid financial or numerical states explicitly:
+
+- `Finrb::InvalidCashflowError` for malformed cashflow sequences
+- `Finrb::DomainError` for values outside a calculation's legal domain
+- `Finrb::ConvergenceError` when a root cannot be bracketed or solved
+- `ArgumentError` for invalid public inputs and options
+
+## Migrating from the legacy API
+
+The current API contains intentional breaking changes:
+
+- `Finrb::Utils` was removed. Use `Finrb::TVM`, `Returns`, `Yields`, `Ratios`,
+  or `Accounting` according to the calculation's domain.
+- Loading `finrb` no longer adds methods to `Array` or `Numeric`.
+- `Finrb.config` is immutable; use `Finrb.configure` or `Finrb.with_config`.
+- APR is nominal and APY is effective, so conversions now follow their stated
+  financial semantics.
+
+Applications migrating gradually can explicitly load the legacy fluent core
+extensions:
 
 ```ruby
 require 'finrb/core_ext'
 
 [-4000, 1200, 1410, 1875, 1050].irr
-250000.amortize(rate)
+250_000.amortize(rate)
 ```
 
-New code should prefer `Finrb::Cashflow.irr(cashflows)` and
+New code should use `Finrb::Cashflow.irr(cashflows)` and
 `Finrb::Amortization.new(principal, rate)`.
 
-### Precision and rounding
+## Development and verification
 
-Finrb converts validated numeric inputs to `Flt::DecNum` and retains the
-active decimal context throughout general calculations. It does not round NPV,
-IRR, XNPV, XIRR, APR, or APY results for display; callers choose presentation
-precision with `round` or their formatter.
-
-Amortization is the deliberate exception: scheduled payments and each period's
-interest charge are monetary postings, so they are rounded to two decimal
-places using half-up rounding. Monthly rate conversion retains 15 decimal
-places, also using half-up rounding, for compatibility and deterministic loan
-schedules. These policies are exposed by `Finrb::Precision`.
-
-`Finrb.config.eps` controls numerical root-solver convergence. It does not set
-decimal arithmetic precision or monetary rounding.
-
-### API and examples
-
-See [api.md](docs/api.md)
-
-## Resources
-
-- [RubyGems Page](https://rubygems.org/gems/finrb)
-- [Source Code](https://github.com/ncs1/finrb)
-- [Bug Tracker](https://github.com/ncs1/finrb/issues)
-
-## Quality checks
-
-Run the self-contained suite with enforced line and branch coverage:
+Install the bundle and run the self-contained quality checks:
 
 ```shell
+bundle install
 bundle exec rake quality
+bundle exec rubocop
 ```
 
-The suite includes deterministic generated-root properties and committed
-SciPy/QuantLib golden fixtures, enforces coverage floors, and validates the
-packaged RBS declarations under `sig/`. Maintainers with the optional Python
-reference environment can run a larger seeded comparison using:
+The quality task runs the RSpec suite with line and branch coverage, generated
+IRR/XIRR properties, committed SciPy/QuantLib reference fixtures, and RBS
+validation.
+
+Maintainers with the optional Python environment can run the larger seeded
+solver verification campaign:
 
 ```shell
+python3 -m pip install --requirement script/requirements-solver-verification.txt
 bundle exec rake solver:verify
 ```
 
+The Python packages are verification references, not gem dependencies. See
+[the fixture documentation](spec/fixtures/README.md) for reproducibility,
+Docker, batching, and tolerance details.
+
+## Project links
+
+- [RubyGems](https://rubygems.org/gems/finrb)
+- [Source](https://github.com/ncs1/finrb)
+- [Issue tracker](https://github.com/ncs1/finrb/issues)
+
 ## Acknowledgements
 
-- Martin Bjeldbak Madsen (@martinbjeldbak), Bill Kranec (@wkranec) - original [finance](https://github.com/Edward-Intelligence/finance) gem maintainers.
-- Yanhui Fan (@felixfan) - maintainer of [FinCal](https://github.com/felixfan/FinCal) library.
+- Martin Bjeldbak Madsen, Bill Kranec, and the contributors to the original
+  [finance](https://github.com/Edward-Intelligence/finance) gem
+- Yanhui Fan and the contributors to R's
+  [FinCal](https://github.com/felixfan/FinCal) package
 
 ## License
 
-See [COPYING](./COPYING) and [COPYING.LESSER](./COPYING.LESSER)
+finrb is available under the GNU Lesser General Public License v3.0 or later.
+See [COPYING](COPYING) and [COPYING.LESSER](COPYING.LESSER).

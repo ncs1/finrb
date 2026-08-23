@@ -3,9 +3,10 @@
 require 'finrb/cashflows'
 require 'finrb/config'
 require 'finrb/decimal'
+require 'finrb/errors'
 require 'finrb/utils'
 
-class FinrbError < StandardError; end
+FinrbError = Finrb::Error
 
 # The *Finrb* module adheres to the following conventions for
 # financial calculations:

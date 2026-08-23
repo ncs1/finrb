@@ -3,44 +3,16 @@
 require_relative 'config'
 require_relative 'decimal'
 require_relative 'errors'
+require_relative 'numerical/brent'
+require_relative 'numerical/rate_search'
 require_relative 'rates'
 
-require 'bigdecimal'
-require 'bigdecimal/newton'
 require 'date'
 
 module Finrb
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow
-    include Newton
-
-    # Base class for working with Newton's Method.
-    # @api private
-    class Function
-      values = { eps: Finrb.config.eps, one: '1.0', two: '2.0', ten: '10.0', zero: '0.0' }
-
-      values.each do |key, value|
-        define_method key do
-          BigDecimal(value)
-        end
-      end
-
-      def initialize(transactions, function)
-        @transactions = transactions
-        @function = function
-      end
-
-      def values(x)
-        value = @transactions.public_send(@function, Flt::DecNum.new(x.first.to_s))
-        begin
-          [BigDecimal(value.to_s)]
-        rescue ArgumentError => e
-          raise(DomainError, "Solver function returned a non-numeric value: #{value.inspect}", e.backtrace)
-        end
-      end
-    end
-
     # calculate the internal rate of return for a sequence of cash flows
     # @return [Flt::DecNum] the internal rate of return
     # @param [Numeric] guess Initial guess rate, Defaults to 1.0
@@ -53,10 +25,7 @@ module Finrb
       positives, negatives = partition { |i| i >= 0 }
       raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if positives.empty? || negatives.empty?
 
-      func = Function.new(self, :npv)
-      rate = [valid(guess)]
-      solve(func, rate)
-      rate.first
+      solve(:npv, valid(guess))
     end
 
     def method_missing(name, *args, &)
@@ -103,10 +72,8 @@ module Finrb
       positives, negatives = partition { |t| t.amount >= 0 }
       raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if positives.empty? || negatives.empty?
 
-      func = Function.new(self, :xnpv)
-      rate = [valid(guess)]
-      solve(func, rate)
-      Rate.new(rate.first, :effective, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
+      rate = solve(:xnpv, valid(guess))
+      Rate.new(rate, :effective, compounds: Finrb.config.periodic_compound ? :continuously : :annually)
     end
 
     # calculate the net present value of a sequence of cash flows
@@ -152,10 +119,11 @@ module Finrb
       @start ||= first.date
     end
 
-    def solve(function, rate)
-      nlsolve(function, rate)
-    rescue Flt::Num::InvalidOperation, FloatDomainError, Math::DomainError, ZeroDivisionError => e
-      raise(ConvergenceError, "Calculation did not converge from guess #{rate.first}.", e.backtrace)
+    def solve(function, guess)
+      rate_function = ->(rate) { public_send(function, rate) }
+      bounds = Numerical::RateSearch.new.bracket(rate_function, guess:)
+
+      Numerical::Brent.new(tolerance: Finrb.config.eps).solve(rate_function, lower: bounds.first, upper: bounds.last)
     end
 
     def stop
@@ -171,7 +139,7 @@ module Finrb
         raise(ArgumentError, 'Invalid Guess. Use a [Numeric] value.') unless guess.is_a?(Numeric)
 
         guess
-      end.to_f
+      end.then { |value| Flt::DecNum.new(value.to_s) }
     end
   end
 end

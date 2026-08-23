@@ -32,7 +32,7 @@ ENTRYPOINT ["/bin/bash", "-c", "/bin/bash"]
 
 FROM development AS testing
 
-RUN bundle exec rake
+RUN ruby -v && ruby -e 'puts RUBY_DESCRIPTION; puts RUBY_PLATFORM' && bundle exec rake quality
 
 ENTRYPOINT ["/bin/bash", "-c", "/bin/bash"]
 

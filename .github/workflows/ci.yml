@@ -14,13 +14,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    timeout-minutes: 15
+  mri:
+    name: Ruby ${{ matrix.ruby_version }} / ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
         ruby_version: ["3.3", "3.4", "4.0"]
-    runs-on: ubuntu-latest
+        target: [x86_64, arm64, docker]
+        include:
+          - target: x86_64
+            runner: ubuntu-latest
+            timeout: 15
+          - target: arm64
+            runner: ubuntu-24.04-arm
+            timeout: 20
+          - target: docker
+            runner: ubuntu-latest
+            timeout: 30
     steps:
       - uses: actions/checkout@v7
       - name: Set up Ruby
@@ -28,28 +40,17 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
-      - name: Run tests
-        run: bundle exec rake quality
-
-  arm64:
-    name: Ruby ${{ matrix.ruby_version }} on native ARM64
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby_version: ["3.3", "3.4", "4.0"]
-    steps:
-      - uses: actions/checkout@v7
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby_version }}
-          bundler-cache: true
-      - name: Report runtime
+      - name: Report native runtime
+        if: matrix.target != 'docker'
         run: ruby -v && ruby -e 'puts RUBY_DESCRIPTION; puts RUBY_PLATFORM'
-      - name: Run quality checks
+      - name: Run native quality checks
+        if: matrix.target != 'docker'
         run: bundle exec rake quality
+      - name: Build and test Docker image
+        if: matrix.target == 'docker'
+        env:
+          RUBY_VER: ${{ matrix.ruby_version }}
+        run: bundle exec rake docker:test
 
   alternative_rubies:
     name: ${{ matrix.ruby }} compatibility
@@ -73,18 +74,6 @@ jobs:
         run: ruby -v && ruby -e 'puts RUBY_DESCRIPTION; puts RUBY_PLATFORM'
       - name: Run compatibility specs
         run: bundle exec rspec
-
-  docker_build:
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby_version: ["3.3", "3.4", "4.0"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: build test docker image
-        run: docker build --build-arg RUBY_VER=${{ matrix.ruby_version }} --target testing -t finrb -f Dockerfile .
 
   alternative_ruby_docker:
     name: ${{ matrix.engine }} Docker compatibility

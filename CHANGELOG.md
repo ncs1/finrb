@@ -1,5 +1,22 @@
 # finrb changelog
 
+## 1.0.1
+
+### Runtime compatibility
+
+- Test Ruby 3.3, 3.4, and 4.0 across x86-64, native ARM64, and Docker environments.
+- Add experimental JRuby and TruffleRuby compatibility suites and isolated development/test images.
+- Add Docker Buildx tasks for developing and running the ARM64 image on x86-64 hosts.
+- Add version-selectable, failure-aware Docker build, test, and run tasks.
+
+### Packaging and assurance
+
+- Verify gem metadata, packaged licenses, attribution, RBS declarations, and runtime dependencies.
+- Install the built gem into an isolated gem home and smoke-test version loading, NPV, IRR, and opt-in core extensions.
+- Add dependency review, ruby-advisory-db auditing, grouped Dependabot updates, workflow timeouts, and concurrency controls.
+- Simplify CodeQL analysis and add reusable package and security verification tasks.
+- Declare `ostruct` as a runtime dependency because it is required by `flt` and is no longer bundled with Ruby 4.
+
 ## 1.0.0
 
 This release intentionally breaks parts of the 0.1 public API.

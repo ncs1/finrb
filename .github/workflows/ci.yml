@@ -98,9 +98,6 @@ jobs:
     name: Packaged gem
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      FINRB_PACKAGE: ${{ runner.temp }}/finrb.gem
-      FINRB_GEM_HOME: ${{ runner.temp }}/finrb-package-gems
     steps:
       - uses: actions/checkout@v7
       - name: Set up Ruby
@@ -112,13 +109,16 @@ jobs:
         run: bundle exec rake quality
       - name: Build and inspect gem
         run: |
+          FINRB_PACKAGE="$RUNNER_TEMP/finrb.gem"
           gem build finrb.gemspec --output "$FINRB_PACKAGE"
           ruby script/verify_gem.rb "$FINRB_PACKAGE"
       - name: Install and smoke-test gem
         run: |
+          FINRB_PACKAGE="$RUNNER_TEMP/finrb.gem"
+          FINRB_GEM_HOME="$RUNNER_TEMP/finrb-package-gems"
           mkdir -p "$FINRB_GEM_HOME"
           GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" gem install "$FINRB_PACKAGE" --no-document
-          cd "${{ runner.temp }}"
+          cd "$RUNNER_TEMP"
           GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" ruby "$GITHUB_WORKSPACE/script/smoke_gem.rb"
 
   dependency_audit:

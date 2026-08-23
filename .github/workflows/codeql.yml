@@ -17,6 +17,10 @@ jobs:
     name: Analyze Ruby
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ruby]
     permissions:
       actions: read
       contents: read
@@ -26,6 +30,6 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4.37.7
         with:
-          languages: ruby
+          languages: ${{ matrix.language }}
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4.37.7

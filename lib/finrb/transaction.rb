@@ -4,17 +4,13 @@ require_relative 'validation'
 
 module Finrb
   # the Transaction class provides a general interface for working with individual cash flows.
-  # @api public
   class Transaction
     # @return [Flt::DecNum] the cash value of the transaction
-    # @api public
     attr_reader :amount
     # @return [Integer] the period number of the transaction
     # @note this attribute is mainly used in the case of mortgage amortization with no dates
-    # @api public
     attr_reader :period
     # @return [Date] the date of the transaction
-    # @api public
     attr_reader :date
 
     # create a new Transaction
@@ -26,7 +22,6 @@ module Finrb
     #   t = Transaction.new(400)
     # @example a transaction with a period number
     #   t = Transaction.new(400, :period => 3)
-    # @api public
     def initialize(amount, opts = {})
       raise(ArgumentError, 'options must be a Hash.') unless opts.is_a?(Hash)
       raise(ArgumentError, 'options may only contain date and period.') unless (opts.keys - %i[date period]).empty?
@@ -47,7 +42,6 @@ module Finrb
     #   t = Transaction.new(500)
     #   t.amount = 750
     #   t.amount #=> 750
-    # @api public
     def amount=(value)
       @amount = Validation.decimal(value, name: 'amount')
     end
@@ -71,7 +65,6 @@ module Finrb
     #   t = Transaction.new(500)
     #   t.amount = 750
     #   t.difference #=> Flt::DecNum('250')
-    # @api public
     def difference
       @amount - @original
     end
@@ -82,12 +75,10 @@ module Finrb
     #   int = Interest.new(500)
     #   pmt.interest? #=> False
     #   int.interest? #=> True
-    # @api public
     def interest?
       instance_of?(Interest)
     end
 
-    # @api public
     def inspect
       "Transaction(#{@amount.round(2)}, date: #{@date})"
     end
@@ -99,7 +90,6 @@ module Finrb
     #   pmt = Payment.new(-500)
     #   pmt.modify { |t| t.amount-100 }
     #   pmt.amount #=> -600
-    # @api public
     def modify
       self.amount = yield(self)
     end
@@ -116,7 +106,6 @@ module Finrb
     #   int = Interest.new(500)
     #   pmt.payment? #=> True
     #   int.payment? #=> False
-    # @api public
     def payment?
       instance_of?(Payment)
     end

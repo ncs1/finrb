@@ -18,7 +18,6 @@ module Finrb
   # @example Borrow $250,000 under a 30 year, fixed-rate loan with a 4.25% APR, but pay $150 extra each month
   #   rate = Rate.new(0.0425, :apr, :duration => (5 * 12))
   #   extra_payments = Finrb::Amortization.new(250000, rate){ |period| period.payment - 150 }
-  # @api public
   class Amortization
     # Immutable breakdown of one amortization period. Payments retain finrb's
     # cashflow sign convention and are negative; the other monetary fields are
@@ -56,22 +55,16 @@ module Finrb
     end
 
     # @return [Flt::DecNum] the balance of the loan at the end of the amortization period (usually zero)
-    # @api public
     attr_reader :balance
     # @return [Flt::DecNum] contractual principal settled as a balloon in the final period
-    # @api public
     attr_reader :balloon
     # @return [Flt::DecNum] the required monthly payment.  For loans with more than one rate, returns nil
-    # @api public
     attr_reader :payment
     # @return [Flt::DecNum] the principal amount of the loan
-    # @api public
     attr_reader :principal
     # @return [Array] the interest rates used for calculating the amortization
-    # @api public
     attr_reader :rates
     # @return [Array<Entry>] immutable period-by-period loan breakdown
-    # @api public
     attr_reader :schedule
 
     # @return [Flt::DecNum] the periodic payment due on a loan
@@ -84,7 +77,6 @@ module Finrb
     #   rate.duration #=> 360
     #   Amortization.payment(200000, rate.monthly, rate.duration) #=> Flt::DecNum('-926.23')
     # @see https://en.wikipedia.org/wiki/Amortization_calculator
-    # @api public
     def self.payment(principal, rate, periods, balloon: 0)
       principal = Validation.decimal(principal, name: 'principal')
       raise(ArgumentError, 'principal must be positive.') unless principal.positive?
@@ -111,7 +103,6 @@ module Finrb
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
-    # @api public
     def initialize(principal, *rates, balloon: 0, &block)
       @principal = Validation.decimal(principal, name: 'principal')
       raise(ArgumentError, 'principal must be positive.') unless @principal.positive?
@@ -135,7 +126,6 @@ module Finrb
     # compare two Amortization instances
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
-    # @api public
     def ==(other)
       (principal == other.principal) && (balloon == other.balloon) && (rates == other.rates) && (payments == other.payments)
     end
@@ -145,7 +135,6 @@ module Finrb
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = Finrb::Amortization.new(300000, rate){ |payment| payment.amount-100}
     #   amt.additional_payments #=> [Flt::DecNum('-100.00'), Flt::DecNum('-100.00'), ... ]
-    # @api public
     def additional_payments
       @transactions.filter_map { |trans| trans.difference if trans.payment? }
     end
@@ -153,7 +142,6 @@ module Finrb
     # amortize the balance of loan with the given interest rate
     # @return none
     # @param [Rate] rate the interest rate to use in the amortization
-    # @api private
     def amortize(rate)
       # For the purposes of calculating a payment, the relevant time
       # period is the remaining number of periods in the loan, not
@@ -187,7 +175,6 @@ module Finrb
 
     # compute the amortization of the principal
     # @return none
-    # @api private
     def compute
       @balance = @principal
       @transactions = []
@@ -213,6 +200,8 @@ module Finrb
       @schedule = build_schedule.freeze
     end
 
+    private :amortize, :compute
+
     # @return [Integer] the time required to pay off the loan, in months
     # @example In most cases, the duration is equal to the total duration of all rates
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
@@ -222,12 +211,10 @@ module Finrb
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = Finrb::Amortization.new(300000, rate){ |payment| payment.amount-100}
     #   amt.duration #=> 319
-    # @api public
     def duration
       payments.length
     end
 
-    # @api public
     def inspect
       "Amortization.new(#{@principal})"
     end
@@ -241,7 +228,6 @@ module Finrb
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = Finrb::Amortization.new(300000, rate)
     #   amt.interest[0,6].sum #=> Flt::DecNum('5603.74')
-    # @api public
     def interest
       @transactions.filter_map { |trans| trans.amount if trans.interest? }
     end
@@ -251,7 +237,6 @@ module Finrb
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = Finrb::Amortization.new(300000, rate)
     #   amt.payments.sum #=> Flt::DecNum('-500163.94')
-    # @api public
     def payments
       @transactions.filter_map { |trans| trans.amount if trans.payment? }
     end

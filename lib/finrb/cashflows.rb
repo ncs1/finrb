@@ -12,7 +12,6 @@ require 'date'
 
 module Finrb
   # Provides methods for working with cash flows (collections of transactions)
-  # @api public
   module Cashflow
     class << self
       def irr(cashflows, guess = nil)
@@ -59,7 +58,6 @@ module Finrb
     # @example
     #   Finrb::Cashflow.irr([-4000,1200,1410,1875,1050]) #=> 0.143
     # @see https://en.wikipedia.org/wiki/Internal_rate_of_return
-    # @api public
     def irr(guess = nil)
       validate_numeric_cashflows!
 
@@ -75,7 +73,6 @@ module Finrb
     # @example
     #   Finrb::Cashflow.npv([-100.0, 60, 60, 60], 0.1) #=> 49.211
     # @see https://en.wikipedia.org/wiki/Net_present_value
-    # @api public
     def npv(rate)
       validate_numeric_cashflows!
       cashflows = map { |entry| Validation.decimal(entry, name: 'cashflow amount') }
@@ -139,7 +136,6 @@ module Finrb
     #   @transactions << Transaction.new(  600, :date => Time.new(1990,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1995,01,01))
     #   Finrb::Cashflow.xirr(@transactions, 0.6) #=> Rate("0.024851", :effective, :compounds => :annually)
-    # @api public
     def xirr(guess = nil)
       validate_dated_cashflows!
 
@@ -158,7 +154,6 @@ module Finrb
     #   @transactions << Transaction.new(  600, :date => Time.new(1990,01,01))
     #   @transactions << Transaction.new(  600, :date => Time.new(1995,01,01))
     #   Finrb::Cashflow.xnpv(@transactions, 0.6).round(2) #=> -937.41
-    # @api public
     def xnpv(rate)
       validate_dated_cashflows!
       rate = Validation.decimal(rate, name: 'rate')

@@ -26,6 +26,7 @@
   - [Estimate future value of an annuity](#estimate-future-value-of-an-annuity)
   - [Estimate future value fv of a single sum](#estimate-future-value-fv-of-a-single-sum)
   - [Computing the future value of an uneven cash flow series](#computing-the-future-value-of-an-uneven-cash-flow-series)
+  - [Compound annual growth rate](#compound-annual-growth-rate)
   - [Geometric mean return](#geometric-mean-return)
   - [Gross profit margin - Evaluate a company's financial performance](#gross-profit-margin---evaluate-a-companys-financial-performance)
   - [Harmonic mean, average price](#harmonic-mean-average-price)
@@ -734,6 +735,23 @@ Examples:
 ```ruby
 Finrb::TVM.fv_uneven(r=0.1, cf=[-1000, -500, 0, 4000, 3500, 2000])
 ```
+
+### Compound annual growth rate
+
+CAGR expresses the constant annual rate that compounds a beginning value into
+an ending value over a positive integer number of equal annual periods.
+
+```ruby
+Finrb::Returns.cagr(
+  beginning_value: 10_000,
+  ending_value: 16_105.10,
+  periods: 5
+)
+# => Flt::DecNum('0.1')
+```
+
+The beginning value must be positive and the ending value cannot be negative.
+An ending value of zero returns `-1`, representing a total loss.
 
 ### Geometric mean return
 

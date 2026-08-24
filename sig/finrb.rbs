@@ -163,6 +163,7 @@ module Finrb
   end
 
   module Returns
+    def self.cagr: (beginning_value: number, ending_value: number, periods: Integer) -> decimal
     def self.coefficient_variation: (sd: number, avg: number) -> decimal
     def self.geometric_mean: (r: number | numbers) -> decimal
     def self.harmonic_mean: (p: number | numbers) -> decimal

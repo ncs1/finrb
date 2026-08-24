@@ -1,6 +1,42 @@
 # frozen_string_literal: true
 
 describe(Finrb::Returns) do
+  describe('cagr') do
+    it('computes compound annual growth') do
+      result = Returns.cagr(beginning_value: 10_000, ending_value: 16_105.1, periods: 5)
+
+      expect(result).to(be_an_instance_of(Flt::DecNum))
+      expect(result).to(be_within(D('0.0000000001')).of(D('0.1')))
+    end
+
+    it('computes a declining compound rate') do
+      result = Returns.cagr(beginning_value: 100, ending_value: 64, periods: 2)
+
+      expect(result).to(be_within(D('0.0000000001')).of(D('-0.2')))
+    end
+
+    it('represents a total loss as negative one') do
+      expect(Returns.cagr(beginning_value: 100, ending_value: 0, periods: 3)).to(eq(D('-1')))
+    end
+
+    it('requires a positive beginning value') do
+      expect { Returns.cagr(beginning_value: 0, ending_value: 100, periods: 2) }
+        .to(raise_error(ArgumentError, /beginning_value must be greater than zero/))
+    end
+
+    it('rejects a negative ending value') do
+      expect { Returns.cagr(beginning_value: 100, ending_value: -1, periods: 2) }
+        .to(raise_error(ArgumentError, /ending_value must be greater than or equal to zero/))
+    end
+
+    it('requires a positive integer number of periods') do
+      expect { Returns.cagr(beginning_value: 100, ending_value: 110, periods: 0) }
+        .to(raise_error(ArgumentError, /periods must be a positive integer/))
+      expect { Returns.cagr(beginning_value: 100, ending_value: 110, periods: 1.5) }
+        .to(raise_error(ArgumentError, /periods must be a positive integer/))
+    end
+  end
+
   describe('coefficient_variation') do
     it('Example 1') do
       res = Returns.coefficient_variation(sd: 0.15, avg: 0.39)

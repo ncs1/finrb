@@ -126,6 +126,7 @@ first.opening_balance
 first.interest
 first.principal
 first.payment
+first.balloon_payment
 first.closing_balance
 ```
 
@@ -142,6 +143,15 @@ Payments and interest follow the sign convention used throughout finrb:
 money received is positive and money paid is negative.
 Schedule balances, interest, principal repaid, and additional principal are
 non-negative; the schedule's payment field is negative.
+
+Set a residual principal target to create a balloon loan. Regular installments
+amortize only the non-balloon portion, and the final payment settles the stated
+balloon:
+
+```ruby
+balloon_loan = Finrb::Amortization.new(250_000, rate, balloon: 100_000)
+balloon_loan.schedule.last.balloon_payment # => Flt::DecNum('100000')
+```
 
 ## Configuration
 

@@ -120,6 +120,13 @@ loan = Finrb::Amortization.new(250_000, rate)
 loan.payment      # => Flt::DecNum('-1229.85')
 loan.interest.sum # => Flt::DecNum('192745.98')
 loan.balance      # => Flt::DecNum('0.00')
+
+first = loan.schedule.first
+first.opening_balance
+first.interest
+first.principal
+first.payment
+first.closing_balance
 ```
 
 Pass several duration-bearing rates for an adjustable-rate schedule. A block
@@ -133,6 +140,8 @@ end
 
 Payments and interest follow the sign convention used throughout finrb:
 money received is positive and money paid is negative.
+Schedule balances, interest, principal repaid, and additional principal are
+non-negative; the schedule's payment field is negative.
 
 ## Configuration
 

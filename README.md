@@ -127,6 +127,7 @@ first.interest
 first.principal
 first.payment
 first.balloon_payment
+first.interest_only?
 first.closing_balance
 ```
 
@@ -151,6 +152,19 @@ balloon:
 ```ruby
 balloon_loan = Finrb::Amortization.new(250_000, rate, balloon: 100_000)
 balloon_loan.schedule.last.balloon_payment # => Flt::DecNum('100000')
+```
+
+`balloon` is the contractual residual target. Because regular postings are
+rounded to cents, the actual `balloon_payment` in the final schedule row can
+differ from that target by a few cents.
+
+Leading interest-only periods defer scheduled principal repayment and amortize
+the balance over the remaining term:
+
+```ruby
+interest_only = Finrb::Amortization.new(250_000, rate, interest_only_periods: 24)
+interest_only.schedule.first.interest_only? # => true
+interest_only.schedule.first.principal      # => Flt::DecNum('0')
 ```
 
 ## Configuration

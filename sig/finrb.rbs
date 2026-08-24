@@ -95,7 +95,7 @@ module Finrb
 
   class Amortization
     class Entry
-      def initialize: (period: Integer, opening_balance: number, payment: number, interest: number, principal: number, additional_payment: number, balloon_payment: number, closing_balance: number) -> void
+      def initialize: (period: Integer, opening_balance: number, payment: number, interest: number, principal: number, additional_payment: number, balloon_payment: number, interest_only: bool, closing_balance: number) -> void
       def period: () -> Integer
       def opening_balance: () -> decimal
       def payment: () -> decimal
@@ -103,6 +103,8 @@ module Finrb
       def principal: () -> decimal
       def additional_payment: () -> decimal
       def balloon_payment: () -> decimal
+      def interest_only: () -> bool
+      def interest_only?: () -> bool
       def closing_balance: () -> decimal
       def ==: (untyped) -> bool
       def eql?: (untyped) -> bool
@@ -112,10 +114,11 @@ module Finrb
 
     def self.payment: (number, number, Integer, ?balloon: number) -> decimal
 
-    def initialize: (number, *Rate, ?balloon: number) ?{ (Transaction) -> number } -> void
+    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer) ?{ (Transaction) -> number } -> void
     def ==: (untyped) -> bool
     def balance: () -> decimal
     def balloon: () -> decimal
+    def interest_only_periods: () -> Integer
     def payment: () -> decimal?
     def principal: () -> decimal
     def rates: () -> Array[Rate]

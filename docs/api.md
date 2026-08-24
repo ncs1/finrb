@@ -90,6 +90,7 @@ entry.interest
 entry.principal
 entry.additional_payment
 entry.balloon_payment
+entry.interest_only?
 entry.closing_balance
 ```
 
@@ -112,6 +113,26 @@ balloon_loan = Finrb::Amortization.new(250_000, rate, balloon: 100_000)
 balloon_loan.payment
 balloon_loan.schedule.last.balloon_payment # => Flt::DecNum('100000')
 balloon_loan.balance                       # => Flt::DecNum('0')
+```
+
+`balloon` retains the contractual residual target. Since regular payments are
+rounded to cents, the final row's actual `balloon_payment` can differ from the
+target by a small rounding remainder.
+
+Leading interest-only periods pay accrued interest without scheduled principal
+and then amortize the balance over the remaining periods. They can be combined
+with a balloon:
+
+```ruby
+loan = Finrb::Amortization.new(
+  250_000,
+  rate,
+  interest_only_periods: 24,
+  balloon: 50_000
+)
+
+loan.schedule.first.interest_only? # => true
+loan.schedule.first.principal      # => Flt::DecNum('0')
 ```
 
 Find the standard monthly payment:

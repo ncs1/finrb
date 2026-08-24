@@ -23,16 +23,19 @@ module Finrb
     # cashflow sign convention and are negative; the other monetary fields are
     # non-negative.
     class Entry
-      ATTRIBUTES = %i[period opening_balance payment interest principal additional_payment balloon_payment closing_balance].freeze
-      private_constant :ATTRIBUTES
+      ATTRIBUTES = %i[period opening_balance payment interest principal additional_payment balloon_payment interest_only closing_balance].freeze
+      MONETARY_ATTRIBUTES = ATTRIBUTES - %i[period interest_only]
+      private_constant :ATTRIBUTES, :MONETARY_ATTRIBUTES
 
       attr_reader(*ATTRIBUTES)
 
-      def initialize(period:, opening_balance:, payment:, interest:, principal:, additional_payment:, balloon_payment:, closing_balance:)
+      def initialize(period:, opening_balance:, payment:, interest:, principal:, additional_payment:, balloon_payment:, interest_only:, closing_balance:)
         raise(ArgumentError, 'period must be a non-negative integer.') unless period.is_a?(Integer) && !period.negative?
+        raise(ArgumentError, 'interest_only must be true or false.') unless [true, false].include?(interest_only)
 
         @period = period
-        ATTRIBUTES.drop(1).each do |name|
+        @interest_only = interest_only
+        MONETARY_ATTRIBUTES.each do |name|
           value = binding.local_variable_get(name)
           instance_variable_set("@#{name}", Validation.decimal(value, name: name.to_s))
         end
@@ -52,12 +55,16 @@ module Finrb
       def to_h
         ATTRIBUTES.to_h { |name| [name, public_send(name)] }
       end
+
+      alias interest_only? interest_only
     end
 
     # @return [Flt::DecNum] the balance of the loan at the end of the amortization period (usually zero)
     attr_reader :balance
     # @return [Flt::DecNum] contractual principal settled as a balloon in the final period
     attr_reader :balloon
+    # @return [Integer] number of leading periods that pay interest but no scheduled principal
+    attr_reader :interest_only_periods
     # @return [Flt::DecNum] the required monthly payment.  For loans with more than one rate, returns nil
     attr_reader :payment
     # @return [Flt::DecNum] the principal amount of the loan
@@ -103,7 +110,7 @@ module Finrb
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
-    def initialize(principal, *rates, balloon: 0, &block)
+    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, &block)
       @principal = Validation.decimal(principal, name: 'principal')
       raise(ArgumentError, 'principal must be positive.') unless @principal.positive?
 
@@ -118,7 +125,11 @@ module Finrb
 
       # compute the total duration from all of the rates.
       @periods = rates.sum(&:duration)
-      @period  = 0
+      valid_interest_only = interest_only_periods.is_a?(Integer) && interest_only_periods.between?(0, @periods - 1)
+      raise(ArgumentError, 'interest_only_periods must be a non-negative integer shorter than the loan term.') unless valid_interest_only
+
+      @interest_only_periods = interest_only_periods
+      @period = 0
 
       compute
     end
@@ -127,7 +138,7 @@ module Finrb
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
     def ==(other)
-      (principal == other.principal) && (balloon == other.balloon) && (rates == other.rates) && (payments == other.payments)
+      (principal == other.principal) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
     end
 
     # @return [Array] the amount of any additional payments in each period
@@ -143,19 +154,14 @@ module Finrb
     # @return none
     # @param [Rate] rate the interest rate to use in the amortization
     def amortize(rate)
-      # For the purposes of calculating a payment, the relevant time
-      # period is the remaining number of periods in the loan, not
-      # necessarily the duration of the rate itself.
-      periods = @periods - @period
-      amount = Amortization.payment(@balance, rate.monthly, periods, balloon: @balloon)
-
-      pmt = Payment.new(amount, period: @period)
-      pmt.modify(&@block) if @block
-      raise(ArgumentError, 'payment modification must produce a negative amount.') unless pmt.amount.negative?
+      regular_payment = nil
 
       rate.duration.to_i.times do
         # Do this first in case the balance is zero already.
         break if @balance.zero?
+
+        interest_only = @period < @interest_only_periods
+        regular_payment ||= build_regular_payment(rate) unless interest_only
 
         # Compute and record interest on the outstanding balance.
         int = Precision.money(@balance * rate.monthly)
@@ -163,11 +169,13 @@ module Finrb
         @balance += interest.amount
         @transactions << interest.dup
 
-        # Record payment.  Don't pay more than the outstanding balance.
-        pmt.amount = -@balance if pmt.amount.abs > @balance
-        @additional_by_period << [-pmt.difference, Flt::DecNum(0)].max
-        @transactions << pmt.dup
-        @balance += pmt.amount
+        payment = interest_only ? build_interest_only_payment(int) : regular_payment
+        payment.period = @period
+        payment.amount = -@balance if payment.amount.abs > @balance
+        @additional_by_period << [-payment.difference, Flt::DecNum(0)].max
+        @interest_only_by_period << interest_only
+        @transactions << payment.dup
+        @balance += payment.amount
 
         @period += 1
       end
@@ -179,6 +187,7 @@ module Finrb
       @balance = @principal
       @transactions = []
       @additional_by_period = []
+      @interest_only_by_period = []
 
       @rates.each do |rate|
         amortize(rate)
@@ -192,11 +201,12 @@ module Finrb
         @balance = 0
       end
 
-      @payment = (payments.first if @rates.length == 1)
+      @payment = (payments.first if @rates.length == 1 && @interest_only_periods.zero?)
 
       @transactions.freeze
       @additional_by_period.freeze
       @balloon_by_period.freeze
+      @interest_only_by_period.freeze
       @schedule = build_schedule.freeze
     end
 
@@ -248,10 +258,34 @@ module Finrb
       @transactions.each_slice(2).with_index.map do |(interest, payment), index|
         principal = -(payment.amount + interest.amount)
         closing_balance = opening_balance - principal
-        entry = Entry.new(period: payment.period, opening_balance:, payment: payment.amount, interest: interest.amount, principal:, additional_payment: @additional_by_period.fetch(index), balloon_payment: @balloon_by_period.fetch(index), closing_balance:)
+        entry = Entry.new(period: payment.period, opening_balance:, payment: payment.amount, interest: interest.amount, principal:, additional_payment: @additional_by_period.fetch(index), balloon_payment: @balloon_by_period.fetch(index), interest_only: @interest_only_by_period.fetch(index), closing_balance:)
         opening_balance = closing_balance
         entry
       end
+    end
+
+    def build_regular_payment(rate)
+      periods = @periods - @period
+      amount = Amortization.payment(@balance, rate.monthly, periods, balloon: @balloon)
+      Payment.new(amount, period: @period).tap do |payment|
+        payment.modify(&@block) if @block
+        validate_payment!(payment)
+      end
+    end
+
+    def build_interest_only_payment(interest)
+      Payment.new(-interest, period: @period).tap do |payment|
+        payment.modify(&@block) if @block
+        validate_payment!(payment, allow_zero: true)
+      end
+    end
+
+    def validate_payment!(payment, allow_zero: false)
+      valid = payment.amount.negative? || (allow_zero && payment.amount.zero?)
+      return if valid
+
+      requirement = allow_zero ? 'must not produce a positive amount' : 'must produce a negative amount'
+      raise(ArgumentError, "payment modification #{requirement}.")
     end
   end
 end

@@ -97,7 +97,7 @@ describe(Finrb::Amortization) do
       first = @std.schedule.first
       last = @std.schedule.last
 
-      expect(first.to_h).to(eq(period: 0, opening_balance: D('200000'), payment: D('-926.23'), interest: D('625'), principal: D('301.23'), additional_payment: D('0'), balloon_payment: D('0'), closing_balance: D('199698.77')))
+      expect(first.to_h).to(eq(period: 0, opening_balance: D('200000'), payment: D('-926.23'), interest: D('625'), principal: D('301.23'), additional_payment: D('0'), balloon_payment: D('0'), interest_only: false, closing_balance: D('199698.77')))
       expect(last.closing_balance).to(eq(D('0')))
       expect(@std.schedule.length).to(eq(@std.duration))
     end
@@ -241,6 +241,54 @@ describe(Finrb::Amortization) do
         .to(raise_error(ArgumentError, /balloon/))
       expect { Amortization.new(1000, rate, balloon: 1000) }
         .to(raise_error(ArgumentError, /balloon/))
+    end
+  end
+
+  describe('interest-only periods') do
+    it('defers scheduled principal and amortizes over the remaining term') do
+      rate = Rate.new(0.12, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, interest_only_periods: 3)
+      interest_only = amortization.schedule.first(3)
+
+      expect(amortization.payment).to(be_nil)
+      expect(interest_only).to(all(be_interest_only))
+      expect(interest_only).to(all(satisfy { |entry| entry.payment == D('-1000') && entry.principal.zero? }))
+      expect(amortization.schedule[3]).not_to(be_interest_only)
+      expect(amortization.schedule[3].payment).to(eq(D('-11674.04')))
+      expect(amortization.balance).to(be_zero)
+    end
+
+    it('numbers every schedule period sequentially') do
+      rate = Rate.new(0.12, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, interest_only_periods: 3)
+
+      expect(amortization.schedule.map(&:period)).to(eq((0...12).to_a))
+    end
+
+    it('combines with a contractual balloon') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, balloon: 20_000, interest_only_periods: 2)
+
+      expect(amortization.schedule.first(2)).to(all(satisfy { |entry| entry.principal.zero? }))
+      expect(amortization.balloon).to(eq(D('20000')))
+      expect(amortization.schedule.last.balloon_payment).to(be_within(D('0.1')).of(D('20000')))
+      expect(amortization.schedule.sum(&:principal)).to(eq(D('100000')))
+    end
+
+    it('allows zero payments during a zero-rate interest-only phase') do
+      rate = Rate.new(0, :apr, duration: 4)
+      amortization = Amortization.new(1000, rate, interest_only_periods: 2)
+
+      expect(amortization.payments).to(eq([D('0'), D('0'), D('-500'), D('-500')]))
+    end
+
+    it('validates the interest-only duration') do
+      rate = Rate.new(0.05, :apr, duration: 12)
+
+      expect { Amortization.new(1000, rate, interest_only_periods: -1) }
+        .to(raise_error(ArgumentError, /interest_only_periods/))
+      expect { Amortization.new(1000, rate, interest_only_periods: 12) }
+        .to(raise_error(ArgumentError, /interest_only_periods/))
     end
   end
 

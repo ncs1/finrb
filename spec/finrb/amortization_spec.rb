@@ -9,6 +9,11 @@ describe(Finrb::Amortization) do
   def ipmt(principal, rate, payment, period)
     -(((-rate * principal) * ((rate + 1)**(period - 1))) - (payment * (((rate + 1)**(period - 1)) - 1))).round(2)
   end
+
+  def balanced_schedule_entry?(entry)
+    entry.opening_balance + entry.interest + entry.payment == entry.closing_balance &&
+      entry.opening_balance - entry.principal == entry.closing_balance
+  end
   describe('amortization with a 0% rate') do
     it('does not raise a divide-by-zero error') do
       rate = Rate.new(0, :apr, duration: (30 * 12))
@@ -86,6 +91,30 @@ describe(Finrb::Amortization) do
 
     it('has total interest charges of $133,433.33') do
       expect(@std.interest.sum).to(eq(D('133443.53')))
+    end
+
+    it('exposes an immutable period-by-period schedule') do
+      first = @std.schedule.first
+      last = @std.schedule.last
+
+      expect(first.to_h).to(eq(period: 0, opening_balance: D('200000'), payment: D('-926.23'), interest: D('625'), principal: D('301.23'), additional_payment: D('0'), closing_balance: D('199698.77')))
+      expect(last.closing_balance).to(eq(D('0')))
+      expect(@std.schedule.length).to(eq(@std.duration))
+    end
+
+    it('freezes the schedule and its entries') do
+      expect(@std.schedule).to(be_frozen)
+      expect(@std.schedule.first).to(be_frozen)
+    end
+
+    it('reconciles the schedule to the existing transaction totals') do
+      expect(@std.schedule.sum(&:payment)).to(eq(@std.payments.sum))
+      expect(@std.schedule.sum(&:interest)).to(eq(@std.interest.sum))
+      expect(@std.schedule.sum(&:principal)).to(eq(@std.principal))
+    end
+
+    it('reconciles the balance within every schedule row') do
+      expect(@std.schedule).to(all(satisfy { |entry| balanced_schedule_entry?(entry) }))
     end
   end
 
@@ -172,6 +201,11 @@ describe(Finrb::Amortization) do
 
     it('has total additional payments of $30,084.86') do
       expect(@exp.additional_payments.sum).to(eq(D('-30084.86')))
+    end
+
+    it('identifies user-requested additional principal separately') do
+      expect(@exp.schedule.first.additional_payment).to(eq(D('100')))
+      expect(@exp.schedule.sum(&:additional_payment)).to(eq(D('30084.86')))
     end
 
     it('has total interest charges of $108880.09') do

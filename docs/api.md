@@ -78,6 +78,31 @@ rate = Finrb::Rate.new(0.0425, :apr, :duration => (30 * 12))
 amortization = Finrb::Amortization.new(250000, rate)
 ```
 
+The immutable schedule exposes the accounting breakdown for each period:
+
+```ruby
+entry = amortization.schedule.first
+
+entry.period
+entry.opening_balance
+entry.payment
+entry.interest
+entry.principal
+entry.additional_payment
+entry.closing_balance
+```
+
+Payments use finrb's negative cash-outflow convention. The other monetary
+fields are non-negative. Consequently, every row satisfies:
+
+```text
+opening_balance + interest + payment = closing_balance
+opening_balance - principal = closing_balance
+```
+
+The schedule array and every `Finrb::Amortization::Entry` are frozen. Final
+payment reconciliation is reflected in the last row.
+
 Find the standard monthly payment:
 
 ```ruby

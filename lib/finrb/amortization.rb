@@ -20,6 +20,41 @@ module Finrb
   #   extra_payments = Finrb::Amortization.new(250000, rate){ |period| period.payment - 150 }
   # @api public
   class Amortization
+    # Immutable breakdown of one amortization period. Payments retain finrb's
+    # cashflow sign convention and are negative; the other monetary fields are
+    # non-negative.
+    class Entry
+      ATTRIBUTES = %i[period opening_balance payment interest principal additional_payment closing_balance].freeze
+      private_constant :ATTRIBUTES
+
+      attr_reader(*ATTRIBUTES)
+
+      def initialize(period:, opening_balance:, payment:, interest:, principal:, additional_payment:, closing_balance:)
+        raise(ArgumentError, 'period must be a non-negative integer.') unless period.is_a?(Integer) && !period.negative?
+
+        @period = period
+        ATTRIBUTES.drop(1).each do |name|
+          value = binding.local_variable_get(name)
+          instance_variable_set("@#{name}", Validation.decimal(value, name: name.to_s))
+        end
+        freeze
+      end
+
+      def ==(other)
+        other.instance_of?(self.class) && ATTRIBUTES.all? { |name| public_send(name) == other.public_send(name) }
+      end
+      alias eql? ==
+
+      def hash
+        attributes = ATTRIBUTES.map { |name| public_send(name) }
+        attributes.hash
+      end
+
+      def to_h
+        ATTRIBUTES.to_h { |name| [name, public_send(name)] }
+      end
+    end
+
     # @return [Flt::DecNum] the balance of the loan at the end of the amortization period (usually zero)
     # @api public
     attr_reader :balance
@@ -32,6 +67,9 @@ module Finrb
     # @return [Array] the interest rates used for calculating the amortization
     # @api public
     attr_reader :rates
+    # @return [Array<Entry>] immutable period-by-period loan breakdown
+    # @api public
+    attr_reader :schedule
 
     # @return [Flt::DecNum] the periodic payment due on a loan
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
@@ -129,6 +167,7 @@ module Finrb
 
         # Record payment.  Don't pay more than the outstanding balance.
         pmt.amount = -@balance if pmt.amount.abs > @balance
+        @additional_by_period << [-pmt.difference, Flt::DecNum(0)].max
         @transactions << pmt.dup
         @balance += pmt.amount
 
@@ -142,6 +181,7 @@ module Finrb
     def compute
       @balance = @principal
       @transactions = []
+      @additional_by_period = []
 
       @rates.each do |rate|
         amortize(rate)
@@ -156,6 +196,8 @@ module Finrb
       @payment = (payments.first if @rates.length == 1)
 
       @transactions.freeze
+      @additional_by_period.freeze
+      @schedule = build_schedule.freeze
     end
 
     # @return [Integer] the time required to pay off the loan, in months
@@ -199,6 +241,19 @@ module Finrb
     # @api public
     def payments
       @transactions.filter_map { |trans| trans.amount if trans.payment? }
+    end
+
+    private
+
+    def build_schedule
+      opening_balance = @principal
+      @transactions.each_slice(2).with_index.map do |(interest, payment), index|
+        principal = -(payment.amount + interest.amount)
+        closing_balance = opening_balance - principal
+        entry = Entry.new(period: payment.period, opening_balance:, payment: payment.amount, interest: interest.amount, principal:, additional_payment: @additional_by_period.fetch(index), closing_balance:)
+        opening_balance = closing_balance
+        entry
+      end
     end
   end
 end

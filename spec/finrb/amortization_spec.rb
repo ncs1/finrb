@@ -292,6 +292,40 @@ describe(Finrb::Amortization) do
     end
   end
 
+  describe('origination fees') do
+    let(:rate) { Rate.new(0.06, :apr, duration: 12) }
+
+    it('deducts an unfinanced fee from borrower net proceeds') do
+      amortization = Amortization.new(100_000, rate, origination_fee: 2000)
+      without_fee = Amortization.new(100_000, rate)
+
+      expect(amortization.origination_fee).to(eq(D('2000')))
+      expect(amortization.net_proceeds).to(eq(D('98000')))
+      expect(amortization.amount_financed).to(eq(D('100000')))
+      expect(amortization.payment).to(eq(without_fee.payment))
+      expect(amortization).not_to(be_finance_origination_fee)
+    end
+
+    it('adds a financed fee to the amortized opening balance') do
+      amortization = Amortization.new(100_000, rate, origination_fee: 2000, finance_origination_fee: true)
+
+      expect(amortization.net_proceeds).to(eq(D('100000')))
+      expect(amortization.amount_financed).to(eq(D('102000')))
+      expect(amortization.schedule.first.opening_balance).to(eq(D('102000')))
+      expect(amortization.schedule.sum(&:principal)).to(eq(D('102000')))
+      expect(amortization).to(be_finance_origination_fee)
+    end
+
+    it('validates fee amount and financing mode') do
+      expect { Amortization.new(1000, rate, origination_fee: -1) }
+        .to(raise_error(ArgumentError, /origination_fee must be non-negative/))
+      expect { Amortization.new(1000, rate, origination_fee: 1000) }
+        .to(raise_error(ArgumentError, /less than principal/))
+      expect { Amortization.new(1000, rate, finance_origination_fee: :yes) }
+        .to(raise_error(ArgumentError, /true or false/))
+    end
+  end
+
   describe('Numeric Method') do
     it('works with simple invocation') do
       rate = Rate.new(0.0375, :apr, duration: (30 * 12))

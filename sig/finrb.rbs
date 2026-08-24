@@ -114,10 +114,15 @@ module Finrb
 
     def self.payment: (number, number, Integer, ?balloon: number) -> decimal
 
-    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer) ?{ (Transaction) -> number } -> void
+    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool) ?{ (Transaction) -> number } -> void
     def ==: (untyped) -> bool
     def balance: () -> decimal
     def balloon: () -> decimal
+    def amount_financed: () -> decimal
+    def net_proceeds: () -> decimal
+    def origination_fee: () -> decimal
+    def finance_origination_fee: () -> bool
+    def finance_origination_fee?: () -> bool
     def interest_only_periods: () -> Integer
     def payment: () -> decimal?
     def principal: () -> decimal

@@ -63,6 +63,12 @@ module Finrb
     attr_reader :balance
     # @return [Flt::DecNum] contractual principal settled as a balloon in the final period
     attr_reader :balloon
+    # @return [Flt::DecNum] principal balance including any financed origination fee
+    attr_reader :amount_financed
+    # @return [Flt::DecNum] cash made available to the borrower after an unfinanced fee
+    attr_reader :net_proceeds
+    # @return [Flt::DecNum] fee charged when the loan is originated
+    attr_reader :origination_fee
     # @return [Integer] number of leading periods that pay interest but no scheduled principal
     attr_reader :interest_only_periods
     # @return [Flt::DecNum] the required monthly payment.  For loans with more than one rate, returns nil
@@ -110,12 +116,21 @@ module Finrb
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
-    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, &block)
+    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, &block)
       @principal = Validation.decimal(principal, name: 'principal')
       raise(ArgumentError, 'principal must be positive.') unless @principal.positive?
 
+      @origination_fee = Validation.decimal(origination_fee, name: 'origination_fee')
+      raise(ArgumentError, 'origination_fee must be non-negative.') if @origination_fee.negative?
+      raise(ArgumentError, 'finance_origination_fee must be true or false.') unless [true, false].include?(finance_origination_fee)
+      raise(ArgumentError, 'an unfinanced origination_fee must be less than principal.') if !finance_origination_fee && @origination_fee >= @principal
+
+      @finance_origination_fee = finance_origination_fee
+      @amount_financed = @principal + (finance_origination_fee ? @origination_fee : 0)
+      @net_proceeds = @principal - (finance_origination_fee ? 0 : @origination_fee)
+
       @balloon = Validation.decimal(balloon, name: 'balloon')
-      raise(ArgumentError, 'balloon must be non-negative and less than principal.') if @balloon.negative? || @balloon >= @principal
+      raise(ArgumentError, 'balloon must be non-negative and less than amount financed.') if @balloon.negative? || @balloon >= @amount_financed
       raise(ArgumentError, 'at least one rate is required.') if rates.empty?
       raise(ArgumentError, 'rates must be Finrb::Rate instances.') unless rates.all?(Rate)
       raise(ArgumentError, 'every rate must have a duration.') if rates.any? { |rate| rate.duration.nil? }
@@ -138,8 +153,11 @@ module Finrb
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
     def ==(other)
-      (principal == other.principal) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
+      (principal == other.principal) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
     end
+
+    attr_reader :finance_origination_fee
+    alias finance_origination_fee? finance_origination_fee
 
     # @return [Array] the amount of any additional payments in each period
     # @example
@@ -184,7 +202,7 @@ module Finrb
     # compute the amortization of the principal
     # @return none
     def compute
-      @balance = @principal
+      @balance = @amount_financed
       @transactions = []
       @additional_by_period = []
       @interest_only_by_period = []
@@ -254,7 +272,7 @@ module Finrb
     private
 
     def build_schedule
-      opening_balance = @principal
+      opening_balance = @amount_financed
       @transactions.each_slice(2).with_index.map do |(interest, payment), index|
         principal = -(payment.amount + interest.amount)
         closing_balance = opening_balance - principal

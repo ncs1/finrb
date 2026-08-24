@@ -135,6 +135,33 @@ loan.schedule.first.interest_only? # => true
 loan.schedule.first.principal      # => Flt::DecNum('0')
 ```
 
+Origination fees are kept separate from interest and principal. By default the
+fee is paid from the loan proceeds, reducing the cash available to the borrower
+without changing scheduled payments:
+
+```ruby
+loan = Finrb::Amortization.new(250_000, rate, origination_fee: 2_500)
+loan.principal        # => Flt::DecNum('250000')
+loan.net_proceeds     # => Flt::DecNum('247500')
+loan.amount_financed  # => Flt::DecNum('250000')
+```
+
+With `finance_origination_fee: true`, the borrower receives the stated
+principal and the fee is added to the opening balance:
+
+```ruby
+loan = Finrb::Amortization.new(
+  250_000,
+  rate,
+  origination_fee: 2_500,
+  finance_origination_fee: true
+)
+
+loan.net_proceeds                    # => Flt::DecNum('250000')
+loan.amount_financed                 # => Flt::DecNum('252500')
+loan.schedule.first.opening_balance  # => Flt::DecNum('252500')
+```
+
 Find the standard monthly payment:
 
 ```ruby

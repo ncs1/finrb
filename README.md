@@ -167,6 +167,24 @@ interest_only.schedule.first.interest_only? # => true
 interest_only.schedule.first.principal      # => Flt::DecNum('0')
 ```
 
+Origination fees can either reduce the borrower's net proceeds or be added to
+the financed balance:
+
+```ruby
+cash_fee = Finrb::Amortization.new(250_000, rate, origination_fee: 2_500)
+cash_fee.net_proceeds    # => Flt::DecNum('247500')
+cash_fee.amount_financed # => Flt::DecNum('250000')
+
+financed_fee = Finrb::Amortization.new(
+  250_000,
+  rate,
+  origination_fee: 2_500,
+  finance_origination_fee: true
+)
+financed_fee.net_proceeds    # => Flt::DecNum('250000')
+financed_fee.amount_financed # => Flt::DecNum('252500')
+```
+
 ## Configuration
 
 Configure process-wide defaults during application startup:

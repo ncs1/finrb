@@ -2,6 +2,7 @@
 
 require_relative 'decimal'
 require_relative 'errors'
+require_relative 'validation'
 
 module Finrb
   # Investment return and risk-adjusted performance calculations.
@@ -16,6 +17,27 @@ module Finrb
       end
     end
     private_class_method :wrap_array
+
+    # Compound annual growth rate over a positive number of periods.
+    #
+    # Beginning value must be positive. Ending value may be zero, representing
+    # a total loss, but cannot be negative because a fractional growth root
+    # would not have a generally meaningful real-valued result.
+    #
+    # @param beginning_value [Numeric] value at the start of the measurement
+    # @param ending_value [Numeric] value at the end of the measurement
+    # @param periods [Integer] number of equal annual periods
+    # @return [Flt::DecNum] compound growth rate per period
+    def self.cagr(beginning_value:, ending_value:, periods:)
+      beginning_value = Validation.decimal(beginning_value, name: 'beginning_value')
+      ending_value = Validation.decimal(ending_value, name: 'ending_value')
+      periods = Validation.positive_integer(periods, name: 'periods')
+
+      raise(ArgumentError, 'beginning_value must be greater than zero.') unless beginning_value.positive?
+      raise(ArgumentError, 'ending_value must be greater than or equal to zero.') if ending_value.negative?
+
+      ((ending_value / beginning_value)**(Flt::DecNum(1) / periods)) - 1
+    end
 
     # Computing Coefficient of variation
     #

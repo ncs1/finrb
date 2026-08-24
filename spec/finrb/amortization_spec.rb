@@ -97,7 +97,7 @@ describe(Finrb::Amortization) do
       first = @std.schedule.first
       last = @std.schedule.last
 
-      expect(first.to_h).to(eq(period: 0, opening_balance: D('200000'), payment: D('-926.23'), interest: D('625'), principal: D('301.23'), additional_payment: D('0'), closing_balance: D('199698.77')))
+      expect(first.to_h).to(eq(period: 0, opening_balance: D('200000'), payment: D('-926.23'), interest: D('625'), principal: D('301.23'), additional_payment: D('0'), balloon_payment: D('0'), closing_balance: D('199698.77')))
       expect(last.closing_balance).to(eq(D('0')))
       expect(@std.schedule.length).to(eq(@std.duration))
     end
@@ -210,6 +210,37 @@ describe(Finrb::Amortization) do
 
     it('has total interest charges of $108880.09') do
       expect(@exp.interest.sum).to(eq(D('108880.09')))
+    end
+  end
+
+  describe('balloon payments') do
+    it('uses the residual principal to calculate lower regular payments') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, balloon: 50_000)
+
+      expect(amortization.balloon).to(eq(D('50000')))
+      expect(amortization.payment).to(eq(D('-4553.32')))
+      expect(amortization.schedule.last.balloon_payment).to(eq(D('50000')))
+      expect(amortization.schedule.sum(&:balloon_payment)).to(eq(D('50000')))
+      expect(amortization.schedule.sum(&:principal)).to(eq(D('100000')))
+      expect(amortization.balance).to(be_zero)
+    end
+
+    it('supports a balloon on a zero-rate loan') do
+      rate = Rate.new(0, :apr, duration: 3)
+      amortization = Amortization.new(1000, rate, balloon: 400)
+
+      expect(amortization.payments).to(eq([D('-200'), D('-200'), D('-600')]))
+      expect(amortization.schedule.last.balloon_payment).to(eq(D('400')))
+    end
+
+    it('validates the balloon domain') do
+      rate = Rate.new(0.05, :apr, duration: 12)
+
+      expect { Amortization.new(1000, rate, balloon: -1) }
+        .to(raise_error(ArgumentError, /balloon/))
+      expect { Amortization.new(1000, rate, balloon: 1000) }
+        .to(raise_error(ArgumentError, /balloon/))
     end
   end
 

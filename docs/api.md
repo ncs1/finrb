@@ -89,6 +89,7 @@ entry.payment
 entry.interest
 entry.principal
 entry.additional_payment
+entry.balloon_payment
 entry.closing_balance
 ```
 
@@ -102,6 +103,16 @@ opening_balance - principal = closing_balance
 
 The schedule array and every `Finrb::Amortization::Entry` are frozen. Final
 payment reconciliation is reflected in the last row.
+
+A balloon is a residual principal target used when calculating regular
+installments and then settled as part of the final payment:
+
+```ruby
+balloon_loan = Finrb::Amortization.new(250_000, rate, balloon: 100_000)
+balloon_loan.payment
+balloon_loan.schedule.last.balloon_payment # => Flt::DecNum('100000')
+balloon_loan.balance                       # => Flt::DecNum('0')
+```
 
 Find the standard monthly payment:
 

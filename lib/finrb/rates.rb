@@ -6,7 +6,6 @@ require_relative 'validation'
 module Finrb
   # the Rate class provides an interface for working with interest rates.
   # {render:Rate#new}
-  # @api public
   class Rate
     include Comparable
 
@@ -31,7 +30,6 @@ module Finrb
     # @param [Numeric] periods the number of compounding periods per year
     # @example
     #   Rate.to_effective(0.05, 4) #=> Flt::DecNum('0.05095')
-    # @api public
     def self.to_effective(rate, periods)
       rate = Validation.decimal(rate, name: 'rate')
       periods = compounding_periods(periods)
@@ -50,7 +48,6 @@ module Finrb
     # @example
     #   Rate.to_nominal(0.06, 365) #=> Flt::DecNum('0.05827')
     # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
-    # @api public
     def self.to_nominal(rate, periods)
       rate = Validation.decimal(rate, name: 'rate')
       raise(ArgumentError, 'effective rate must be greater than -1.') if rate <= -1
@@ -75,7 +72,6 @@ module Finrb
     #   Rate.new(0.035, :apr) #=> Rate(0.035, :apr)
     # @see https://en.wikipedia.org/wiki/Effective_interest_rate
     # @see https://en.wikipedia.org/wiki/Nominal_interest_rate
-    # @api public
     def initialize(rate, type, opts = {})
       raise(ArgumentError, 'options must be a Hash.') unless opts.is_a?(Hash)
       raise(ArgumentError, 'options may only contain compounds and duration.') unless (opts.keys - %i[compounds duration]).empty?
@@ -97,13 +93,10 @@ module Finrb
     end
 
     # @return [Integer] the duration for which the rate is valid, in months
-    # @api public
     attr_reader :duration
     # @return [Flt::DecNum] the effective interest rate
-    # @api public
     attr_reader :effective
     # @return [Flt::DecNum] the nominal interest rate
-    # @api public
     attr_reader :nominal
 
     # compare two Rates, using the effective rate
@@ -113,21 +106,18 @@ module Finrb
     #   r1 = Rate.new(0.15, :nominal) #=> Rate.new(0.160755, :apr)
     #   r2 = Rate.new(0.155, :nominal, :compounds => :semiannually) #=> Rate.new(0.161006, :apr)
     #   r1 <=> r2 #=> -1
-    # @api public
     def <=>(other)
       @effective <=> other.effective
     end
 
     # Return the nominal annual percentage rate for the configured compounding frequency.
     # @return [Flt::DecNum] the nominal annual percentage rate
-    # @api public
     def apr
       nominal
     end
 
     # Return the effective annual percentage yield.
     # @return [Flt::DecNum] the effective annual percentage yield
-    # @api public
     def apy
       effective
     end
@@ -136,7 +126,6 @@ module Finrb
     # @return none
     # @param [Symbol, Numeric] input the compounding frequency
     # @raise [ArgumentError] if input is not an accepted keyword or Numeric
-    # @api private
     def compounds=(input)
       @periods =
         case input
@@ -158,7 +147,6 @@ module Finrb
     # set the effective interest rate
     # @return none
     # @param [Flt::DecNum] rate the effective interest rate
-    # @api private
     def effective=(rate)
       raise(ArgumentError, 'effective rate must be greater than -1.') if rate <= -1
 
@@ -176,7 +164,6 @@ module Finrb
     #   rate.apr.round(6) #=> Flt::DecNum('0.15')
     #   rate.apy.round(6) #=> Flt::DecNum('0.160755')
     #   rate.monthly.round(6) #=> Flt::DecNum('0.0125')
-    # @api public
     def monthly
       @monthly ||= Precision.rate(Rate.to_nominal(effective, 12) / 12)
     end
@@ -184,7 +171,6 @@ module Finrb
     # set the nominal interest rate
     # @return none
     # @param [Flt::DecNum] rate the nominal interest rate
-    # @api private
     def nominal=(rate)
       raise(ArgumentError, 'nominal rate must keep every compounded period greater than -100%.') if !@periods.infinite? && rate <= -@periods
 

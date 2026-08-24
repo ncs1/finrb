@@ -17,6 +17,23 @@ describe(Finrb::Cashflow) do
       expect([-100.0, 60, 60, 60].npv(0.1).round(3)).to(eq(D('49.211')))
     end
 
+    it('calculates modified internal rate of return') do
+      cashflows = [-100, 39, 59, 55, 20]
+
+      result = described_class.mirr(cashflows, finance_rate: 0.1, reinvestment_rate: 0.12)
+      expect(result).to(be_within(D('1e-14')).of(D('0.2043767376745526')))
+      expect(cashflows.mirr(finance_rate: 0.1, reinvestment_rate: 0.12)).to(eq(result))
+    end
+
+    it('validates modified-return cashflows and rates') do
+      expect { described_class.mirr([-100], finance_rate: 0.1, reinvestment_rate: 0.1) }
+        .to(raise_error(Finrb::InvalidCashflowError, /at least two/))
+      expect { described_class.mirr([-100, -20], finance_rate: 0.1, reinvestment_rate: 0.1) }
+        .to(raise_error(Finrb::InvalidCashflowError, /positive and one negative/))
+      expect { described_class.mirr([-100, 120], finance_rate: -1, reinvestment_rate: 0.1) }
+        .to(raise_error(Finrb::DomainError, /greater than -1/))
+    end
+
     it('rejects cashflows without both positive and negative values') do
       expect { [10, 20, 30].irr }
         .to(raise_error(Finrb::InvalidCashflowError))

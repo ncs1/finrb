@@ -23,6 +23,10 @@ module Finrb
         sequence(cashflows).npv(rate)
       end
 
+      def mirr(cashflows, finance_rate:, reinvestment_rate:)
+        sequence(cashflows).mirr(finance_rate:, reinvestment_rate:)
+      end
+
       def xirr(transactions, guess = nil)
         sequence(transactions).xirr(guess)
       end
@@ -85,6 +89,33 @@ module Finrb
       end
 
       total
+    end
+
+    # Calculate the modified internal rate of return for equally spaced
+    # cashflows using separate financing and reinvestment assumptions.
+    # @return [Flt::DecNum] modified per-period internal rate of return
+    def mirr(finance_rate:, reinvestment_rate:)
+      validate_numeric_cashflows!
+      raise(InvalidCashflowError, 'MIRR requires at least two cashflows.') if size < 2
+
+      cashflows = map { |entry| Validation.decimal(entry, name: 'cashflow amount') }
+      raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if cashflows.none?(&:positive?) || cashflows.none?(&:negative?)
+
+      finance_rate = Validation.decimal(finance_rate, name: 'finance_rate')
+      reinvestment_rate = Validation.decimal(reinvestment_rate, name: 'reinvestment_rate')
+      raise(DomainError, 'Finance and reinvestment rates must be greater than -1.') if finance_rate <= -1 || reinvestment_rate <= -1
+
+      last_period = cashflows.size - 1
+      future_positive =
+        cashflows.each_with_index.sum do |amount, index|
+          amount.positive? ? amount * ((reinvestment_rate + 1)**(last_period - index)) : Flt::DecNum(0)
+        end
+      present_negative =
+        cashflows.each_with_index.sum do |amount, index|
+          amount.negative? ? amount / ((finance_rate + 1)**index) : Flt::DecNum(0)
+        end
+
+      ((future_positive / -present_negative)**(Flt::DecNum(1) / last_period)) - 1
     end
 
     # Calculate the effective annual internal rate of return for an ordered

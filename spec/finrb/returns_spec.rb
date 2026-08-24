@@ -37,6 +37,92 @@ describe(Finrb::Returns) do
     end
   end
 
+  describe('annualization') do
+    it('compounds periodic returns') do
+      expect(Returns.annualize_return(rate: 0.01, periods_per_year: 12)).to(be_within(D('1e-14')).of(D('0.12682503013196972')))
+    end
+
+    it('scales periodic volatility by the square-root of time') do
+      expect(Returns.annualize_volatility(volatility: 0.02, periods_per_year: 252)).to(be_within(D('1e-14')).of(D('0.31749015732775088')))
+    end
+
+    it('validates annualization inputs') do
+      expect { Returns.annualize_return(rate: -1.01, periods_per_year: 12) }
+        .to(raise_error(ArgumentError, /rate must be greater/))
+      expect { Returns.annualize_volatility(volatility: -0.1, periods_per_year: 12) }
+        .to(raise_error(ArgumentError, /volatility must be greater/))
+      expect { Returns.annualize_return(rate: 0.01, periods_per_year: 0) }
+        .to(raise_error(ArgumentError, /positive integer/))
+    end
+  end
+
+  describe('volatility') do
+    it('computes sample volatility by default') do
+      expect(Returns.volatility(returns: [0.1, 0.2, 0.3])).to(be_within(D('1e-14')).of(D('0.1')))
+    end
+
+    it('computes population volatility when requested') do
+      expect(Returns.volatility(returns: [0.1, 0.2, 0.3], sample: false)).to(be_within(D('1e-14')).of(D('0.08164965809277261')))
+    end
+
+    it('requires enough observations') do
+      expect { Returns.volatility(returns: [], sample: false) }
+        .to(raise_error(ArgumentError, /cannot be empty/))
+      expect { Returns.volatility(returns: [0.1]) }
+        .to(raise_error(ArgumentError, /at least two/))
+      expect { Returns.volatility(returns: [0.1, 0.2], sample: :yes) }
+        .to(raise_error(ArgumentError, /sample must be true or false/))
+    end
+  end
+
+  describe('downside_deviation') do
+    it('uses all observations in the downside-risk denominator') do
+      result = Returns.downside_deviation(returns: [-0.1, 0.05, -0.05])
+
+      expect(result).to(be_within(D('1e-14')).of(D('0.06454972243679028')))
+    end
+
+    it('measures shortfalls relative to a target') do
+      result = Returns.downside_deviation(returns: [0.01, 0.03], target: 0.02)
+
+      expect(result).to(be_within(D('1e-14')).of(D('0.007071067811865476')))
+    end
+  end
+
+  describe('sortino_ratio') do
+    let(:returns) { [-0.1, 0.05, -0.05] }
+
+    it('divides arithmetic excess return by downside deviation') do
+      expect(Returns.sortino_ratio(returns:)).to(be_within(D('1e-14')).of(D('-0.5163977794943222')))
+    end
+
+    it('annualizes the periodic ratio by the square-root of time') do
+      result = Returns.sortino_ratio(returns:, periods_per_year: 12)
+
+      expect(result).to(be_within(D('1e-14')).of(D('-1.7888543819998317')))
+    end
+
+    it('rejects a sequence with no downside risk') do
+      expect { Returns.sortino_ratio(returns: [0.01, 0.02]) }
+        .to(raise_error(ArgumentError, /downside deviation/))
+    end
+  end
+
+  describe('max_drawdown') do
+    it('returns the largest peak-to-trough loss as a positive fraction') do
+      expect(Returns.max_drawdown(values: [100, 120, 90, 150, 105, 140])).to(eq(D('0.3')))
+    end
+
+    it('returns zero for a monotonically increasing series') do
+      expect(Returns.max_drawdown(values: [100, 110, 120])).to(eq(D('0')))
+    end
+
+    it('requires positive portfolio values') do
+      expect { Returns.max_drawdown(values: [100, 0]) }
+        .to(raise_error(ArgumentError, /greater than zero/))
+    end
+  end
+
   describe('coefficient_variation') do
     it('Example 1') do
       res = Returns.coefficient_variation(sd: 0.15, avg: 0.39)

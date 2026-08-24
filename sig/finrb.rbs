@@ -111,11 +111,13 @@ module Finrb
 
   module Cashflow
     def self.irr: (Enumerable[number], ?number) -> decimal
+    def self.mirr: (Enumerable[number], finance_rate: number, reinvestment_rate: number) -> decimal
     def self.npv: (Enumerable[number], number) -> decimal
     def self.xirr: (Enumerable[Transaction], ?number) -> Rate
     def self.xnpv: (Enumerable[Transaction], number) -> decimal
 
     def irr: (?number) -> decimal
+    def mirr: (finance_rate: number, reinvestment_rate: number) -> decimal
     def npv: (number) -> decimal
     def xirr: (?number) -> Rate
     def xnpv: (number) -> decimal
@@ -163,16 +165,22 @@ module Finrb
   end
 
   module Returns
+    def self.annualize_return: (rate: number, periods_per_year: Integer) -> decimal
+    def self.annualize_volatility: (volatility: number, periods_per_year: Integer) -> decimal
     def self.cagr: (beginning_value: number, ending_value: number, periods: Integer) -> decimal
     def self.coefficient_variation: (sd: number, avg: number) -> decimal
     def self.geometric_mean: (r: number | numbers) -> decimal
     def self.harmonic_mean: (p: number | numbers) -> decimal
     def self.hpr: (ev: number, bv: number, ?cfr: number) -> decimal
+    def self.downside_deviation: (returns: number | numbers, ?target: number) -> decimal
+    def self.max_drawdown: (values: number | numbers) -> decimal
     def self.sampling_error: (sm: number, mu: number) -> decimal
     def self.sf_ratio: (rp: number, rl: number, sd: number) -> decimal
     def self.sharpe_ratio: (rp: number, rf: number, sd: number) -> decimal
+    def self.sortino_ratio: (returns: number | numbers, ?target: number, ?periods_per_year: Integer?) -> decimal
     def self.twrr: (ev: number | numbers, bv: number | numbers, cfr: number | numbers) -> decimal
     def self.wpr: (r: number | numbers, w: number | numbers) -> decimal
+    def self.volatility: (returns: number | numbers, ?sample: bool) -> decimal
   end
 
   module Yields

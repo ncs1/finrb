@@ -63,6 +63,9 @@ Bundler/GemVersion:
 Metrics/ClassLength:
   Enabled: false
 
+Metrics/ModuleLength:
+  Enabled: false
+
 Metrics/PerceivedComplexity:
   Severity: info
 

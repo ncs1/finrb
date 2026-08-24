@@ -1,5 +1,30 @@
 # finrb changelog
 
+## 1.1.0
+
+### Investment returns and risk
+
+- Add compound annual growth rate (CAGR) with explicit value and period-domain validation.
+- Add modified internal rate of return (MIRR) with separate financing and reinvestment rates.
+- Add sample and population volatility, downside deviation, Sortino ratio, and maximum drawdown.
+- Add compound-return and square-root-of-time volatility annualization helpers.
+- Define the statistical conventions explicitly: volatility is sample-based by default, downside deviation includes all observations in its denominator, and maximum drawdown is returned as a non-negative loss fraction.
+
+### Loan schedules
+
+- Expose each amortization period as an immutable `Finrb::Amortization::Entry` containing its period, opening and closing balances, payment, interest, principal, additional principal, balloon settlement, and interest-only state.
+- Preserve the existing cashflow convention: payments are negative, while balances, interest, principal repaid, and additional principal are non-negative.
+- Add contractual balloon targets. Regular installments amortize toward the target and the final payment settles the residual, including cent-rounding reconciliation.
+- Add leading interest-only periods, including zero-rate periods and combinations with balloon loans. Remaining principal amortizes over the rest of the term.
+- Add upfront and financed origination fees with separate `principal`, `net_proceeds`, and `amount_financed` values. Financed fees enter the opening balance; upfront fees reduce borrower proceeds.
+- Correct schedule period numbering across rate segments and reused payment templates.
+
+### API and documentation
+
+- Add RBS declarations and API examples for all new return metrics and amortization features.
+- Refine README compatibility badges to identify tested MRI versions, x86-64/ARM64 architectures, and experimental JRuby/TruffleRuby coverage.
+- Remove redundant YARD `@api` annotations and make the internal amortization calculation methods genuinely private.
+
 ## 1.0.1
 
 ### Runtime compatibility

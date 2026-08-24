@@ -39,6 +39,86 @@ module Finrb
       ((ending_value / beginning_value)**(Flt::DecNum(1) / periods)) - 1
     end
 
+    def self.risk_values(values, name:)
+      values = wrap_array(values)
+      raise(ArgumentError, "#{name} cannot be empty.") if values.empty?
+
+      values.map { |value| Validation.decimal(value, name:) }
+    end
+    private_class_method :risk_values
+
+    # Compound a periodic return into an annual return.
+    def self.annualize_return(rate:, periods_per_year:)
+      rate = Validation.decimal(rate, name: 'rate')
+      periods_per_year = Validation.positive_integer(periods_per_year, name: 'periods_per_year')
+      raise(ArgumentError, 'rate must be greater than or equal to -1.') if rate < -1
+
+      ((rate + 1)**periods_per_year) - 1
+    end
+
+    # Scale periodic volatility by the square root of periods per year.
+    def self.annualize_volatility(volatility:, periods_per_year:)
+      volatility = Validation.decimal(volatility, name: 'volatility')
+      periods_per_year = Validation.positive_integer(periods_per_year, name: 'periods_per_year')
+      raise(ArgumentError, 'volatility must be greater than or equal to zero.') if volatility.negative?
+
+      volatility * (Flt::DecNum(periods_per_year)**Flt::DecNum('0.5'))
+    end
+
+    # Standard deviation of periodic returns. Sample volatility uses n - 1;
+    # population volatility uses n.
+    def self.volatility(returns:, sample: true)
+      raise(ArgumentError, 'sample must be true or false.') unless [true, false].include?(sample)
+
+      returns = risk_values(returns, name: 'return')
+      raise(ArgumentError, 'sample volatility requires at least two returns.') if sample && returns.size < 2
+
+      mean = returns.sum / returns.size
+      denominator = sample ? returns.size - 1 : returns.size
+      variance = returns.sum { |value| (value - mean)**2 } / denominator
+      variance**Flt::DecNum('0.5')
+    end
+
+    # Root-mean-square return shortfall below a target return. The denominator
+    # includes every observation, including returns at or above the target.
+    def self.downside_deviation(returns:, target: 0)
+      returns = risk_values(returns, name: 'return')
+      target = Validation.decimal(target, name: 'target')
+      squared_shortfalls =
+        returns.sum do |value|
+          shortfall = [value - target, Flt::DecNum(0)].min
+          shortfall**2
+        end
+
+      (squared_shortfalls / returns.size)**Flt::DecNum('0.5')
+    end
+
+    # Sortino ratio using arithmetic mean excess return and downside deviation.
+    def self.sortino_ratio(returns:, target: 0, periods_per_year: nil)
+      returns = risk_values(returns, name: 'return')
+      target = Validation.decimal(target, name: 'target')
+      downside = downside_deviation(returns:, target:)
+      raise(ArgumentError, 'downside deviation must be greater than zero.') if downside.zero?
+
+      ratio = ((returns.sum / returns.size) - target) / downside
+      return ratio if periods_per_year.nil?
+
+      periods_per_year = Validation.positive_integer(periods_per_year, name: 'periods_per_year')
+      ratio * (Flt::DecNum(periods_per_year)**Flt::DecNum('0.5'))
+    end
+
+    # Largest peak-to-trough decline as a non-negative fraction.
+    def self.max_drawdown(values:)
+      values = risk_values(values, name: 'value')
+      raise(ArgumentError, 'values must be greater than zero.') unless values.all?(&:positive?)
+
+      peak = values.first
+      values.reduce(Flt::DecNum(0)) do |maximum, value|
+        peak = value if value > peak
+        [maximum, (peak - value) / peak].max
+      end
+    end
+
     # Computing Coefficient of variation
     #
     # @param sd standard deviation

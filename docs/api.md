@@ -4,6 +4,7 @@
 
 - [Amortization](#amortization)
 - [IRR and XIRR](#irr-and-xirr)
+  - [Modified internal rate of return](#modified-internal-rate-of-return)
 - [Financial calculations](#financial-calculations)
   - [Computing bank discount yield BDY for a T-bill](#computing-bank-discount-yield-bdy-for-a-t-bill)
   - [Computing money market yield MMY for a T-bill](#computing-money-market-yield-mmy-for-a-t-bill)
@@ -27,6 +28,7 @@
   - [Estimate future value fv of a single sum](#estimate-future-value-fv-of-a-single-sum)
   - [Computing the future value of an uneven cash flow series](#computing-the-future-value-of-an-uneven-cash-flow-series)
   - [Compound annual growth rate](#compound-annual-growth-rate)
+  - [Risk and annualization helpers](#risk-and-annualization-helpers)
   - [Geometric mean return](#geometric-mean-return)
   - [Gross profit margin - Evaluate a company's financial performance](#gross-profit-margin---evaluate-a-companys-financial-performance)
   - [Harmonic mean, average price](#harmonic-mean-average-price)
@@ -209,6 +211,24 @@ measured from the first transaction. Supply them chronologically, with every
 transaction having a `Date`, `Time`, or another date value that responds to
 `to_date`. As with `irr`, the amounts must contain both signs. Valid discrete
 rates are greater than `-1` (greater than -100%).
+
+### Modified internal rate of return
+
+MIRR avoids IRR's implicit assumption that every intermediate inflow is
+reinvested at the computed IRR. It discounts negative cashflows using the
+financing rate and compounds positive cashflows using the reinvestment rate:
+
+```ruby
+Finrb::Cashflow.mirr(
+  [-100, 39, 59, 55, 20],
+  finance_rate: 0.10,
+  reinvestment_rate: 0.12
+)
+# => Flt::DecNum('0.204376...')
+```
+
+Cashflows are equally spaced and must contain at least one positive and one
+negative amount. Both rates must be greater than `-1`.
 
 ### Guess and multiple roots
 
@@ -752,6 +772,36 @@ Finrb::Returns.cagr(
 
 The beginning value must be positive and the ending value cannot be negative.
 An ending value of zero returns `-1`, representing a total loss.
+
+### Risk and annualization helpers
+
+`volatility` uses sample standard deviation by default; pass `sample: false`
+for population volatility. Downside deviation is the root mean square of
+shortfalls below the target and includes every observation in its denominator.
+
+```ruby
+returns = [-0.10, 0.05, -0.05]
+
+Finrb::Returns.volatility(returns: returns)
+Finrb::Returns.downside_deviation(returns: returns, target: 0)
+Finrb::Returns.sortino_ratio(returns: returns, target: 0)
+Finrb::Returns.sortino_ratio(returns: returns, target: 0, periods_per_year: 12)
+```
+
+Annual returns compound, while volatility uses square-root-of-time scaling:
+
+```ruby
+Finrb::Returns.annualize_return(rate: 0.01, periods_per_year: 12)
+Finrb::Returns.annualize_volatility(volatility: 0.02, periods_per_year: 252)
+```
+
+Maximum drawdown accepts positive portfolio values and returns the largest
+peak-to-trough loss as a non-negative fraction:
+
+```ruby
+Finrb::Returns.max_drawdown(values: [100, 120, 90, 150, 105])
+# => Flt::DecNum('0.3')
+```
 
 ### Geometric mean return
 

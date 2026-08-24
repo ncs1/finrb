@@ -26,13 +26,6 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 26
 
-# Existing utility implementations retained during domain extraction.
-Metrics/ModuleLength:
-  Exclude:
-    - 'lib/finrb/accounting.rb'
-    - 'lib/finrb/cashflows.rb'
-    - 'lib/finrb/ratios.rb'
-
 # Offense count: 5
 # Configuration parameters: CountAsOne.
 RSpec/ExampleLength:

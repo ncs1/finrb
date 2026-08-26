@@ -2,6 +2,7 @@
 
 require_relative 'decimal'
 require_relative 'errors'
+require_relative 'validation'
 
 module Finrb
   # Money-market yield and interest-rate conversion calculations.
@@ -14,9 +15,9 @@ module Finrb
     # @example
     #   Finrb::Yields.bdy(d=1500,f=100000,t=120)
     def self.bdy(d:, f:, t:)
-      d = Flt::DecNum(d.to_s)
-      f = Flt::DecNum(f.to_s)
-      t = Flt::DecNum(t.to_s)
+      d = decimal(d, name: 'd')
+      f = positive(f, name: 'f')
+      t = positive(t, name: 't')
 
       (d * 360 / f / t)
     end
@@ -28,10 +29,12 @@ module Finrb
     # @example
     #   Finrb::Yields.bdy2mmy(bdy=0.045,t=120)
     def self.bdy2mmy(bdy:, t:)
-      bdy = Flt::DecNum(bdy.to_s)
-      t = Flt::DecNum(t.to_s)
+      bdy = decimal(bdy, name: 'bdy')
+      t = positive(t, name: 't')
+      denominator = 360 - (t * bdy)
+      raise(DomainError, 'bdy and t must imply a positive purchase price.') unless denominator.positive?
 
-      (bdy * 360 / (360 - (t * bdy)))
+      (bdy * 360 / denominator)
     end
 
     # Convert stated annual rate to the effective annual rate
@@ -44,10 +47,10 @@ module Finrb
     # @example
     #   Finrb::Yields.ear(0.04,365)
     def self.ear(r:, m:)
-      r = Flt::DecNum(r.to_s)
-      m = Flt::DecNum(m.to_s)
+      r = decimal(r, name: 'r')
+      m = positive(m, name: 'm')
 
-      ((((r / m) + 1)**m) - 1)
+      ((compounding_base(r, m)**m) - 1)
     end
 
     # Convert stated annual rate to the effective annual rate with continuous compounding
@@ -59,7 +62,7 @@ module Finrb
     # @example
     #   Finrb::Yields.ear_continuous(0.03)
     def self.ear_continuous(r:)
-      r = Flt::DecNum(r.to_s)
+      r = decimal(r, name: 'r')
 
       (r.exp - 1)
     end
@@ -70,7 +73,7 @@ module Finrb
     # @example
     #   Finrb::Yields.ear2bey(ear=0.08)
     def self.ear2bey(ear:)
-      ear = Flt::DecNum(ear.to_s)
+      ear = total_return(ear, name: 'ear')
 
       (((ear + 1).sqrt - 1) * 2)
     end
@@ -82,8 +85,8 @@ module Finrb
     # @example
     #   Finrb::Yields.ear2hpr(ear=0.05039,t=150)
     def self.ear2hpr(ear:, t:)
-      ear = Flt::DecNum(ear.to_s)
-      t = Flt::DecNum(t.to_s)
+      ear = total_return(ear, name: 'ear')
+      t = positive(t, name: 't')
 
       (((ear + 1)**(t / 365)) - 1)
     end
@@ -124,18 +127,18 @@ module Finrb
     #   # monthly proportional interest rate which is equivalent to a simple annual interest
     #   Finrb::Yields.eir(r=0.05,p=12,type='p')
     def self.eir(r:, n: 1, p: 12, type: 'e')
-      r = Flt::DecNum(r.to_s)
-      n = Flt::DecNum(n.to_s)
-      p = Flt::DecNum(p.to_s)
+      r = decimal(r, name: 'r')
+      n = positive(n, name: 'n')
+      p = positive(p, name: 'p')
       type = type.to_s
 
       case type
       when 'e'
-        eir = (((r / n) + 1)**(n / p)) - 1
+        eir = (compounding_base(r, n)**(n / p)) - 1
       when 'p'
         eir = r / p
       else
-        raise(Error, "type must be 'e' or 'p'")
+        raise(ArgumentError, "type must be 'e' or 'p'")
       end
       eir
     end
@@ -147,8 +150,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2bey(hpr=0.02,t=3)
     def self.hpr2bey(hpr:, t:)
-      hpr = Flt::DecNum(hpr.to_s)
-      t = Flt::DecNum(t.to_s)
+      hpr = total_return(hpr, name: 'hpr')
+      t = positive(t, name: 't')
 
       ((((hpr + 1)**(6 / t)) - 1) * 2)
     end
@@ -160,8 +163,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2ear(hpr=0.015228,t=120)
     def self.hpr2ear(hpr:, t:)
-      hpr = Flt::DecNum(hpr.to_s)
-      t = Flt::DecNum(t.to_s)
+      hpr = total_return(hpr, name: 'hpr')
+      t = positive(t, name: 't')
 
       (((hpr + 1)**(365 / t)) - 1)
     end
@@ -173,8 +176,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2mmy(hpr=0.01523,t=120)
     def self.hpr2mmy(hpr:, t:)
-      hpr = Flt::DecNum(hpr.to_s)
-      t = Flt::DecNum(t.to_s)
+      hpr = decimal(hpr, name: 'hpr')
+      t = positive(t, name: 't')
 
       (hpr * 360 / t)
     end
@@ -186,8 +189,8 @@ module Finrb
     # @example
     #   Finrb::Yields.mmy2hpr(mmy=0.04898,t=150)
     def self.mmy2hpr(mmy:, t:)
-      mmy = Flt::DecNum(mmy.to_s)
-      t = Flt::DecNum(t.to_s)
+      mmy = decimal(mmy, name: 'mmy')
+      t = positive(t, name: 't')
 
       (mmy * t / 360)
     end
@@ -199,10 +202,10 @@ module Finrb
     # @example
     #   Finrb::Yields.r_continuous(r=0.03,m=4)
     def self.r_continuous(r:, m:)
-      r = Flt::DecNum(r.to_s)
-      m = Flt::DecNum(m.to_s)
+      r = decimal(r, name: 'r')
+      m = positive(m, name: 'm')
 
-      (m * ((r / m) + 1).log)
+      (m * compounding_base(r, m).log)
     end
 
     # Convert a given continuous compounded rate to a norminal rate
@@ -215,10 +218,39 @@ module Finrb
     # @example
     #   Finrb::Yields.r_norminal(rc=0.03,m=4)
     def self.r_norminal(rc:, m:)
-      rc = Flt::DecNum(rc.to_s)
-      m = Flt::DecNum(m.to_s)
+      rc = decimal(rc, name: 'rc')
+      m = positive(m, name: 'm')
 
       (m * ((rc / m).exp - 1))
     end
+
+    def self.decimal(value, name:)
+      Validation.decimal(value, name:)
+    end
+    private_class_method :decimal
+
+    def self.positive(value, name:)
+      value = decimal(value, name:)
+      raise(DomainError, "#{name} must be greater than zero.") unless value.positive?
+
+      value
+    end
+    private_class_method :positive
+
+    def self.total_return(value, name:)
+      value = decimal(value, name:)
+      raise(DomainError, "#{name} must be greater than or equal to -1.") if value < -1
+
+      value
+    end
+    private_class_method :total_return
+
+    def self.compounding_base(rate, periods)
+      base = (rate / periods) + 1
+      raise(DomainError, 'The rate per compounding period must be greater than -1.') unless base.positive?
+
+      base
+    end
+    private_class_method :compounding_base
   end
 end

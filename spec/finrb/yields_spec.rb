@@ -112,7 +112,7 @@ describe(Finrb::Yields) do
 
     it('rejects unknown conversion types') do
       expect { Yields.eir(r: 0.05, type: 'unknown') }
-        .to(raise_error(Finrb::Error, /type must be/))
+        .to(raise_error(ArgumentError, /type must be/))
     end
   end
 
@@ -167,6 +167,45 @@ describe(Finrb::Yields) do
       res = Yields.r_norminal(rc: 0.03, m: 4)
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.03011278')))
+    end
+  end
+
+  describe('input validation') do
+    it('rejects non-numeric and non-finite inputs') do
+      expect { Yields.ear(r: '0.05', m: 12) }
+        .to(raise_error(ArgumentError, /r must be numeric/))
+      expect { Yields.ear_continuous(r: Float::INFINITY) }
+        .to(raise_error(ArgumentError, /r must be finite/))
+    end
+
+    it('rejects non-positive terms, face values, and compounding frequencies') do
+      expect { Yields.bdy(d: 1, f: 0, t: 30) }
+        .to(raise_error(Finrb::DomainError, /f must be greater than zero/))
+      expect { Yields.hpr2mmy(hpr: 0.01, t: 0) }
+        .to(raise_error(Finrb::DomainError, /t must be greater than zero/))
+      expect { Yields.ear(r: 0.05, m: 0) }
+        .to(raise_error(Finrb::DomainError, /m must be greater than zero/))
+      expect { Yields.eir(r: 0.05, n: 1, p: 0) }
+        .to(raise_error(Finrb::DomainError, /p must be greater than zero/))
+    end
+
+    it('rejects invalid discount and return domains') do
+      expect { Yields.bdy2mmy(bdy: 3, t: 120) }
+        .to(raise_error(Finrb::DomainError, /positive purchase price/))
+      expect { Yields.ear2bey(ear: -1.01) }
+        .to(raise_error(Finrb::DomainError, /greater than or equal to -1/))
+      expect { Yields.hpr2ear(hpr: -1.01, t: 30) }
+        .to(raise_error(Finrb::DomainError, /greater than or equal to -1/))
+      expect { Yields.r_continuous(r: -4, m: 4) }
+        .to(raise_error(Finrb::DomainError, /compounding period/))
+    end
+
+    it('preserves valid negative returns and inverse conversions') do
+      expect(Yields.ear2hpr(ear: -0.1, t: 365)).to(be_within(D('1e-20')).of(D('-0.1')))
+
+      nominal = D('-0.08')
+      continuous = Yields.r_continuous(r: nominal, m: 12)
+      expect(Yields.r_norminal(rc: continuous, m: 12)).to(be_within(D('1e-20')).of(nominal))
     end
   end
 end

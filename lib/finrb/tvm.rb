@@ -14,6 +14,8 @@ module Finrb
 
     UNSET_BOUND = Object.new.freeze
     private_constant :UNSET_BOUND
+    INPUT_NAMES = { fv: 'future value', g: 'growth rate', guess: 'rate guess', lower: 'lower rate bound', n: 'period count', pmt: 'payment', pv: 'present value', r: 'periodic rate', upper: 'upper rate bound' }.freeze
+    private_constant :INPUT_NAMES
 
     def discount_rate(n:, pv:, fv:, pmt:, type: 0, guess: nil, lower: UNSET_BOUND, upper: UNSET_BOUND)
       n = period_count(n)
@@ -38,7 +40,7 @@ module Finrb
     def fv_annuity(r:, n:, pmt:, type: 0)
       rate = periodic_rate(r)
       periods = period_count(n)
-      payment = Validation.decimal(pmt, name: 'pmt')
+      payment = Validation.decimal(pmt, name: 'payment')
       payment_timing = payment_type(type)
       return -payment * periods if rate.zero?
 
@@ -48,7 +50,7 @@ module Finrb
     def fv_simple(r:, n:, pv:)
       rate = periodic_rate(r)
       periods = period_count(n)
-      present_value = Validation.decimal(pv, name: 'pv')
+      present_value = Validation.decimal(pv, name: 'present value')
       (present_value * ((rate + 1)**periods)) * -1
     end
 
@@ -107,7 +109,7 @@ module Finrb
     def pv_annuity(r:, n:, pmt:, type: 0)
       rate = periodic_rate(r)
       periods = period_count(n)
-      payment = Validation.decimal(pmt, name: 'pmt')
+      payment = Validation.decimal(pmt, name: 'payment')
       payment_timing = payment_type(type)
       return -payment * periods if rate.zero?
 
@@ -116,7 +118,7 @@ module Finrb
 
     def pv_perpetuity(r:, pmt:, g: 0, type: 0)
       rate = periodic_rate(r)
-      payment = Validation.decimal(pmt, name: 'pmt')
+      payment = Validation.decimal(pmt, name: 'payment')
       growth = periodic_rate(g, name: :g)
       payment_timing = payment_type(type)
       raise(DomainError, 'Growth rate must be smaller than the discount rate.') if growth >= rate
@@ -127,7 +129,7 @@ module Finrb
     def pv_simple(r:, n:, fv:)
       rate = periodic_rate(r)
       periods = period_count(n)
-      future_value = Validation.decimal(fv, name: 'fv')
+      future_value = Validation.decimal(fv, name: 'future value')
       (future_value / ((rate + 1)**periods)) * -1
     end
 
@@ -139,8 +141,8 @@ module Finrb
     end
 
     def r_perpetuity(pmt:, pv:)
-      payment = Validation.decimal(pmt, name: 'pmt')
-      present_value = Validation.decimal(pv, name: 'pv')
+      payment = Validation.decimal(pmt, name: 'payment')
+      present_value = Validation.decimal(pv, name: 'present value')
       raise(DomainError, 'Present value must be non-zero.') if present_value.zero?
 
       payment * -1 / present_value
@@ -155,39 +157,44 @@ module Finrb
         else
           [value]
         end
-      raise(ArgumentError, 'cf cannot be empty.') if values.empty?
+      raise(ArgumentError, 'cashflows cannot be empty.') if values.empty?
 
       values.map { |cashflow| Validation.decimal(cashflow, name: 'cashflow') }
     end
     private_class_method :cashflow_values
 
     def decimal_inputs(**values)
-      values.to_h { |name, value| [name, Validation.decimal(value, name: name.to_s)] }
+      values.to_h { |name, value| [name, Validation.decimal(value, name: input_name(name))] }
     end
     private_class_method :decimal_inputs
 
     def payment_type(value)
-      value = Validation.decimal(value, name: 'type')
-      raise(ArgumentError, 'type must be 0 or 1.') unless [Flt::DecNum(0), Flt::DecNum(1)].include?(value)
+      value = Validation.decimal(value, name: 'payment timing type')
+      raise(ArgumentError, 'payment timing type must be 0 (end) or 1 (beginning).') unless [Flt::DecNum(0), Flt::DecNum(1)].include?(value)
 
       value
     end
     private_class_method :payment_type
 
     def period_count(value)
-      Validation.non_negative_decimal(value, name: 'n', error: DomainError, message: 'n must be non-negative.')
+      Validation.non_negative_decimal(value, name: 'period count', error: DomainError)
     end
     private_class_method :period_count
 
     def positive_period_count(value)
-      Validation.positive_decimal(value, name: 'n', error: DomainError)
+      Validation.positive_decimal(value, name: 'period count', error: DomainError)
     end
     private_class_method :positive_period_count
 
     def periodic_rate(value, name: :r)
-      Validation.decimal_greater_than(value, minimum: -1, name: name.to_s, error: DomainError)
+      Validation.decimal_greater_than(value, minimum: -1, name: input_name(name), error: DomainError)
     end
     private_class_method :periodic_rate
+
+    def input_name(name)
+      INPUT_NAMES.fetch(name, name.to_s.tr('_', ' '))
+    end
+    private_class_method :input_name
 
     def rate_bounds(function, guess:, lower:, upper:)
       return searched_rate_bounds(function, guess) if lower.equal?(UNSET_BOUND) && upper.equal?(UNSET_BOUND)
@@ -196,7 +203,7 @@ module Finrb
       upper = 100 if upper.equal?(UNSET_BOUND)
       lower = periodic_rate(lower, name: :lower)
       upper = periodic_rate(upper, name: :upper)
-      raise(ArgumentError, 'lower must be less than upper.') if lower >= upper
+      raise(ArgumentError, 'lower rate bound must be less than upper rate bound.') if lower >= upper
 
       [lower, upper]
     end

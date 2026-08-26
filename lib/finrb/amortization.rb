@@ -37,7 +37,7 @@ module Finrb
         @interest_only = interest_only
         MONETARY_ATTRIBUTES.each do |name|
           value = binding.local_variable_get(name)
-          instance_variable_set("@#{name}", Validation.decimal(value, name: name.to_s))
+          instance_variable_set("@#{name}", Validation.decimal(value, name: name.to_s.tr('_', ' ')))
         end
         freeze
       end
@@ -98,7 +98,7 @@ module Finrb
 
       rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'periodic rate')
 
-      periods = Validation.positive_integer(periods, name: 'periods')
+      periods = Validation.positive_integer(periods, name: 'period count')
 
       if rate.zero?
         # simplified formula to avoid division-by-zero when interest rate is zero
@@ -117,7 +117,7 @@ module Finrb
     def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, &block)
       @principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
 
-      @origination_fee = Validation.non_negative_decimal(origination_fee, name: 'origination_fee', message: 'origination_fee must be non-negative.')
+      @origination_fee = Validation.non_negative_decimal(origination_fee, name: 'origination fee')
       raise(ArgumentError, 'finance_origination_fee must be true or false.') unless [true, false].include?(finance_origination_fee)
       raise(ArgumentError, 'an unfinanced origination_fee must be less than principal.') if !finance_origination_fee && @origination_fee >= @principal
 

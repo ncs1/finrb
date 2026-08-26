@@ -59,7 +59,7 @@ describe(Finrb) do
       current = described_class.config
 
       expect { described_class.configure { |config| config.eps = 0 } }
-        .to(raise_error(ArgumentError, /eps must be positive/))
+        .to(raise_error(ArgumentError, /solver tolerance must be positive/))
       expect(described_class.config).to(equal(current))
     end
 

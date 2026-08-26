@@ -15,9 +15,9 @@ module Finrb
     # @example
     #   Finrb::Yields.bdy(d=1500,f=100000,t=120)
     def self.bdy(d:, f:, t:)
-      d = Validation.decimal(d, name: 'd')
-      f = Validation.positive_decimal(f, name: 'f', error: DomainError)
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      d = Validation.decimal(d, name: 'dollar discount')
+      f = Validation.positive_decimal(f, name: 'face value', error: DomainError)
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
 
       (d * 360 / f / t)
     end
@@ -29,10 +29,10 @@ module Finrb
     # @example
     #   Finrb::Yields.bdy2mmy(bdy=0.045,t=120)
     def self.bdy2mmy(bdy:, t:)
-      bdy = Validation.decimal(bdy, name: 'bdy')
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      bdy = Validation.decimal(bdy, name: 'bank discount yield')
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
       denominator = 360 - (t * bdy)
-      raise(DomainError, 'bdy and t must imply a positive purchase price.') unless denominator.positive?
+      raise(DomainError, 'Bank discount yield and time to maturity must imply a positive purchase price.') unless denominator.positive?
 
       (bdy * 360 / denominator)
     end
@@ -47,8 +47,8 @@ module Finrb
     # @example
     #   Finrb::Yields.ear(0.04,365)
     def self.ear(r:, m:)
-      r = Validation.decimal(r, name: 'r')
-      m = Validation.positive_decimal(m, name: 'm', error: DomainError)
+      r = Validation.decimal(r, name: 'stated annual rate')
+      m = Validation.positive_decimal(m, name: 'compounding periods', error: DomainError)
 
       ((compounding_base(r, m)**m) - 1)
     end
@@ -62,7 +62,7 @@ module Finrb
     # @example
     #   Finrb::Yields.ear_continuous(0.03)
     def self.ear_continuous(r:)
-      r = Validation.decimal(r, name: 'r')
+      r = Validation.decimal(r, name: 'stated annual rate')
 
       (r.exp - 1)
     end
@@ -73,7 +73,7 @@ module Finrb
     # @example
     #   Finrb::Yields.ear2bey(ear=0.08)
     def self.ear2bey(ear:)
-      ear = Validation.decimal_at_least(ear, minimum: -1, name: 'ear', error: DomainError)
+      ear = Validation.decimal_at_least(ear, minimum: -1, name: 'effective annual rate', error: DomainError)
 
       (((ear + 1).sqrt - 1) * 2)
     end
@@ -85,8 +85,8 @@ module Finrb
     # @example
     #   Finrb::Yields.ear2hpr(ear=0.05039,t=150)
     def self.ear2hpr(ear:, t:)
-      ear = Validation.decimal_at_least(ear, minimum: -1, name: 'ear', error: DomainError)
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      ear = Validation.decimal_at_least(ear, minimum: -1, name: 'effective annual rate', error: DomainError)
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
 
       (((ear + 1)**(t / 365)) - 1)
     end
@@ -127,9 +127,9 @@ module Finrb
     #   # monthly proportional interest rate which is equivalent to a simple annual interest
     #   Finrb::Yields.eir(r=0.05,p=12,type='p')
     def self.eir(r:, n: 1, p: 12, type: 'e')
-      r = Validation.decimal(r, name: 'r')
-      n = Validation.positive_decimal(n, name: 'n', error: DomainError)
-      p = Validation.positive_decimal(p, name: 'p', error: DomainError)
+      r = Validation.decimal(r, name: 'annual rate')
+      n = Validation.positive_decimal(n, name: 'source compounding periods', error: DomainError)
+      p = Validation.positive_decimal(p, name: 'target compounding periods', error: DomainError)
       type = type.to_s
 
       case type
@@ -138,7 +138,7 @@ module Finrb
       when 'p'
         eir = r / p
       else
-        raise(ArgumentError, "type must be 'e' or 'p'")
+        raise(ArgumentError, "conversion type must be 'e' (equivalent) or 'p' (proportional)")
       end
       eir
     end
@@ -150,8 +150,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2bey(hpr=0.02,t=3)
     def self.hpr2bey(hpr:, t:)
-      hpr = Validation.decimal_at_least(hpr, minimum: -1, name: 'hpr', error: DomainError)
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      hpr = Validation.decimal_at_least(hpr, minimum: -1, name: 'holding period return', error: DomainError)
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
 
       ((((hpr + 1)**(6 / t)) - 1) * 2)
     end
@@ -163,8 +163,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2ear(hpr=0.015228,t=120)
     def self.hpr2ear(hpr:, t:)
-      hpr = Validation.decimal_at_least(hpr, minimum: -1, name: 'hpr', error: DomainError)
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      hpr = Validation.decimal_at_least(hpr, minimum: -1, name: 'holding period return', error: DomainError)
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
 
       (((hpr + 1)**(365 / t)) - 1)
     end
@@ -176,8 +176,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2mmy(hpr=0.01523,t=120)
     def self.hpr2mmy(hpr:, t:)
-      hpr = Validation.decimal(hpr, name: 'hpr')
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      hpr = Validation.decimal(hpr, name: 'holding period return')
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
 
       (hpr * 360 / t)
     end
@@ -189,8 +189,8 @@ module Finrb
     # @example
     #   Finrb::Yields.mmy2hpr(mmy=0.04898,t=150)
     def self.mmy2hpr(mmy:, t:)
-      mmy = Validation.decimal(mmy, name: 'mmy')
-      t = Validation.positive_decimal(t, name: 't', error: DomainError)
+      mmy = Validation.decimal(mmy, name: 'money market yield')
+      t = Validation.positive_decimal(t, name: 'time to maturity', error: DomainError)
 
       (mmy * t / 360)
     end
@@ -202,8 +202,8 @@ module Finrb
     # @example
     #   Finrb::Yields.r_continuous(r=0.03,m=4)
     def self.r_continuous(r:, m:)
-      r = Validation.decimal(r, name: 'r')
-      m = Validation.positive_decimal(m, name: 'm', error: DomainError)
+      r = Validation.decimal(r, name: 'nominal rate')
+      m = Validation.positive_decimal(m, name: 'compounding periods', error: DomainError)
 
       (m * compounding_base(r, m).log)
     end
@@ -218,8 +218,8 @@ module Finrb
     # @example
     #   Finrb::Yields.r_norminal(rc=0.03,m=4)
     def self.r_norminal(rc:, m:)
-      rc = Validation.decimal(rc, name: 'rc')
-      m = Validation.positive_decimal(m, name: 'm', error: DomainError)
+      rc = Validation.decimal(rc, name: 'continuously compounded rate')
+      m = Validation.positive_decimal(m, name: 'compounding periods', error: DomainError)
 
       (m * ((rc / m).exp - 1))
     end

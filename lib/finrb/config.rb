@@ -41,16 +41,16 @@ module Finrb
   end
 
   def self.build_configuration(values)
-    eps = configuration_decimal(values.fetch(:eps), name: 'eps')
-    raise(ArgumentError, 'eps must be positive.') unless eps.positive?
+    eps = configuration_decimal(values.fetch(:eps), name: 'solver tolerance')
+    raise(ArgumentError, 'solver tolerance must be positive.') unless eps.positive?
 
-    guess = configuration_decimal(values.fetch(:guess), name: 'guess')
-    raise(ArgumentError, 'guess must be greater than -1.') if guess <= -1
+    guess = configuration_decimal(values.fetch(:guess), name: 'rate guess')
+    raise(ArgumentError, 'rate guess must be greater than -1.') if guess <= -1
 
     business_days = values.fetch(:business_days)
     periodic_compound = values.fetch(:periodic_compound)
     booleans = [business_days, periodic_compound].all? { |value| value.equal?(true) || value.equal?(false) }
-    raise(ArgumentError, 'business_days and periodic_compound must be boolean.') unless booleans
+    raise(ArgumentError, 'business days and periodic compounding settings must be boolean.') unless booleans
 
     Configuration.new(eps:, guess:, business_days:, periodic_compound:)
   end

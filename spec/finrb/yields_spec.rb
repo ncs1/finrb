@@ -173,20 +173,20 @@ describe(Finrb::Yields) do
   describe('input validation') do
     it('rejects non-numeric and non-finite inputs') do
       expect { Yields.ear(r: '0.05', m: 12) }
-        .to(raise_error(ArgumentError, /r must be numeric/))
+        .to(raise_error(ArgumentError, /stated annual rate must be numeric/))
       expect { Yields.ear_continuous(r: Float::INFINITY) }
-        .to(raise_error(ArgumentError, /r must be finite/))
+        .to(raise_error(ArgumentError, /stated annual rate must be finite/))
     end
 
     it('rejects non-positive terms, face values, and compounding frequencies') do
       expect { Yields.bdy(d: 1, f: 0, t: 30) }
-        .to(raise_error(Finrb::DomainError, /f must be greater than zero/))
+        .to(raise_error(Finrb::DomainError, /face value must be greater than zero/))
       expect { Yields.hpr2mmy(hpr: 0.01, t: 0) }
-        .to(raise_error(Finrb::DomainError, /t must be greater than zero/))
+        .to(raise_error(Finrb::DomainError, /time to maturity must be greater than zero/))
       expect { Yields.ear(r: 0.05, m: 0) }
-        .to(raise_error(Finrb::DomainError, /m must be greater than zero/))
+        .to(raise_error(Finrb::DomainError, /compounding periods must be greater than zero/))
       expect { Yields.eir(r: 0.05, n: 1, p: 0) }
-        .to(raise_error(Finrb::DomainError, /p must be greater than zero/))
+        .to(raise_error(Finrb::DomainError, /target compounding periods must be greater than zero/))
     end
 
     it('rejects invalid discount and return domains') do

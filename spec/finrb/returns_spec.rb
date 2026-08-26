@@ -129,6 +129,13 @@ describe(Finrb::Returns) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.3846154')))
     end
+
+    it('requires a non-negative deviation and non-zero average') do
+      expect { Returns.coefficient_variation(sd: -0.1, avg: 1) }
+        .to(raise_error(ArgumentError, /standard deviation/))
+      expect { Returns.coefficient_variation(sd: 0.1, avg: 0) }
+        .to(raise_error(Finrb::DomainError, /Average must be non-zero/))
+    end
   end
 
   describe('geometric_mean') do
@@ -141,6 +148,13 @@ describe(Finrb::Returns) do
     it('accepts a single return') do
       expect(Returns.geometric_mean(r: 0.1)).to(eq(D('0.1')))
     end
+
+    it('rejects empty observations and returns below a total loss') do
+      expect { Returns.geometric_mean(r: []) }
+        .to(raise_error(ArgumentError, /cannot be empty/))
+      expect { Returns.geometric_mean(r: [-1.01, 0.1]) }
+        .to(raise_error(Finrb::DomainError, /greater than or equal to -1/))
+    end
   end
 
   describe('harmonic_mean') do
@@ -149,6 +163,13 @@ describe(Finrb::Returns) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('8.92562')))
     end
+
+    it('requires positive prices') do
+      expect { Returns.harmonic_mean(p: []) }
+        .to(raise_error(ArgumentError, /cannot be empty/))
+      expect { Returns.harmonic_mean(p: [8, 0]) }
+        .to(raise_error(Finrb::DomainError, /Prices must be greater than zero/))
+    end
   end
 
   describe('hpr') do
@@ -156,6 +177,11 @@ describe(Finrb::Returns) do
       res = Returns.hpr(ev: 33, bv: 30, cfr: 0.5)
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.1166667')))
+    end
+
+    it('requires a positive beginning value') do
+      expect { Returns.hpr(ev: 33, bv: 0) }
+        .to(raise_error(Finrb::DomainError, /beginning value must be greater than zero/))
     end
   end
 
@@ -173,6 +199,11 @@ describe(Finrb::Returns) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.5')))
     end
+
+    it('requires positive standard deviation') do
+      expect { Returns.sf_ratio(rp: 0.09, rl: 0.03, sd: 0) }
+        .to(raise_error(Finrb::DomainError, /standard deviation must be greater than zero/))
+    end
   end
 
   describe('sharpe_ratio') do
@@ -180,6 +211,11 @@ describe(Finrb::Returns) do
       res = Returns.sharpe_ratio(rp: 0.038, rf: 0.015, sd: 0.07)
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.3285714')))
+    end
+
+    it('requires positive standard deviation') do
+      expect { Returns.sharpe_ratio(rp: 0.038, rf: 0.015, sd: 0) }
+        .to(raise_error(Finrb::DomainError, /standard deviation must be greater than zero/))
     end
   end
 
@@ -192,7 +228,14 @@ describe(Finrb::Returns) do
 
     it('rejects mismatched valuation periods') do
       expect { Returns.twrr(ev: [120], bv: [100, 110], cfr: [2]) }
-        .to(raise_error(Finrb::Error, /Different number/))
+        .to(raise_error(ArgumentError, /must have equal lengths/))
+    end
+
+    it('rejects empty periods and invalid wealth relatives') do
+      expect { Returns.twrr(ev: [], bv: [], cfr: []) }
+        .to(raise_error(ArgumentError, /cannot be empty/))
+      expect { Returns.twrr(ev: [-2], bv: [1], cfr: [0]) }
+        .to(raise_error(Finrb::DomainError, /wealth relative/))
     end
   end
 
@@ -201,6 +244,13 @@ describe(Finrb::Returns) do
       res = Returns.wpr(r: [0.12, 0.07, 0.03], w: [0.5, 0.4, 0.1])
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.091')))
+    end
+
+    it('requires aligned observations and fully allocated weights') do
+      expect { Returns.wpr(r: [0.1], w: [0.5, 0.5]) }
+        .to(raise_error(ArgumentError, /must have equal lengths/))
+      expect { Returns.wpr(r: [0.1, 0.2], w: [0.4, 0.5]) }
+        .to(raise_error(ArgumentError, /Weights must sum to 1/))
     end
   end
 end

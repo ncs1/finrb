@@ -121,8 +121,9 @@ module Finrb
     # @example
     #   Finrb::Returns.coefficient_variation(sd=0.15,avg=0.39)
     def self.coefficient_variation(sd:, avg:)
-      sd = Flt::DecNum(sd.to_s)
-      avg = Flt::DecNum(avg.to_s)
+      sd = Validation.non_negative_decimal(sd, name: 'standard deviation')
+      avg = Validation.decimal(avg, name: 'average')
+      raise(DomainError, 'Average must be non-zero.') if avg.zero?
 
       (sd / avg)
     end
@@ -133,10 +134,13 @@ module Finrb
     # @example
     #   Finrb::Returns.geometric_mean(r=[-0.0934, 0.2345, 0.0892])
     def self.geometric_mean(r:)
-      r = wrap_array(r).map { |value| Flt::DecNum(value.to_s) }
+      returns = risk_values(r, name: 'return')
+      returns.each do |value|
+        raise(DomainError, 'Returns must be greater than or equal to -1.') if value < -1
+      end
 
-      rs = r.map { |value| value + 1 }
-      ((rs.reduce(:*)**(Flt::DecNum(1) / rs.size)) - 1)
+      growth_factors = returns.map { |value| value + 1 }
+      ((growth_factors.reduce(:*)**(Flt::DecNum(1) / growth_factors.size)) - 1)
     end
 
     # harmonic mean, average price
@@ -144,9 +148,10 @@ module Finrb
     # @example
     #   Finrb::Returns.harmonic_mean(p=[8,9,10])
     def self.harmonic_mean(p:)
-      p = wrap_array(p).map { |value| Flt::DecNum(value.to_s) }
+      prices = risk_values(p, name: 'price')
+      raise(DomainError, 'Prices must be greater than zero.') unless prices.all?(&:positive?)
 
-      (Flt::DecNum(1) / (p.sum { |val| Flt::DecNum(1) / val } / p.size))
+      (Flt::DecNum(1) / (prices.sum { |price| Flt::DecNum(1) / price } / prices.size))
     end
 
     # Computing HPR, the holding period return
@@ -157,9 +162,9 @@ module Finrb
     # @example
     #   Finrb::Returns.hpr(ev=33,bv=30,cfr=0.5)
     def self.hpr(ev:, bv:, cfr: 0)
-      ev = Flt::DecNum(ev.to_s)
-      bv = Flt::DecNum(bv.to_s)
-      cfr = Flt::DecNum(cfr.to_s)
+      ev = Validation.decimal(ev, name: 'ending value')
+      bv = Validation.positive_decimal(bv, name: 'beginning value', error: DomainError)
+      cfr = Validation.decimal(cfr, name: 'cashflow received')
 
       ((ev - bv + cfr) / bv)
     end
@@ -171,8 +176,8 @@ module Finrb
     # @example
     #   Finrb::Returns.sampling_error(sm=0.45, mu=0.5)
     def self.sampling_error(sm:, mu:)
-      sm = Flt::DecNum(sm.to_s)
-      mu = Flt::DecNum(mu.to_s)
+      sm = Validation.decimal(sm, name: 'sample mean')
+      mu = Validation.decimal(mu, name: 'population mean')
 
       (sm - mu)
     end
@@ -185,9 +190,9 @@ module Finrb
     # @example
     #   Finrb::Returns.sf_ratio(rp=0.09,rl=0.03,sd=0.12)
     def self.sf_ratio(rp:, rl:, sd:)
-      rp = Flt::DecNum(rp.to_s)
-      rl = Flt::DecNum(rl.to_s)
-      sd = Flt::DecNum(sd.to_s)
+      rp = Validation.decimal(rp, name: 'portfolio return')
+      rl = Validation.decimal(rl, name: 'threshold return')
+      sd = Validation.positive_decimal(sd, name: 'standard deviation', error: DomainError)
 
       ((rp - rl) / sd)
     end
@@ -200,9 +205,9 @@ module Finrb
     # @example
     #   Finrb::Returns.sharpe_ratio(rp=0.038,rf=0.015,sd=0.07)
     def self.sharpe_ratio(rp:, rf:, sd:)
-      rp = Flt::DecNum(rp.to_s)
-      rf = Flt::DecNum(rf.to_s)
-      sd = Flt::DecNum(sd.to_s)
+      rp = Validation.decimal(rp, name: 'portfolio return')
+      rf = Validation.decimal(rf, name: 'risk-free return')
+      sd = Validation.positive_decimal(sd, name: 'standard deviation', error: DomainError)
 
       ((rp - rf) / sd)
     end
@@ -215,22 +220,20 @@ module Finrb
     # @example
     #   Finrb::Returns.twrr(ev=[120,260],bv=[100,240],cfr=[2,4])
     def self.twrr(ev:, bv:, cfr:)
-      ev = wrap_array(ev).map { |value| Flt::DecNum(value.to_s) }
-      bv = wrap_array(bv).map { |value| Flt::DecNum(value.to_s) }
-      cfr = wrap_array(cfr).map { |value| Flt::DecNum(value.to_s) }
+      ending_values = risk_values(ev, name: 'ending value')
+      beginning_values = risk_values(bv, name: 'beginning value')
+      cashflows_received = risk_values(cfr, name: 'cashflow received')
+      sizes = [ending_values.size, beginning_values.size, cashflows_received.size]
+      raise(ArgumentError, 'Ending values, beginning values, and cashflows received must have equal lengths.') unless sizes.uniq.one?
 
-      r = ev.size
-      s = bv.size
-      t = cfr.size
-      wr = Flt::DecNum(1)
-      if r != s || r != t || s != t
-        raise(Error, 'Different number of values!')
-      else
-        (0...r).each do |i|
-          wr *= (Finrb::Returns.hpr(ev: ev[i], bv: bv[i], cfr: cfr[i]) + 1)
+      wealth_relative =
+        ending_values.each_index.reduce(Flt::DecNum(1)) do |product, index|
+          period_growth = hpr(ev: ending_values[index], bv: beginning_values[index], cfr: cashflows_received[index]) + 1
+          raise(DomainError, 'Each subperiod wealth relative must be greater than or equal to zero.') if period_growth.negative?
+
+          product * period_growth
         end
-        ((wr**(Flt::DecNum(1) / r)) - 1)
-      end
+      (wealth_relative**(Flt::DecNum(1) / ending_values.size)) - 1
     end
 
     # Weighted mean as a portfolio return
@@ -240,13 +243,12 @@ module Finrb
     # @example
     #   Finrb::Returns.wpr(r=[0.12, 0.07, 0.03],w=[0.5,0.4,0.1])
     def self.wpr(r:, w:)
-      r = wrap_array(r).map { |value| Flt::DecNum(value.to_s) }
-      w = wrap_array(w).map { |value| Flt::DecNum(value.to_s) }
+      returns = risk_values(r, name: 'return')
+      weights = risk_values(w, name: 'weight')
+      raise(ArgumentError, 'Returns and weights must have equal lengths.') unless returns.size == weights.size
+      raise(ArgumentError, 'Weights must sum to 1.') unless weights.sum == 1
 
-      # TODO: need to change
-      puts('sum of weights is NOT equal to 1!') if w.sum != 1
-
-      r.zip(w).sum { |arr| arr.reduce(:*) }
+      returns.zip(weights).sum { |rate, weight| rate * weight }
     end
   end
 end

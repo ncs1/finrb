@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rake'
+require 'rbconfig'
 require 'rspec/core/rake_task'
 
 task(:spec).clear
@@ -20,7 +21,14 @@ ensure
 end
 
 desc 'Run all self-contained quality checks'
-task quality: %i[coverage rbs:validate]
+task quality: %i[coverage docs:verify rbs:validate]
+
+namespace :docs do
+  desc 'Execute marked Ruby examples from the API guide'
+  task :verify do
+    sh(RbConfig.ruby, File.join(__dir__, 'script', 'verify_markdown_examples.rb'), 'docs/api.md')
+  end
+end
 
 namespace :rbs do
   desc 'Validate packaged RBS signatures'

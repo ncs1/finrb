@@ -7,7 +7,7 @@ require_relative('../lib/finrb')
 
 # Deterministic benchmark scenarios and correctness preflight for finrb.
 module FinrbBenchmark
-  Scenario = Data.define(:name, :operation, :residual)
+  Scenario = Data.define(:family, :name, :operation, :expected, :residual, :residual_name)
   class VerificationError < StandardError; end
   MAX_NORMALIZED_RESIDUAL = Flt::DecNum('1e-12')
   private_constant :Scenario, :VerificationError, :MAX_NORMALIZED_RESIDUAL
@@ -75,7 +75,14 @@ module FinrbBenchmark
         result.respond_to?(:effective) ? result.effective : result
       end
 
-    Scenario.new("#{kind}/#{size}", operation, ->(result) { normalized_residual(cashflows, result, residual_function) })
+    Scenario.new(
+      kind,
+      "#{kind}/#{size}",
+      operation,
+      rate,
+      ->(result) { normalized_residual(cashflows, result, residual_function) },
+      'normalized equation residual'
+    )
   end
 
   def amortization_scenario(periods:)
@@ -93,7 +100,7 @@ module FinrbBenchmark
         reconciliations.max || Flt::DecNum(0)
       end
 
-    Scenario.new("amortization/#{periods}", operation, residual)
+    Scenario.new(:amortization, "amortization/#{periods}", operation, nil, residual, 'schedule reconciliation error')
   end
 
   def scenarios(seed:)
@@ -118,10 +125,25 @@ module FinrbBenchmark
       result = scenario.operation.call
       objective_evaluations = evaluations
       residual = scenario.residual.call(result)
-      raise(VerificationError, "#{scenario.name} residual #{residual} exceeds #{MAX_NORMALIZED_RESIDUAL}") if residual > MAX_NORMALIZED_RESIDUAL
+      raise(VerificationError, "#{scenario.name} #{scenario.residual_name} #{residual} exceeds #{MAX_NORMALIZED_RESIDUAL}") if residual > MAX_NORMALIZED_RESIDUAL
+
+      root_error = scenario.expected && (result - scenario.expected).abs
+      raise(VerificationError, "#{scenario.name} known-root error #{root_error} exceeds #{MAX_NORMALIZED_RESIDUAL}") if root_error && root_error > MAX_NORMALIZED_RESIDUAL
 
       evaluation_text = objective_evaluations.positive? ? " evaluations=#{objective_evaluations}" : ''
-      puts("  #{scenario.name}: residual=#{residual}#{evaluation_text}")
+      root_text = root_error ? " known_root_error=#{root_error}" : ''
+      puts("  #{scenario.name}: #{scenario.residual_name}=#{residual}#{root_text}#{evaluation_text}")
+    end
+  end
+
+  def benchmark_family(family, scenarios, time:, warmup:)
+    puts("\n#{family.to_s.upcase} performance (compare only against the same scenario across runs):")
+    Benchmark.ips do |benchmark|
+      benchmark.config(time:, warmup:)
+      scenarios.each do |scenario|
+        benchmark.report(scenario.name, &scenario.operation)
+      end
+      benchmark.compare!
     end
   end
 
@@ -141,13 +163,10 @@ module FinrbBenchmark
     benchmark_scenarios = scenarios(seed: options[:seed])
     puts("ruby=#{RUBY_ENGINE} #{RUBY_VERSION} seed=#{options[:seed]}")
     verify(benchmark_scenarios)
+    puts('External solver agreement is verified separately with: rake solver:verify')
 
-    Benchmark.ips do |benchmark|
-      benchmark.config(time: options[:time], warmup: options[:warmup])
-      benchmark_scenarios.each do |scenario|
-        benchmark.report(scenario.name, &scenario.operation)
-      end
-      benchmark.compare!
+    benchmark_scenarios.group_by(&:family).each do |family, family_scenarios|
+      benchmark_family(family, family_scenarios, time: options[:time], warmup: options[:warmup])
     end
   end
 end

@@ -169,7 +169,7 @@ module Finrb
   module Accounting
     type inventory_result = { cost_of_goods: decimal, ending_inventory: decimal }
 
-    def self.cogs: (uinv: number, pinv: number, units: number | numbers, price: number | numbers, sinv: number, ?method: String) -> inventory_result
+    def self.cogs: (uinv: number, pinv: number, units: number | numbers | nil, price: number | numbers | nil, sinv: number, ?method: String | Symbol) -> inventory_result
     def self.ddb: (cost: number, rv: number, t: Integer) -> { t: Array[Integer], ddb: Array[decimal] }
     def self.slde: (cost: number, rv: number, t: number) -> decimal
   end

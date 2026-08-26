@@ -23,5 +23,33 @@ module Finrb
 
       value
     end
+
+    def positive_decimal(value, name:, error: ArgumentError, message: nil)
+      decimal = decimal(value, name:)
+      raise(error, message || "#{name} must be greater than zero.") unless decimal.positive?
+
+      decimal
+    end
+
+    def non_negative_decimal(value, name:, error: ArgumentError, message: nil)
+      decimal = decimal(value, name:)
+      raise(error, message || "#{name} must be greater than or equal to zero.") if decimal.negative?
+
+      decimal
+    end
+
+    def decimal_greater_than(value, minimum:, name:, error: ArgumentError)
+      decimal = decimal(value, name:)
+      raise(error, "#{name} must be greater than #{minimum}.") if decimal <= minimum
+
+      decimal
+    end
+
+    def decimal_at_least(value, minimum:, name:, error: ArgumentError)
+      decimal = decimal(value, name:)
+      raise(error, "#{name} must be greater than or equal to #{minimum}.") if decimal < minimum
+
+      decimal
+    end
   end
 end

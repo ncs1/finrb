@@ -17,10 +17,7 @@ module Finrb
       infinite = value.infinite? if value.respond_to?(:infinite?)
       return Flt::DecNum.infinity if [true, 1].include?(infinite)
 
-      periods = Validation.decimal(value, name: 'compounding periods')
-      raise(ArgumentError, 'compounding periods must be positive.') unless periods.positive?
-
-      periods
+      Validation.positive_decimal(value, name: 'compounding periods', message: 'compounding periods must be positive.')
     end
     private_class_method :compounding_periods
 
@@ -49,8 +46,7 @@ module Finrb
     #   Rate.to_nominal(0.06, 365) #=> Flt::DecNum('0.05827')
     # @see https://www.miniwebtool.com/nominal-interest-rate-calculator/
     def self.to_nominal(rate, periods)
-      rate = Validation.decimal(rate, name: 'rate')
-      raise(ArgumentError, 'effective rate must be greater than -1.') if rate <= -1
+      rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'effective rate')
 
       periods = compounding_periods(periods)
 

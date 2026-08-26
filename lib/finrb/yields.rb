@@ -15,9 +15,9 @@ module Finrb
     # @example
     #   Finrb::Yields.bdy(d=1500,f=100000,t=120)
     def self.bdy(d:, f:, t:)
-      d = decimal(d, name: 'd')
-      f = positive(f, name: 'f')
-      t = positive(t, name: 't')
+      d = Validation.decimal(d, name: 'd')
+      f = Validation.positive_decimal(f, name: 'f', error: DomainError)
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
 
       (d * 360 / f / t)
     end
@@ -29,8 +29,8 @@ module Finrb
     # @example
     #   Finrb::Yields.bdy2mmy(bdy=0.045,t=120)
     def self.bdy2mmy(bdy:, t:)
-      bdy = decimal(bdy, name: 'bdy')
-      t = positive(t, name: 't')
+      bdy = Validation.decimal(bdy, name: 'bdy')
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
       denominator = 360 - (t * bdy)
       raise(DomainError, 'bdy and t must imply a positive purchase price.') unless denominator.positive?
 
@@ -47,8 +47,8 @@ module Finrb
     # @example
     #   Finrb::Yields.ear(0.04,365)
     def self.ear(r:, m:)
-      r = decimal(r, name: 'r')
-      m = positive(m, name: 'm')
+      r = Validation.decimal(r, name: 'r')
+      m = Validation.positive_decimal(m, name: 'm', error: DomainError)
 
       ((compounding_base(r, m)**m) - 1)
     end
@@ -62,7 +62,7 @@ module Finrb
     # @example
     #   Finrb::Yields.ear_continuous(0.03)
     def self.ear_continuous(r:)
-      r = decimal(r, name: 'r')
+      r = Validation.decimal(r, name: 'r')
 
       (r.exp - 1)
     end
@@ -73,7 +73,7 @@ module Finrb
     # @example
     #   Finrb::Yields.ear2bey(ear=0.08)
     def self.ear2bey(ear:)
-      ear = total_return(ear, name: 'ear')
+      ear = Validation.decimal_at_least(ear, minimum: -1, name: 'ear', error: DomainError)
 
       (((ear + 1).sqrt - 1) * 2)
     end
@@ -85,8 +85,8 @@ module Finrb
     # @example
     #   Finrb::Yields.ear2hpr(ear=0.05039,t=150)
     def self.ear2hpr(ear:, t:)
-      ear = total_return(ear, name: 'ear')
-      t = positive(t, name: 't')
+      ear = Validation.decimal_at_least(ear, minimum: -1, name: 'ear', error: DomainError)
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
 
       (((ear + 1)**(t / 365)) - 1)
     end
@@ -127,9 +127,9 @@ module Finrb
     #   # monthly proportional interest rate which is equivalent to a simple annual interest
     #   Finrb::Yields.eir(r=0.05,p=12,type='p')
     def self.eir(r:, n: 1, p: 12, type: 'e')
-      r = decimal(r, name: 'r')
-      n = positive(n, name: 'n')
-      p = positive(p, name: 'p')
+      r = Validation.decimal(r, name: 'r')
+      n = Validation.positive_decimal(n, name: 'n', error: DomainError)
+      p = Validation.positive_decimal(p, name: 'p', error: DomainError)
       type = type.to_s
 
       case type
@@ -150,8 +150,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2bey(hpr=0.02,t=3)
     def self.hpr2bey(hpr:, t:)
-      hpr = total_return(hpr, name: 'hpr')
-      t = positive(t, name: 't')
+      hpr = Validation.decimal_at_least(hpr, minimum: -1, name: 'hpr', error: DomainError)
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
 
       ((((hpr + 1)**(6 / t)) - 1) * 2)
     end
@@ -163,8 +163,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2ear(hpr=0.015228,t=120)
     def self.hpr2ear(hpr:, t:)
-      hpr = total_return(hpr, name: 'hpr')
-      t = positive(t, name: 't')
+      hpr = Validation.decimal_at_least(hpr, minimum: -1, name: 'hpr', error: DomainError)
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
 
       (((hpr + 1)**(365 / t)) - 1)
     end
@@ -176,8 +176,8 @@ module Finrb
     # @example
     #   Finrb::Yields.hpr2mmy(hpr=0.01523,t=120)
     def self.hpr2mmy(hpr:, t:)
-      hpr = decimal(hpr, name: 'hpr')
-      t = positive(t, name: 't')
+      hpr = Validation.decimal(hpr, name: 'hpr')
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
 
       (hpr * 360 / t)
     end
@@ -189,8 +189,8 @@ module Finrb
     # @example
     #   Finrb::Yields.mmy2hpr(mmy=0.04898,t=150)
     def self.mmy2hpr(mmy:, t:)
-      mmy = decimal(mmy, name: 'mmy')
-      t = positive(t, name: 't')
+      mmy = Validation.decimal(mmy, name: 'mmy')
+      t = Validation.positive_decimal(t, name: 't', error: DomainError)
 
       (mmy * t / 360)
     end
@@ -202,8 +202,8 @@ module Finrb
     # @example
     #   Finrb::Yields.r_continuous(r=0.03,m=4)
     def self.r_continuous(r:, m:)
-      r = decimal(r, name: 'r')
-      m = positive(m, name: 'm')
+      r = Validation.decimal(r, name: 'r')
+      m = Validation.positive_decimal(m, name: 'm', error: DomainError)
 
       (m * compounding_base(r, m).log)
     end
@@ -218,32 +218,11 @@ module Finrb
     # @example
     #   Finrb::Yields.r_norminal(rc=0.03,m=4)
     def self.r_norminal(rc:, m:)
-      rc = decimal(rc, name: 'rc')
-      m = positive(m, name: 'm')
+      rc = Validation.decimal(rc, name: 'rc')
+      m = Validation.positive_decimal(m, name: 'm', error: DomainError)
 
       (m * ((rc / m).exp - 1))
     end
-
-    def self.decimal(value, name:)
-      Validation.decimal(value, name:)
-    end
-    private_class_method :decimal
-
-    def self.positive(value, name:)
-      value = decimal(value, name:)
-      raise(DomainError, "#{name} must be greater than zero.") unless value.positive?
-
-      value
-    end
-    private_class_method :positive
-
-    def self.total_return(value, name:)
-      value = decimal(value, name:)
-      raise(DomainError, "#{name} must be greater than or equal to -1.") if value < -1
-
-      value
-    end
-    private_class_method :total_return
 
     def self.compounding_base(rate, periods)
       base = (rate / periods) + 1

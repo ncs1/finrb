@@ -29,12 +29,9 @@ module Finrb
     # @param periods [Integer] number of equal annual periods
     # @return [Flt::DecNum] compound growth rate per period
     def self.cagr(beginning_value:, ending_value:, periods:)
-      beginning_value = Validation.decimal(beginning_value, name: 'beginning_value')
-      ending_value = Validation.decimal(ending_value, name: 'ending_value')
+      beginning_value = Validation.positive_decimal(beginning_value, name: 'beginning_value')
+      ending_value = Validation.non_negative_decimal(ending_value, name: 'ending_value')
       periods = Validation.positive_integer(periods, name: 'periods')
-
-      raise(ArgumentError, 'beginning_value must be greater than zero.') unless beginning_value.positive?
-      raise(ArgumentError, 'ending_value must be greater than or equal to zero.') if ending_value.negative?
 
       ((ending_value / beginning_value)**(Flt::DecNum(1) / periods)) - 1
     end
@@ -49,18 +46,16 @@ module Finrb
 
     # Compound a periodic return into an annual return.
     def self.annualize_return(rate:, periods_per_year:)
-      rate = Validation.decimal(rate, name: 'rate')
+      rate = Validation.decimal_at_least(rate, minimum: -1, name: 'rate')
       periods_per_year = Validation.positive_integer(periods_per_year, name: 'periods_per_year')
-      raise(ArgumentError, 'rate must be greater than or equal to -1.') if rate < -1
 
       ((rate + 1)**periods_per_year) - 1
     end
 
     # Scale periodic volatility by the square root of periods per year.
     def self.annualize_volatility(volatility:, periods_per_year:)
-      volatility = Validation.decimal(volatility, name: 'volatility')
+      volatility = Validation.non_negative_decimal(volatility, name: 'volatility')
       periods_per_year = Validation.positive_integer(periods_per_year, name: 'periods_per_year')
-      raise(ArgumentError, 'volatility must be greater than or equal to zero.') if volatility.negative?
 
       volatility * (Flt::DecNum(periods_per_year)**Flt::DecNum('0.5'))
     end

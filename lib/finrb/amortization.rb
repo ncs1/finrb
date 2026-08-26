@@ -91,14 +91,12 @@ module Finrb
     #   Amortization.payment(200000, rate.monthly, rate.duration) #=> Flt::DecNum('-926.23')
     # @see https://en.wikipedia.org/wiki/Amortization_calculator
     def self.payment(principal, rate, periods, balloon: 0)
-      principal = Validation.decimal(principal, name: 'principal')
-      raise(ArgumentError, 'principal must be positive.') unless principal.positive?
+      principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
 
       balloon = Validation.decimal(balloon, name: 'balloon')
       raise(ArgumentError, 'balloon must be non-negative and no greater than principal.') unless balloon.between?(0, principal)
 
-      rate = Validation.decimal(rate, name: 'rate')
-      raise(ArgumentError, 'periodic rate must be greater than -1.') if rate <= -1
+      rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'periodic rate')
 
       periods = Validation.positive_integer(periods, name: 'periods')
 
@@ -117,11 +115,9 @@ module Finrb
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
     def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, &block)
-      @principal = Validation.decimal(principal, name: 'principal')
-      raise(ArgumentError, 'principal must be positive.') unless @principal.positive?
+      @principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
 
-      @origination_fee = Validation.decimal(origination_fee, name: 'origination_fee')
-      raise(ArgumentError, 'origination_fee must be non-negative.') if @origination_fee.negative?
+      @origination_fee = Validation.non_negative_decimal(origination_fee, name: 'origination_fee', message: 'origination_fee must be non-negative.')
       raise(ArgumentError, 'finance_origination_fee must be true or false.') unless [true, false].include?(finance_origination_fee)
       raise(ArgumentError, 'an unfinanced origination_fee must be less than principal.') if !finance_origination_fee && @origination_fee >= @principal
 

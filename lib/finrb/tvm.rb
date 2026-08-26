@@ -4,123 +4,232 @@ require_relative 'config'
 require_relative 'decimal'
 require_relative 'errors'
 require_relative 'numerical/brent'
+require_relative 'numerical/rate_search'
+require_relative 'validation'
 
 module Finrb
   # Time-value-of-money calculations for periodic rates and cashflows.
   module TVM
     module_function
 
-    def discount_rate(n:, pv:, fv:, pmt:, type: 0, lower: 0.0001, upper: 100)
-      n, pv, fv, pmt, type, lower, upper = decimals(n, pv, fv, pmt, type, lower, upper)
+    UNSET_BOUND = Object.new.freeze
+    private_constant :UNSET_BOUND
+
+    def discount_rate(n:, pv:, fv:, pmt:, type: 0, guess: nil, lower: UNSET_BOUND, upper: UNSET_BOUND)
+      n = period_count(n)
+      pv, fv, pmt = decimal_inputs(pv:, fv:, pmt:).values
+      type = payment_type(type)
       function = ->(rate) { fv_simple(r: rate, n:, pv:) + fv_annuity(r: rate, n:, pmt:, type:) - fv }
 
-      Numerical::Brent.new(tolerance: Finrb.config.eps).solve(function, lower:, upper:)
+      bounds = rate_bounds(function, guess:, lower:, upper:)
+      return bounds.first if bounds.first == bounds.last
+
+      Numerical::Brent.new(tolerance: Finrb.config.eps).solve(function, lower: bounds.first, upper: bounds.last)
     end
 
     def fv(r:, n:, pv: 0, pmt: 0, type: 0)
-      r, n, pv, pmt, type = decimals(r, n, pv, pmt, type)
-      validate_payment_type!(type)
+      rate = periodic_rate(r)
+      periods = period_count(n)
+      payment_type(type)
 
-      fv_simple(r:, n:, pv:) + fv_annuity(r:, n:, pmt:, type:)
+      fv_simple(r: rate, n: periods, pv:) + fv_annuity(r: rate, n: periods, pmt:, type:)
     end
 
     def fv_annuity(r:, n:, pmt:, type: 0)
-      r, n, pmt, type = decimals(r, n, pmt, type)
-      validate_payment_type!(type)
+      rate = periodic_rate(r)
+      periods = period_count(n)
+      payment = decimal(pmt, :pmt)
+      payment_timing = payment_type(type)
+      return -payment * periods if rate.zero?
 
-      (pmt / r * (((r + 1)**n) - 1)) * ((r + 1)**type) * -1
+      (payment / rate * (((rate + 1)**periods) - 1)) * ((rate + 1)**payment_timing) * -1
     end
 
     def fv_simple(r:, n:, pv:)
-      r, n, pv = decimals(r, n, pv)
-      (pv * ((r + 1)**n)) * -1
+      rate = periodic_rate(r)
+      periods = period_count(n)
+      present_value = decimal(pv, :pv)
+      (present_value * ((rate + 1)**periods)) * -1
     end
 
     def fv_uneven(r:, cf:)
-      r = Flt::DecNum(r.to_s)
-      cashflows = array(cf).map { |value| Flt::DecNum(value.to_s) }
+      rate = periodic_rate(r)
+      cashflows = cashflow_values(cf)
 
       cashflows.each_with_index.sum do |cashflow, index|
-        fv_simple(r:, n: cashflows.size - index - 1, pv: cashflow)
+        fv_simple(r: rate, n: cashflows.size - index - 1, pv: cashflow)
       end
     end
 
     def n_period(r:, pv:, fv:, pmt:, type: 0)
-      r, pv, fv, pmt, type = decimals(r, pv, fv, pmt, type)
-      validate_payment_type!(type)
+      rate = periodic_rate(r)
+      values = decimal_inputs(pv:, fv:, pmt:)
+      payment_timing = payment_type(type)
 
-      numerator = ((fv * r) - (pmt * ((r + 1)**type))) * -1
-      denominator = (pv * r) + (pmt * ((r + 1)**type))
-      (numerator / denominator).log / (r + 1).log
+      return zero_rate_periods(**values) if rate.zero?
+
+      numerator = ((values[:fv] * rate) - (values[:pmt] * ((rate + 1)**payment_timing))) * -1
+      denominator = (values[:pv] * rate) + (values[:pmt] * ((rate + 1)**payment_timing))
+      periods = (numerator / denominator).log / (rate + 1).log
+      raise(DomainError, 'Inputs do not produce a finite non-negative period count.') unless periods.finite? && !periods.negative?
+
+      periods
+    rescue Flt::Num::Exception, Math::DomainError, ZeroDivisionError => e
+      raise(DomainError, "Inputs do not produce a real period count: #{e.message}", e.backtrace)
     end
 
     def npv(r:, cf:)
-      cashflows = array(cf).map { |value| Flt::DecNum(value.to_s) }
-      (pv_uneven(r:, cf: cashflows.drop(1)) * -1) + cashflows.first
+      rate = periodic_rate(r)
+      cashflows = cashflow_values(cf)
+      return cashflows.first if cashflows.one?
+
+      (pv_uneven(r: rate, cf: cashflows.drop(1)) * -1) + cashflows.first
     end
 
     def pmt(r:, n:, pv:, fv:, type: 0)
-      r, n, pv, fv, type = decimals(r, n, pv, fv, type)
-      validate_payment_type!(type)
+      rate = periodic_rate(r)
+      periods = positive_period_count(n)
+      values = decimal_inputs(pv:, fv:)
+      payment_timing = payment_type(type)
+      return -(values[:pv] + values[:fv]) / periods if rate.zero?
 
-      (pv + (fv / ((r + 1)**n))) * r / (1 - (Flt::DecNum(1) / ((r + 1)**n))) * -1 * ((r + 1)**(type * -1))
+      (values[:pv] + (values[:fv] / ((rate + 1)**periods))) * rate / (1 - (Flt::DecNum(1) / ((rate + 1)**periods))) * -1 * ((rate + 1)**(payment_timing * -1))
     end
 
     def pv(r:, n:, fv: 0, pmt: 0, type: 0)
-      r, n, fv, pmt, type = decimals(r, n, fv, pmt, type)
-      validate_payment_type!(type)
+      rate = periodic_rate(r)
+      periods = period_count(n)
+      payment_type(type)
 
-      pv_simple(r:, n:, fv:) + pv_annuity(r:, n:, pmt:, type:)
+      pv_simple(r: rate, n: periods, fv:) + pv_annuity(r: rate, n: periods, pmt:, type:)
     end
 
     def pv_annuity(r:, n:, pmt:, type: 0)
-      r, n, pmt, type = decimals(r, n, pmt, type)
-      validate_payment_type!(type)
+      rate = periodic_rate(r)
+      periods = period_count(n)
+      payment = decimal(pmt, :pmt)
+      payment_timing = payment_type(type)
+      return -payment * periods if rate.zero?
 
-      (pmt / r * (1 - (Flt::DecNum(1) / ((r + 1)**n)))) * ((r + 1)**type) * -1
+      (payment / rate * (1 - (Flt::DecNum(1) / ((rate + 1)**periods)))) * ((rate + 1)**payment_timing) * -1
     end
 
     def pv_perpetuity(r:, pmt:, g: 0, type: 0)
-      r, pmt, g, type = decimals(r, pmt, g, type)
-      validate_payment_type!(type)
-      raise(Error, 'Error: g is not smaller than r!') if g >= r
+      rate = periodic_rate(r)
+      payment = decimal(pmt, :pmt)
+      growth = periodic_rate(g, name: :g)
+      payment_timing = payment_type(type)
+      raise(DomainError, 'Growth rate must be smaller than the discount rate.') if growth >= rate
 
-      (pmt / (r - g)) * ((r + 1)**type) * -1
+      (payment / (rate - growth)) * ((rate + 1)**payment_timing) * -1
     end
 
     def pv_simple(r:, n:, fv:)
-      r, n, fv = decimals(r, n, fv)
-      (fv / ((r + 1)**n)) * -1
+      rate = periodic_rate(r)
+      periods = period_count(n)
+      future_value = decimal(fv, :fv)
+      (future_value / ((rate + 1)**periods)) * -1
     end
 
     def pv_uneven(r:, cf:)
-      r = Flt::DecNum(r.to_s)
-      array(cf).each_with_index.sum do |cashflow, index|
-        pv_simple(r:, n: index + 1, fv: cashflow)
+      rate = periodic_rate(r)
+      cashflow_values(cf).each_with_index.sum do |cashflow, index|
+        pv_simple(r: rate, n: index + 1, fv: cashflow)
       end
     end
 
     def r_perpetuity(pmt:, pv:)
-      pmt, pv = decimals(pmt, pv)
-      pmt * -1 / pv
+      payment = decimal(pmt, :pmt)
+      present_value = decimal(pv, :pv)
+      raise(DomainError, 'Present value must be non-zero.') if present_value.zero?
+
+      payment * -1 / present_value
     end
 
-    def array(value)
-      return [] if value.nil?
-      return value.to_ary || [value] if value.respond_to?(:to_ary)
+    def cashflow_values(value)
+      values =
+        if value.nil?
+          []
+        elsif value.respond_to?(:to_ary)
+          value.to_ary || [value]
+        else
+          [value]
+        end
+      raise(ArgumentError, 'cf cannot be empty.') if values.empty?
 
-      [value]
+      values.map { |cashflow| decimal(cashflow, :cashflow) }
     end
-    private_class_method :array
+    private_class_method :cashflow_values
 
-    def decimals(*values)
-      values.map { |value| Flt::DecNum(value.to_s) }
+    def decimal(value, name)
+      Validation.decimal(value, name: name.to_s)
     end
-    private_class_method :decimals
+    private_class_method :decimal
 
-    def validate_payment_type!(type)
-      raise(Error, 'Error: type should be 0 or 1!') unless [Flt::DecNum(0), Flt::DecNum(1)].include?(type)
+    def decimal_inputs(**values)
+      values.to_h { |name, value| [name, decimal(value, name)] }
     end
-    private_class_method :validate_payment_type!
+    private_class_method :decimal_inputs
+
+    def payment_type(value)
+      value = decimal(value, :type)
+      raise(ArgumentError, 'type must be 0 or 1.') unless [Flt::DecNum(0), Flt::DecNum(1)].include?(value)
+
+      value
+    end
+    private_class_method :payment_type
+
+    def period_count(value)
+      value = decimal(value, :n)
+      raise(DomainError, 'n must be non-negative.') if value.negative?
+
+      value
+    end
+    private_class_method :period_count
+
+    def positive_period_count(value)
+      value = period_count(value)
+      raise(DomainError, 'n must be greater than zero.') if value.zero?
+
+      value
+    end
+    private_class_method :positive_period_count
+
+    def periodic_rate(value, name: :r)
+      value = decimal(value, name)
+      raise(DomainError, "#{name} must be greater than -1.") if value <= -1
+
+      value
+    end
+    private_class_method :periodic_rate
+
+    def rate_bounds(function, guess:, lower:, upper:)
+      return searched_rate_bounds(function, guess) if lower.equal?(UNSET_BOUND) && upper.equal?(UNSET_BOUND)
+
+      lower = '0.0001' if lower.equal?(UNSET_BOUND)
+      upper = 100 if upper.equal?(UNSET_BOUND)
+      lower = periodic_rate(lower, name: :lower)
+      upper = periodic_rate(upper, name: :upper)
+      raise(ArgumentError, 'lower must be less than upper.') if lower >= upper
+
+      [lower, upper]
+    end
+    private_class_method :rate_bounds
+
+    def searched_rate_bounds(function, guess)
+      guess = Finrb.config.guess if guess.nil?
+      Numerical::RateSearch.new.bracket(function, guess: periodic_rate(guess, name: :guess))
+    end
+    private_class_method :searched_rate_bounds
+
+    def zero_rate_periods(pv:, fv:, pmt:)
+      raise(DomainError, 'pmt must be non-zero when solving periods at a zero rate.') if pmt.zero?
+
+      periods = (-pv - fv) / pmt
+      raise(DomainError, 'Inputs do not produce a non-negative period count.') if periods.negative?
+
+      periods
+    end
+    private_class_method :zero_rate_periods
   end
 end

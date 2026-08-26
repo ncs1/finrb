@@ -156,6 +156,11 @@ Finrb::Amortization.new(250_000, rate) { |payment| payment.amount - 150 }
 `type: 0` means end-of-period payments and `type: 1` means beginning-of-period
 payments.
 
+Zero-rate annuities and payments use their linear mathematical limits. Other
+periodic TVM rates may be negative but must remain greater than `-1`.
+`discount_rate` searches that full domain around `guess:`; callers may instead
+supply both `lower:` and `upper:` as an explicit sign-changing bracket.
+
 <!-- verify-example -->
 ```ruby
 future = Finrb::TVM.fv(r: 0.05, n: 10, pv: -1000, pmt: 0)

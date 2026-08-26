@@ -150,7 +150,7 @@ module Finrb
   end
 
   module TVM
-    def self.discount_rate: (n: number, pv: number, fv: number, pmt: number, ?type: Integer, ?lower: number, ?upper: number) -> decimal
+    def self.discount_rate: (n: number, pv: number, fv: number, pmt: number, ?type: Integer, ?guess: number?, ?lower: number?, ?upper: number?) -> decimal
     def self.fv: (r: number, n: number, ?pv: number, ?pmt: number, ?type: Integer) -> decimal
     def self.fv_annuity: (r: number, n: number, pmt: number, ?type: Integer) -> decimal
     def self.fv_simple: (r: number, n: number, pv: number) -> decimal

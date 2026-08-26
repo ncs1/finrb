@@ -338,6 +338,8 @@ Docker, batching, and tolerance details.
 - [RubyGems](https://rubygems.org/gems/finrb)
 - [Source](https://github.com/ncs1/finrb)
 - [Issue tracker](https://github.com/ncs1/finrb/issues)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
 
 ## Acknowledgements
 

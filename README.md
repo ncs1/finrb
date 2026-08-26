@@ -64,8 +64,8 @@ API explicitly returns another financial object, such as `Finrb::Rate`.
 | `Finrb::Ratios` | Liquidity, leverage, profitability, and per-share ratios |
 | `Finrb::Accounting` | Inventory costing and depreciation |
 
-The detailed [API and examples guide](docs/api.md) lists each calculation and
-its parameters. Packaged RBS declarations are available under `sig/`.
+The [API and examples guide](docs/api.md) documents each financial domain and
+its public calculations. Packaged RBS declarations are available under `sig/`.
 
 ## Cashflows
 

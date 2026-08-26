@@ -50,6 +50,13 @@ describe(Finrb::Accounting) do
       expect(result).to(eq(cost_of_goods: D(10), ending_inventory: D(44)))
     end
 
+    it('retains every earlier layer when a LIFO sale ends in the second purchase layer') do
+      result = Accounting.cogs(uinv: 2, pinv: 2, units: [3, 5], price: [3, 5], sinv: 2, method: 'LIFO')
+
+      expect(result).to(eq(cost_of_goods: D(10), ending_inventory: D(28)))
+      expect(result.values.sum).to(eq(D(38)))
+    end
+
     it('uses beginning inventory after exhausting LIFO purchase layers') do
       result = Accounting.cogs(uinv: 2, pinv: 2, units: [3, 5], price: [3, 5], sinv: 9, method: 'LIFO')
 
@@ -67,13 +74,22 @@ describe(Finrb::Accounting) do
 
       %w[FIFO LIFO WAC].each do |method|
         expect { Accounting.cogs(**arguments, method:) }
-          .to(raise_error(Finrb::Error, /Inventory is not enough/))
+          .to(raise_error(Finrb::DomainError, /inventory is insufficient/i))
       end
     end
 
     it('rejects mismatched purchase layers') do
       expect { Accounting.cogs(uinv: 1, pinv: 2, units: [1], price: [], sinv: 1) }
-        .to(raise_error(Finrb::Error, /length/))
+        .to(raise_error(ArgumentError, /equal lengths/))
+    end
+
+    it('rejects unknown methods and invalid inventory values') do
+      expect { Accounting.cogs(uinv: 1, pinv: 2, units: [], price: [], sinv: 0, method: 'AVERAGE') }
+        .to(raise_error(ArgumentError, /FIFO, LIFO, or WAC/))
+      expect { Accounting.cogs(uinv: -1, pinv: 2, units: [], price: [], sinv: 0) }
+        .to(raise_error(ArgumentError, /beginning inventory units/))
+      expect { Accounting.cogs(uinv: 0, pinv: 0, units: [], price: [], sinv: 0, method: 'WAC') }
+        .not_to(raise_error)
     end
   end
 
@@ -96,7 +112,14 @@ describe(Finrb::Accounting) do
     it('stops immediately at residual value and rejects short useful lives') do
       expect(Accounting.ddb(cost: 1200, rv: 800, t: 2)[:ddb]).to(eq([D(400), D(0)]))
       expect { Accounting.ddb(cost: 1200, rv: 200, t: 1) }
-        .to(raise_error(Finrb::Error, /larger than 1/))
+        .to(raise_error(Finrb::DomainError, /at least 2 periods/))
+    end
+
+    it('requires an integer useful life and a valid residual value') do
+      expect { Accounting.ddb(cost: 1200, rv: 200, t: 2.5) }
+        .to(raise_error(ArgumentError, /useful life must be a positive integer/))
+      expect { Accounting.ddb(cost: 1200, rv: 1300, t: 5) }
+        .to(raise_error(Finrb::DomainError, /must not exceed asset cost/))
     end
   end
 
@@ -105,6 +128,15 @@ describe(Finrb::Accounting) do
       res = Accounting.slde(cost: 1200, rv: 200, t: 5)
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('200')))
+    end
+
+    it('requires a positive useful life and valid finite values') do
+      expect { Accounting.slde(cost: 1200, rv: 200, t: 0) }
+        .to(raise_error(Finrb::DomainError, /useful life must be greater than zero/))
+      expect { Accounting.slde(cost: Float::INFINITY, rv: 200, t: 5) }
+        .to(raise_error(ArgumentError, /asset cost must be finite/))
+      expect { Accounting.slde(cost: 1200, rv: 1300, t: 5) }
+        .to(raise_error(Finrb::DomainError, /must not exceed asset cost/))
     end
   end
 end

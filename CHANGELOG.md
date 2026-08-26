@@ -1,5 +1,30 @@
 # finrb changelog
 
+## 1.2.0
+
+### Validation and financial correctness
+
+- Apply the shared finite-decimal validation contract across yields, returns,
+  accounting, ratios, cashflows, rates, amortization, and TVM helpers.
+- Replace abbreviated validation errors with descriptive financial terms such
+  as period count, future value, face value, and compounding periods.
+- Add explicit denominator, rate, share-count, inventory, useful-life, and
+  residual-value domain checks while preserving valid decimal calculations and
+  return types.
+- Fix LIFO ending-inventory retention when a sale is satisfied by the second
+  purchase layer, preserving inventory cost conservation.
+- Reject invalid weighted-return vectors and replace the previous unsolicited
+  weighted-portfolio warning with an explicit validation error.
+
+### Development and project maintenance
+
+- Add deterministic `benchmark:run` scenarios using `benchmark-ips` for IRR,
+  XIRR, and amortization scaling, with known-root, equation-residual, solver
+  evaluation, and schedule-reconciliation preflight diagnostics.
+- Add contributor and security guidance, and link the project entry documents
+  from the README.
+- Include contributor and security documentation in packaged gem metadata.
+
 ## 1.1.0
 
 ### Investment returns and risk

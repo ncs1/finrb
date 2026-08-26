@@ -2,7 +2,7 @@
 
 describe(Finrb) do
   it('exposes the gem version') do
-    expect(described_class::VERSION).to(eq('1.1.0'))
+    expect(described_class::VERSION).to(eq('1.2.0'))
   end
 
   describe('decimal interoperability') do

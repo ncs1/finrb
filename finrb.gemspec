@@ -42,7 +42,7 @@ SPEC =
     s.add_development_dependency('semver')
     s.add_development_dependency('simplecov')
 
-    s.files = Dir['CHANGELOG.md', 'COPYING*', 'NOTICE.md', 'README.md', 'lib/**/*', 'sig/**/*'].sort
+    s.files = Dir['CHANGELOG.md', 'CONTRIBUTING.md', 'COPYING*', 'NOTICE.md', 'README.md', 'SECURITY.md', 'lib/**/*', 'sig/**/*'].sort
     s.require_paths = ['lib']
 
     s.extra_rdoc_files = ['README.md', 'CHANGELOG.md', 'NOTICE.md', 'COPYING', 'COPYING.LESSER']

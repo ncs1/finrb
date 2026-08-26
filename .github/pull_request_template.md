@@ -11,7 +11,7 @@ to keep the conversation linked together. -->
 request, mention that information here. This could include
 benchmarks, or other information.
 
-If you are updating any of the CHANGELOG files or are asked to update the
-CHANGELOG files by reviewers, please add the CHANGELOG entry at the top of the file.
+Do not add an unreleased changelog section for ordinary development work. The
+maintainer prepares the changelog when assembling a release.
 
 Thanks for contributing to finrb! -->

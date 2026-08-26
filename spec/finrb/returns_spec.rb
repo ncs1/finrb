@@ -21,19 +21,19 @@ describe(Finrb::Returns) do
 
     it('requires a positive beginning value') do
       expect { Returns.cagr(beginning_value: 0, ending_value: 100, periods: 2) }
-        .to(raise_error(ArgumentError, /beginning_value must be greater than zero/))
+        .to(raise_error(ArgumentError, /beginning value must be greater than zero/))
     end
 
     it('rejects a negative ending value') do
       expect { Returns.cagr(beginning_value: 100, ending_value: -1, periods: 2) }
-        .to(raise_error(ArgumentError, /ending_value must be greater than or equal to zero/))
+        .to(raise_error(ArgumentError, /ending value must be greater than or equal to zero/))
     end
 
     it('requires a positive integer number of periods') do
       expect { Returns.cagr(beginning_value: 100, ending_value: 110, periods: 0) }
-        .to(raise_error(ArgumentError, /periods must be a positive integer/))
+        .to(raise_error(ArgumentError, /period count must be a positive integer/))
       expect { Returns.cagr(beginning_value: 100, ending_value: 110, periods: 1.5) }
-        .to(raise_error(ArgumentError, /periods must be a positive integer/))
+        .to(raise_error(ArgumentError, /period count must be a positive integer/))
     end
   end
 

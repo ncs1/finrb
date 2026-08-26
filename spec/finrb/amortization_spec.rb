@@ -318,7 +318,7 @@ describe(Finrb::Amortization) do
 
     it('validates fee amount and financing mode') do
       expect { Amortization.new(1000, rate, origination_fee: -1) }
-        .to(raise_error(ArgumentError, /origination_fee must be non-negative/))
+        .to(raise_error(ArgumentError, /origination fee must be greater than or equal to zero/))
       expect { Amortization.new(1000, rate, origination_fee: 1000) }
         .to(raise_error(ArgumentError, /less than principal/))
       expect { Amortization.new(1000, rate, finance_origination_fee: :yes) }

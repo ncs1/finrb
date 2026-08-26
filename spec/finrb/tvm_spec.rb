@@ -25,7 +25,7 @@ describe(Finrb::TVM) do
 
     it('validates explicit bounds') do
       expect { TVM.discount_rate(n: 1, pv: -100, fv: 90, pmt: 0, lower: 0, upper: -0.2) }
-        .to(raise_error(ArgumentError, /lower must be less/))
+        .to(raise_error(ArgumentError, /lower rate bound must be less than upper rate bound/))
     end
   end
 
@@ -243,27 +243,27 @@ describe(Finrb::TVM) do
   describe('public input validation') do
     it('rejects non-numeric and non-finite inputs') do
       expect { TVM.fv_simple(r: Float::NAN, n: 2, pv: 100) }
-        .to(raise_error(ArgumentError, /r must be finite/))
+        .to(raise_error(ArgumentError, /periodic rate must be finite/))
       expect { TVM.pv_simple(r: 0.1, n: Float::INFINITY, fv: 100) }
-        .to(raise_error(ArgumentError, /n must be finite/))
+        .to(raise_error(ArgumentError, /period count must be finite/))
       expect { TVM.fv_annuity(r: 0.1, n: 2, pmt: '100') }
-        .to(raise_error(ArgumentError, /pmt must be numeric/))
+        .to(raise_error(ArgumentError, /payment must be numeric/))
     end
 
     it('rejects invalid rates and periods') do
       expect { TVM.fv_simple(r: -1, n: 2, pv: 100) }
         .to(raise_error(Finrb::DomainError, /greater than -1/))
       expect { TVM.pv_simple(r: 0.1, n: -1, fv: 100) }
-        .to(raise_error(Finrb::DomainError, /non-negative/))
+        .to(raise_error(Finrb::DomainError, /period count must be greater than or equal to zero/))
     end
 
     it('rejects invalid payment types and cashflows') do
       expect { TVM.fv(r: 0.1, n: 2, type: 2) }
-        .to(raise_error(ArgumentError, /type must be 0 or 1/))
+        .to(raise_error(ArgumentError, /payment timing type must be 0 \(end\) or 1 \(beginning\)/))
       expect { TVM.npv(r: 0.1, cf: []) }
-        .to(raise_error(ArgumentError, /cf cannot be empty/))
+        .to(raise_error(ArgumentError, /cashflows cannot be empty/))
       expect { TVM.pv_uneven(r: 0.1, cf: []) }
-        .to(raise_error(ArgumentError, /cf cannot be empty/))
+        .to(raise_error(ArgumentError, /cashflows cannot be empty/))
     end
 
     it('reports undefined perpetuity inputs') do

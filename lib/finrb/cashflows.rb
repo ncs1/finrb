@@ -77,7 +77,7 @@ module Finrb
       validate_numeric_cashflows!
       cashflows = map { |entry| Validation.decimal(entry, name: 'cashflow amount') }
 
-      rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'Rate', error: DomainError)
+      rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'rate', error: DomainError)
 
       total = Flt::DecNum.new(0.to_s)
       cashflows.each_with_index do |cashflow, index|
@@ -97,8 +97,8 @@ module Finrb
       cashflows = map { |entry| Validation.decimal(entry, name: 'cashflow amount') }
       raise(InvalidCashflowError, 'Cashflow needs at least one positive and one negative value.') if cashflows.none?(&:positive?) || cashflows.none?(&:negative?)
 
-      finance_rate = Validation.decimal_greater_than(finance_rate, minimum: -1, name: 'finance_rate', error: DomainError)
-      reinvestment_rate = Validation.decimal_greater_than(reinvestment_rate, minimum: -1, name: 'reinvestment_rate', error: DomainError)
+      finance_rate = Validation.decimal_greater_than(finance_rate, minimum: -1, name: 'finance rate', error: DomainError)
+      reinvestment_rate = Validation.decimal_greater_than(reinvestment_rate, minimum: -1, name: 'reinvestment rate', error: DomainError)
 
       last_period = cashflows.size - 1
       future_positive =
@@ -154,7 +154,7 @@ module Finrb
     #   Finrb::Cashflow.xnpv(@transactions, 0.6).round(2) #=> -937.41
     def xnpv(rate)
       validate_dated_cashflows!
-      rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'Rate', error: DomainError)
+      rate = Validation.decimal_greater_than(rate, minimum: -1, name: 'rate', error: DomainError)
 
       sum do |t|
         t.amount / ((rate + 1)**(date_diff(start, t.date) / days_in_period))

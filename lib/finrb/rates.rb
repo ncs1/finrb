@@ -137,7 +137,7 @@ module Finrb
     end
 
     def duration=(value)
-      @duration = Validation.positive_integer(value, name: 'duration')
+      @duration = Validation.positive_integer(value, name: 'duration in months')
     end
 
     # set the effective interest rate

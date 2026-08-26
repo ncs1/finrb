@@ -51,5 +51,19 @@ module Finrb
 
       decimal
     end
+
+    def non_zero_decimal(value, name:, error: ArgumentError)
+      decimal = decimal(value, name:)
+      raise(error, "#{name} must be non-zero.") if decimal.zero?
+
+      decimal
+    end
+
+    def decimal_between(value, minimum:, maximum:, name:, error: ArgumentError)
+      decimal = decimal(value, name:)
+      raise(error, "#{name} must be between #{minimum} and #{maximum}, inclusive.") unless decimal.between?(minimum, maximum)
+
+      decimal
+    end
   end
 end

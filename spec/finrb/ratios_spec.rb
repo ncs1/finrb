@@ -7,6 +7,13 @@ describe(Finrb::Ratios) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('2.5')))
     end
+
+    it('requires finite inputs and non-zero current liabilities') do
+      expect { Ratios.cash_ratio(cash: Float::INFINITY, ms: 0, cl: 1) }
+        .to(raise_error(ArgumentError, /cash must be finite/))
+      expect { Ratios.cash_ratio(cash: 1, ms: 0, cl: 0) }
+        .to(raise_error(Finrb::DomainError, /current liabilities must be non-zero/))
+    end
   end
 
   describe('current_ratio') do
@@ -49,6 +56,15 @@ describe(Finrb::Ratios) do
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.4654545')))
     end
+
+    it('validates share counts and tax rates') do
+      expect { Ratios.diluted_eps(ni: 100, pd: 0, w: 0) }
+        .to(raise_error(Finrb::DomainError, /weighted average common shares/))
+      expect { Ratios.diluted_eps(ni: 100, pd: 0, w: 100, tax: 1.1) }
+        .to(raise_error(ArgumentError, /tax rate must be between 0 and 1/))
+      expect { Ratios.diluted_eps(ni: 100, pd: 0, w: 100, cds: -1) }
+        .to(raise_error(ArgumentError, /convertible debt shares/))
+    end
   end
 
   describe('eps') do
@@ -56,6 +72,11 @@ describe(Finrb::Ratios) do
       res = Ratios.eps(ni: 10_000, pd: 1000, w: 11_000)
       expect(res).to(be_an_instance_of(Flt::DecNum))
       expect(res).to(be_within(D('0.00001')).of(D('0.8181818')))
+    end
+
+    it('requires positive weighted average shares') do
+      expect { Ratios.eps(ni: 10_000, pd: 1000, w: 0) }
+        .to(raise_error(Finrb::DomainError, /weighted average common shares/))
     end
   end
 
@@ -84,7 +105,7 @@ describe(Finrb::Ratios) do
 
     it('rejects options that are not in the money') do
       expect { Ratios.iss(amp: 15, ep: 15, n: 10_000) }
-        .to(raise_error(Finrb::Error, /amp must larger/))
+        .to(raise_error(Finrb::DomainError, /market price must be greater than exercise price/))
     end
   end
 
@@ -139,12 +160,36 @@ describe(Finrb::Ratios) do
 
     it('rejects mismatched share and month vectors') do
       expect { Ratios.was(ns: [100], nm: []) }
-        .to(raise_error(Finrb::Error, /must be equal/))
+        .to(raise_error(ArgumentError, /must have equal lengths/))
     end
 
     it('accepts scalar and empty share histories') do
       expect(Ratios.was(ns: 100, nm: 12)).to(eq(D(100)))
       expect(Ratios.was(ns: nil, nm: nil)).to(eq(0))
+    end
+
+    it('validates share changes and months outstanding') do
+      expect { Ratios.was(ns: ['100'], nm: [12]) }
+        .to(raise_error(ArgumentError, /share change must be numeric/))
+      expect { Ratios.was(ns: [100], nm: [13]) }
+        .to(raise_error(ArgumentError, /months outstanding must be between 0 and 12/))
+    end
+  end
+
+  describe('denominator validation') do
+    {
+      current_ratio: -> { Ratios.current_ratio(ca: 1, cl: 0) },
+      debt_ratio: -> { Ratios.debt_ratio(td: 1, ta: 0) },
+      financial_leverage: -> { Ratios.financial_leverage(te: 0, ta: 1) },
+      gpm: -> { Ratios.gpm(gp: 1, rv: 0) },
+      lt_d2e: -> { Ratios.lt_d2e(ltd: 1, te: 0) },
+      npm: -> { Ratios.npm(ni: 1, rv: 0) },
+      quick_ratio: -> { Ratios.quick_ratio(cash: 1, ms: 0, rc: 0, cl: 0) },
+      total_d2e: -> { Ratios.total_d2e(td: 1, te: 0) }
+    }.each do |name, calculation|
+      it("rejects a zero denominator for #{name}") do
+        expect(&calculation).to(raise_error(Finrb::DomainError, /must be non-zero/))
+      end
     end
   end
 end

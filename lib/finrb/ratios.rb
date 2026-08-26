@@ -2,6 +2,7 @@
 
 require_relative 'decimal'
 require_relative 'errors'
+require_relative 'validation'
 
 module Finrb
   # Financial-statement, leverage, and per-share ratios.
@@ -25,9 +26,9 @@ module Finrb
     # @example
     #   Finrb::Ratios.cash_ratio(cash=3000,ms=2000,cl=2000)
     def self.cash_ratio(cash:, ms:, cl:)
-      cash = Flt::DecNum(cash.to_s)
-      ms = Flt::DecNum(ms.to_s)
-      cl = Flt::DecNum(cl.to_s)
+      cash = Validation.decimal(cash, name: 'cash')
+      ms = Validation.decimal(ms, name: 'marketable securities')
+      cl = Validation.non_zero_decimal(cl, name: 'current liabilities', error: DomainError)
 
       ((cash + ms) / cl)
     end
@@ -39,8 +40,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.current_ratio(ca=8000,cl=2000)
     def self.current_ratio(ca:, cl:)
-      ca = Flt::DecNum(ca.to_s)
-      cl = Flt::DecNum(cl.to_s)
+      ca = Validation.decimal(ca, name: 'current assets')
+      cl = Validation.non_zero_decimal(cl, name: 'current liabilities', error: DomainError)
 
       (ca / cl)
     end
@@ -52,8 +53,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.debt_ratio(td=6000,ta=20000)
     def self.debt_ratio(td:, ta:)
-      td = Flt::DecNum(td.to_s)
-      ta = Flt::DecNum(ta.to_s)
+      td = Validation.decimal(td, name: 'total debt')
+      ta = Validation.non_zero_decimal(ta, name: 'total assets', error: DomainError)
 
       (td / ta)
     end
@@ -81,15 +82,15 @@ module Finrb
     # @example
     #   Finrb::Ratios.diluted_eps(ni=115600,pd=10000,cpd=10000,cdi=42000,tax=0.4,w=200000,cps=40000,cds=60000,iss=2500)
     def self.diluted_eps(ni:, pd:, w:, cpd: 0, cdi: 0, tax: 0, cps: 0, cds: 0, iss: 0)
-      ni = Flt::DecNum(ni.to_s)
-      pd = Flt::DecNum(pd.to_s)
-      w = Flt::DecNum(w.to_s)
-      cpd = Flt::DecNum(cpd.to_s)
-      cdi = Flt::DecNum(cdi.to_s)
-      tax = Flt::DecNum(tax.to_s)
-      cps = Flt::DecNum(cps.to_s)
-      cds = Flt::DecNum(cds.to_s)
-      iss = Flt::DecNum(iss.to_s)
+      ni = Validation.decimal(ni, name: 'net income')
+      pd = Validation.decimal(pd, name: 'preferred dividends')
+      w = Validation.positive_decimal(w, name: 'weighted average common shares', error: DomainError)
+      cpd = Validation.non_negative_decimal(cpd, name: 'convertible preferred dividends')
+      cdi = Validation.non_negative_decimal(cdi, name: 'convertible debt interest')
+      tax = Validation.decimal_between(tax, minimum: 0, maximum: 1, name: 'tax rate')
+      cps = Validation.non_negative_decimal(cps, name: 'convertible preferred shares')
+      cds = Validation.non_negative_decimal(cds, name: 'convertible debt shares')
+      iss = Validation.non_negative_decimal(iss, name: 'incremental option shares')
 
       basic = (ni - pd) / w
       diluted = (ni - pd + cpd + (cdi * (1 - tax))) / (w + cps + cds + iss)
@@ -105,9 +106,9 @@ module Finrb
     # @example
     #   Finrb::Ratios.eps(ni=10000,pd=1000,w=11000)
     def self.eps(ni:, pd:, w:)
-      ni = Flt::DecNum(ni.to_s)
-      pd = Flt::DecNum(pd.to_s)
-      w = Flt::DecNum(w.to_s)
+      ni = Validation.decimal(ni, name: 'net income')
+      pd = Validation.decimal(pd, name: 'preferred dividends')
+      w = Validation.positive_decimal(w, name: 'weighted average common shares', error: DomainError)
 
       ((ni - pd) / w)
     end
@@ -119,8 +120,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.financial_leverage(te=16000,ta=20000)
     def self.financial_leverage(te:, ta:)
-      te = Flt::DecNum(te.to_s)
-      ta = Flt::DecNum(ta.to_s)
+      te = Validation.non_zero_decimal(te, name: 'total equity', error: DomainError)
+      ta = Validation.decimal(ta, name: 'total assets')
 
       (ta / te)
     end
@@ -132,8 +133,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.gpm(gp=1000,rv=20000)
     def self.gpm(gp:, rv:)
-      gp = Flt::DecNum(gp.to_s)
-      rv = Flt::DecNum(rv.to_s)
+      gp = Validation.decimal(gp, name: 'gross profit')
+      rv = Validation.non_zero_decimal(rv, name: 'revenue', error: DomainError)
 
       (gp / rv)
     end
@@ -146,14 +147,14 @@ module Finrb
     # @example
     #   Finrb::Ratios.iss(amp=20,ep=15,n=10000)
     def self.iss(amp:, ep:, n:)
-      amp = Flt::DecNum(amp.to_s)
-      ep = Flt::DecNum(ep.to_s)
-      n = Flt::DecNum(n.to_s)
+      amp = Validation.positive_decimal(amp, name: 'average market price', error: DomainError)
+      ep = Validation.non_negative_decimal(ep, name: 'exercise price')
+      n = Validation.non_negative_decimal(n, name: 'option shares')
 
       if amp > ep
         ((amp - ep) * n / amp)
       else
-        raise(Error, 'amp must larger than ep')
+        raise(DomainError, 'Average market price must be greater than exercise price.')
       end
     end
 
@@ -164,8 +165,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.lt_d2e(ltd=8000,te=20000)
     def self.lt_d2e(ltd:, te:)
-      ltd = Flt::DecNum(ltd.to_s)
-      te = Flt::DecNum(te.to_s)
+      ltd = Validation.decimal(ltd, name: 'long-term debt')
+      te = Validation.non_zero_decimal(te, name: 'total equity', error: DomainError)
 
       (ltd / te)
     end
@@ -177,8 +178,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.npm(ni=8000,rv=20000)
     def self.npm(ni:, rv:)
-      ni = Flt::DecNum(ni.to_s)
-      rv = Flt::DecNum(rv.to_s)
+      ni = Validation.decimal(ni, name: 'net income')
+      rv = Validation.non_zero_decimal(rv, name: 'revenue', error: DomainError)
 
       (ni / rv)
     end
@@ -192,10 +193,10 @@ module Finrb
     # @example
     #   Finrb::Ratios.quick_ratio(cash=3000,ms=2000,rc=1000,cl=2000)
     def self.quick_ratio(cash:, ms:, rc:, cl:)
-      cash = Flt::DecNum(cash.to_s)
-      ms = Flt::DecNum(ms.to_s)
-      rc = Flt::DecNum(rc.to_s)
-      cl = Flt::DecNum(cl.to_s)
+      cash = Validation.decimal(cash, name: 'cash')
+      ms = Validation.decimal(ms, name: 'marketable securities')
+      rc = Validation.decimal(rc, name: 'receivables')
+      cl = Validation.non_zero_decimal(cl, name: 'current liabilities', error: DomainError)
 
       ((cash + ms + rc) / cl)
     end
@@ -207,8 +208,8 @@ module Finrb
     # @example
     #   Finrb::Ratios.total_d2e(td=6000,te=20000)
     def self.total_d2e(td:, te:)
-      td = Flt::DecNum(td.to_s)
-      te = Flt::DecNum(te.to_s)
+      td = Validation.decimal(td, name: 'total debt')
+      te = Validation.non_zero_decimal(te, name: 'total equity', error: DomainError)
 
       (td / te)
     end
@@ -223,8 +224,8 @@ module Finrb
     # @example
     #   s=[11000,4400,-3000];m=[12,9,4];Finrb::Ratios.was(ns=s,nm=m)
     def self.was(ns:, nm:)
-      ns = wrap_array(ns).map { |value| Flt::DecNum(value.to_s) }
-      nm = wrap_array(nm).map { |value| Flt::DecNum(value.to_s) }
+      ns = wrap_array(ns).map { |value| Validation.decimal(value, name: 'share change') }
+      nm = wrap_array(nm).map { |value| Validation.decimal_between(value, minimum: 0, maximum: 12, name: 'months outstanding') }
 
       m = ns.size
       n = nm.size
@@ -234,7 +235,7 @@ module Finrb
           sum += (ns[i] * nm[i])
         end
       else
-        raise(Error, 'length of ns and nm must be equal')
+        raise(ArgumentError, 'Share changes and months outstanding must have equal lengths.')
       end
       sum /= 12
       sum

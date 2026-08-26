@@ -82,6 +82,14 @@ namespace :solver do
   end
 end
 
+namespace :benchmark do
+  desc 'Benchmark IRR, XIRR, and amortization with correctness diagnostics'
+  task :run do
+    arguments = ['--time', ENV.fetch('TIME', '2'), '--warmup', ENV.fetch('WARMUP', '1'), '--seed', ENV.fetch('SEED', '20260826')]
+    sh(RbConfig.ruby, File.join(__dir__, 'script', 'benchmark_finrb.rb'), *arguments)
+  end
+end
+
 namespace :docker do
   alternative_dockerfile = 'Dockerfile.engines'
   alternative_images = { jruby: ENV.fetch('JRUBY_IMAGE', 'jruby:10-jdk21'), truffleruby: ENV.fetch('TRUFFLERUBY_IMAGE', 'ghcr.io/graalvm/truffleruby-community:latest') }

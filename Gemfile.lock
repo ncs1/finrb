@@ -88,7 +88,7 @@ GEM
       rubocop (~> 1.86, >= 1.86.2)
     ruby-progressbar (1.13.0)
     semver (1.0.1)
-    simplecov (1.1.1)
+    simplecov (1.2.0)
     thor (1.5.0)
     tsort (0.2.0)
     unicode-display_width (3.2.0)

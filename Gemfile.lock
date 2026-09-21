@@ -9,7 +9,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    amazing_print (2.0.0)
+    amazing_print (3.0.0)
     ast (2.4.3)
     benchmark-ips (2.15.1)
     bigdecimal (4.1.3)

@@ -33,7 +33,7 @@ end
 namespace :rbs do
   desc 'Validate packaged RBS signatures'
   task :validate do
-    sh('bundle', 'exec', 'rbs', '-I', 'sig', 'validate')
+    sh('bundle', 'exec', 'rbs', '-r', 'date', '-I', 'sig', 'validate')
   end
 end
 

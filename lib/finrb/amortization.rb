@@ -5,6 +5,7 @@ require_relative 'decimal'
 require_relative 'precision'
 require_relative 'transaction'
 require_relative 'validation'
+require 'date'
 
 module Finrb
   # the Amortization class provides an interface for working with loan amortizations.
@@ -25,16 +26,19 @@ module Finrb
     class Entry
       ATTRIBUTES = %i[period opening_balance payment interest principal additional_payment balloon_payment interest_only closing_balance].freeze
       MONETARY_ATTRIBUTES = ATTRIBUTES - %i[period interest_only]
-      private_constant :ATTRIBUTES, :MONETARY_ATTRIBUTES
+      DATE_ATTRIBUTE = :date
+      private_constant :ATTRIBUTES, :DATE_ATTRIBUTE, :MONETARY_ATTRIBUTES
 
-      attr_reader(*ATTRIBUTES)
+      attr_reader(*ATTRIBUTES, DATE_ATTRIBUTE)
 
-      def initialize(period:, opening_balance:, payment:, interest:, principal:, additional_payment:, balloon_payment:, interest_only:, closing_balance:)
+      def initialize(period:, opening_balance:, payment:, interest:, principal:, additional_payment:, balloon_payment:, interest_only:, closing_balance:, date: nil)
         raise(ArgumentError, 'period must be a non-negative integer.') unless period.is_a?(Integer) && !period.negative?
         raise(ArgumentError, 'interest_only must be true or false.') unless [true, false].include?(interest_only)
+        raise(ArgumentError, 'date must be a Date or nil.') unless date.nil? || date.instance_of?(Date)
 
         @period = period
         @interest_only = interest_only
+        @date = date
         MONETARY_ATTRIBUTES.each do |name|
           value = binding.local_variable_get(name)
           instance_variable_set("@#{name}", Validation.decimal(value, name: name.to_s.tr('_', ' ')))
@@ -43,17 +47,18 @@ module Finrb
       end
 
       def ==(other)
-        other.instance_of?(self.class) && ATTRIBUTES.all? { |name| public_send(name) == other.public_send(name) }
+        other.instance_of?(self.class) && ([DATE_ATTRIBUTE] + ATTRIBUTES).all? { |name| public_send(name) == other.public_send(name) }
       end
       alias eql? ==
 
       def hash
-        attributes = ATTRIBUTES.map { |name| public_send(name) }
-        attributes.hash
+        [date, *ATTRIBUTES.map { |name| public_send(name) }].hash
       end
 
       def to_h
-        ATTRIBUTES.to_h { |name| [name, public_send(name)] }
+        attributes = ATTRIBUTES.to_h { |name| [name, public_send(name)] }
+        attributes[DATE_ATTRIBUTE] = date unless date.nil?
+        attributes
       end
 
       alias interest_only? interest_only
@@ -79,6 +84,8 @@ module Finrb
     attr_reader :rates
     # @return [Array<Entry>] immutable period-by-period loan breakdown
     attr_reader :schedule
+    # @return [Date, nil] the date from which monthly payment dates are generated
+    attr_reader :start_date
 
     # @return [Flt::DecNum] the periodic payment due on a loan
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
@@ -114,8 +121,9 @@ module Finrb
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
-    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, &block)
+    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, &block)
       @principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
+      raise(ArgumentError, 'start_date must be a Date or nil.') unless start_date.nil? || start_date.instance_of?(Date)
 
       @origination_fee = Validation.non_negative_decimal(origination_fee, name: 'origination fee')
       raise(ArgumentError, 'finance_origination_fee must be true or false.') unless [true, false].include?(finance_origination_fee)
@@ -140,6 +148,8 @@ module Finrb
       raise(ArgumentError, 'interest_only_periods must be a non-negative integer shorter than the loan term.') unless valid_interest_only
 
       @interest_only_periods = interest_only_periods
+      @start_date = start_date
+      @payment_dates = start_date && Array.new(@periods) { |index| monthly_date(start_date, index + 1) }
       @period = 0
 
       compute
@@ -149,7 +159,7 @@ module Finrb
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
     def ==(other)
-      (principal == other.principal) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
+      (principal == other.principal) && (start_date == other.start_date) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
     end
 
     attr_reader :finance_origination_fee
@@ -178,13 +188,16 @@ module Finrb
         regular_payment ||= build_regular_payment(rate) unless interest_only
 
         # Compute and record interest on the outstanding balance.
-        int = Precision.money(@balance * rate.monthly)
-        interest = Interest.new(int, period: @period)
+        due_date = @payment_dates&.fetch(@period)
+        periodic_rate = due_date ? dated_period_rate(rate, @period) : rate.monthly
+        int = Precision.money(@balance * periodic_rate)
+        interest = Interest.new(int, period: @period, date: due_date)
         @balance += interest.amount
         @transactions << interest.dup
 
-        payment = interest_only ? build_interest_only_payment(int) : regular_payment
+        payment = interest_only ? build_interest_only_payment(int, due_date) : regular_payment
         payment.period = @period
+        payment.date = due_date if due_date
         payment.amount = -@balance if payment.amount.abs > @balance
         @additional_by_period << [-payment.difference, Flt::DecNum(0)].max
         @interest_only_by_period << interest_only
@@ -272,7 +285,7 @@ module Finrb
       @transactions.each_slice(2).with_index.map do |(interest, payment), index|
         principal = -(payment.amount + interest.amount)
         closing_balance = opening_balance - principal
-        entry = Entry.new(period: payment.period, opening_balance:, payment: payment.amount, interest: interest.amount, principal:, additional_payment: @additional_by_period.fetch(index), balloon_payment: @balloon_by_period.fetch(index), interest_only: @interest_only_by_period.fetch(index), closing_balance:)
+        entry = Entry.new(period: payment.period, opening_balance:, payment: payment.amount, interest: interest.amount, principal:, additional_payment: @additional_by_period.fetch(index), balloon_payment: @balloon_by_period.fetch(index), interest_only: @interest_only_by_period.fetch(index), closing_balance:, date: payment.date)
         opening_balance = closing_balance
         entry
       end
@@ -280,15 +293,20 @@ module Finrb
 
     def build_regular_payment(rate)
       periods = @periods - @period
-      amount = Amortization.payment(@balance, rate.monthly, periods, balloon: @balloon)
-      Payment.new(amount, period: @period).tap do |payment|
+      amount =
+        if @start_date
+          dated_payment(@balance, rate, @period, @balloon)
+        else
+          Amortization.payment(@balance, rate.monthly, periods, balloon: @balloon)
+        end
+      Payment.new(amount, period: @period, date: @payment_dates && @payment_dates.fetch(@period)).tap do |payment|
         payment.modify(&@block) if @block
         validate_payment!(payment)
       end
     end
 
-    def build_interest_only_payment(interest)
-      Payment.new(-interest, period: @period).tap do |payment|
+    def build_interest_only_payment(interest, date)
+      Payment.new(-interest, period: @period, date:).tap do |payment|
         payment.modify(&@block) if @block
         validate_payment!(payment, allow_zero: true)
       end
@@ -300,6 +318,39 @@ module Finrb
 
       requirement = allow_zero ? 'must not produce a positive amount' : 'must produce a negative amount'
       raise(ArgumentError, "payment modification #{requirement}.")
+    end
+
+    def monthly_date(anchor, month_offset)
+      month_start = Date.new(anchor.year, anchor.month, 1) >> month_offset
+      next_month_start = month_start >> 1
+      month_end = next_month_start - 1
+      anchor_month_end = (Date.new(anchor.year, anchor.month, 1) >> 1) - 1
+      day =
+        if anchor.day == anchor_month_end.day
+          month_end.day
+        else
+          [anchor.day, month_end.day].min
+        end
+      Date.new(month_start.year, month_start.month, day)
+    end
+
+    def dated_period_rate(rate, period_index)
+      previous_date = period_index.zero? ? @start_date : @payment_dates.fetch(period_index - 1)
+      actual_days = (@payment_dates.fetch(period_index) - previous_date).to_i
+      periodic_rate = Precision.rate(rate.apr * Flt::DecNum(actual_days.to_s) / Flt::DecNum('365'))
+      Validation.decimal_greater_than(periodic_rate, minimum: -1, name: 'dated periodic rate')
+    end
+
+    def dated_payment(balance, rate, period_index, balloon)
+      periods = (period_index...@periods).map { |index| dated_period_rate(rate, index) }
+      discount_factors = []
+      growth = Flt::DecNum('1')
+      periods.each do |periodic_rate|
+        growth *= periodic_rate + 1
+        discount_factors << (Flt::DecNum('1') / growth)
+      end
+      balloon_discounted = balloon * discount_factors.last
+      -Precision.money((balance - balloon_discounted) / discount_factors.sum)
     end
   end
 end

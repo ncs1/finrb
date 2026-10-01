@@ -103,9 +103,35 @@ raise unless loan.schedule.last.closing_balance.zero?
 Each frozen `Finrb::Amortization::Entry` exposes:
 
 - `period`, `opening_balance`, and `closing_balance`;
+- `date` when the loan was created with `start_date:`;
 - `payment`, `interest`, and `principal`;
 - `additional_payment` and `balloon_payment`;
 - `interest_only?`.
+
+Supplying `start_date: Date` opts into a dated monthly schedule. The start date
+is the initial accrual boundary, with the first payment one month later.
+Generated dates are anchored to the original start date: month-end starts stay
+at month end, and other day numbers are clamped in shorter months without
+drifting in later months. Each period accrues simple nominal APR on actual days
+over a fixed 365-day denominator (`APR * actual_days / 365`), with interest
+posted to cents. This is the dated-mode convention, not a universal loan
+standard. Dates are unadjusted: weekends and holidays are not shifted, and no
+business calendar is consulted. Without `start_date:`, the existing monthly
+rate calculation and schedule-entry hash shape are unchanged.
+
+<!-- verify-example -->
+```ruby
+require 'date'
+
+rate = Finrb::Rate.new(0.05, :apr, duration: 3)
+loan = Finrb::Amortization.new(1000, rate, start_date: Date.new(2024, 1, 31))
+
+raise unless loan.schedule.map(&:date) == [
+  Date.new(2024, 2, 29), Date.new(2024, 3, 31), Date.new(2024, 4, 30)
+]
+raise unless loan.schedule.first.interest == Flt::DecNum('3.97')
+raise unless loan.schedule.last.closing_balance.zero?
+```
 
 Balloon targets, interest-only periods, and origination fees compose in one
 schedule. An upfront fee reduces net proceeds; a financed fee increases the

@@ -204,6 +204,25 @@ financed_fee.net_proceeds    # => Flt::DecNum('250000')
 financed_fee.amount_financed # => Flt::DecNum('252500')
 ```
 
+For a dated schedule, `cashflow_yield` calculates the effective annual
+cashflow-equivalent cost to the borrower using net proceeds on the start date
+and each actual payment on its scheduled date. The final payment already
+includes any balloon settlement, so it is counted only once. The result is a
+`Finrb::Rate`; it is not a jurisdiction-specific legal APR and follows the
+current `Finrb::Cashflow.xirr` configuration.
+
+```ruby
+require 'date'
+
+dated_loan = Finrb::Amortization.new(
+  250_000,
+  rate,
+  start_date: Date.new(2025, 1, 15),
+  origination_fee: 2_500
+)
+dated_loan.cashflow_yield.apy # effective annual cost implied by proceeds and payments
+```
+
 ## Configuration
 
 Configure process-wide defaults during application startup:

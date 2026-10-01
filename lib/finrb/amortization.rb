@@ -174,6 +174,24 @@ module Finrb
       @transactions.filter_map { |trans| trans.difference if trans.payment? }
     end
 
+    # Calculate the effective annual yield implied by borrower proceeds and
+    # scheduled loan payments. This is a cashflow-equivalent borrowing yield,
+    # not a jurisdiction-specific legal APR.
+    # @param [Numeric, nil] guess initial rate used by XIRR; defaults to Finrb.config.guess
+    # @return [Rate] the effective annual cashflow-equivalent yield
+    # @raise [ArgumentError] if the amortization has no start date
+    # @example
+    #   rate = Rate.new(0.05, :apr, duration: 12)
+    #   loan = Amortization.new(10_000, rate, start_date: Date.new(2025, 1, 15), origination_fee: 250)
+    #   loan.cashflow_yield.apy #=> effective annual borrower cost
+    def cashflow_yield(guess = nil)
+      raise(ArgumentError, 'cashflow_yield requires a start_date.') unless start_date
+
+      transactions = [Transaction.new(net_proceeds, date: start_date)]
+      transactions.concat(schedule.map { |entry| Transaction.new(entry.payment, date: entry.date) })
+      Cashflow.xirr(transactions, guess)
+    end
+
     # amortize the balance of loan with the given interest rate
     # @return none
     # @param [Rate] rate the interest rate to use in the amortization

@@ -17,6 +17,28 @@ These fixtures validate finrb against independent implementations. They are test
 
 QuantLib's cached bond-yield fixtures are not copied here. Those values incorporate coupon schedules, accrued interest, clean/dirty prices, market calendars, and bond-specific day-count conventions that finrb XIRR does not currently model. Treating them as plain XIRR fixtures would compare different financial contracts.
 
+`quantlib_dated_amortization.json` was generated with QuantLib-Python 1.43 by
+`script/generate_amortization_reference.py`. The fixtures use monthly forward
+schedules with a null calendar and unadjusted dates, Actual/365 Fixed, and
+nominal APR with simple compounding over each individual period. QuantLib
+provides the schedule dates and period growth factors; an independent Python
+decimal calculation discounts the level end-of-period installments and
+replays cent-rounded postings. Cases cover leap-year month-end dates, a
+mid-month 28–31 day schedule, a balloon, and a negative APR. The RSpec fixture
+test runs without Python or QuantLib installed because the expected results
+are committed.
+
+Regenerate the fixture in a Python environment with the pinned QuantLib
+reference package installed:
+
+```shell
+python3 -m pip install QuantLib==1.43
+python3 script/generate_amortization_reference.py
+```
+
+This reference does not validate business-day adjustment, holiday calendars,
+alternate day counts, or an effective-APY accrual convention.
+
 ## Live randomized comparison
 
 Install the optional dependencies into a Python environment of your choice:

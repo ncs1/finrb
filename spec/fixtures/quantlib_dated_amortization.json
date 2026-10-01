@@ -1,0 +1,309 @@
+{
+  "source": "QuantLib-Python 1.43",
+  "conventions": {
+    "schedule": "monthly, Forward, NullCalendar, Unadjusted",
+    "day_count": "Actual/365 Fixed",
+    "rate": "nominal APR, Simple compounding, Once frequency per period",
+    "payment": "end of period; present-value annuity using QuantLib period factors",
+    "money_rounding": "half up to cents"
+  },
+  "cases": [
+    {
+      "name": "leap_year_month_end_with_balloon",
+      "principal": "100000.00",
+      "apr": "0.05",
+      "start_date": "2024-01-31",
+      "maturity_date": "2024-07-31",
+      "balloon": "15000.00",
+      "scheduled_payment": "-14434.42",
+      "periods": [
+        {
+          "date": "2024-02-29",
+          "actual_days": 29,
+          "year_fraction": "0.079452054794521",
+          "period_rate": "0.003972602739726",
+          "opening_balance": "100000.00",
+          "interest": "397.26",
+          "payment": "-14434.42",
+          "balloon_payment": "0.00",
+          "closing_balance": "85962.84"
+        },
+        {
+          "date": "2024-03-31",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.004246575342466",
+          "opening_balance": "85962.84",
+          "interest": "365.05",
+          "payment": "-14434.42",
+          "balloon_payment": "0.00",
+          "closing_balance": "71893.47"
+        },
+        {
+          "date": "2024-04-30",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "0.004109589041096",
+          "opening_balance": "71893.47",
+          "interest": "295.45",
+          "payment": "-14434.42",
+          "balloon_payment": "0.00",
+          "closing_balance": "57754.50"
+        },
+        {
+          "date": "2024-05-31",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.004246575342466",
+          "opening_balance": "57754.50",
+          "interest": "245.26",
+          "payment": "-14434.42",
+          "balloon_payment": "0.00",
+          "closing_balance": "43565.34"
+        },
+        {
+          "date": "2024-06-30",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "0.004109589041096",
+          "opening_balance": "43565.34",
+          "interest": "179.04",
+          "payment": "-14434.42",
+          "balloon_payment": "0.00",
+          "closing_balance": "29309.96"
+        },
+        {
+          "date": "2024-07-31",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.004246575342466",
+          "opening_balance": "29309.96",
+          "interest": "124.47",
+          "payment": "-29434.43",
+          "balloon_payment": "15000.00",
+          "closing_balance": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "mid_month_actual_days",
+      "principal": "100000.00",
+      "apr": "0.12",
+      "start_date": "2025-01-15",
+      "maturity_date": "2026-01-15",
+      "balloon": "0.00",
+      "scheduled_payment": "-8882.56",
+      "periods": [
+        {
+          "date": "2025-02-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "100000.00",
+          "interest": "1019.18",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "92136.62"
+        },
+        {
+          "date": "2025-03-15",
+          "actual_days": 28,
+          "year_fraction": "0.076712328767123",
+          "period_rate": "0.009205479452055",
+          "opening_balance": "92136.62",
+          "interest": "848.16",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "84102.22"
+        },
+        {
+          "date": "2025-04-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "84102.22",
+          "interest": "857.15",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "76076.81"
+        },
+        {
+          "date": "2025-05-15",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "0.009863013698630",
+          "opening_balance": "76076.81",
+          "interest": "750.35",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "67944.60"
+        },
+        {
+          "date": "2025-06-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "67944.60",
+          "interest": "692.48",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "59754.52"
+        },
+        {
+          "date": "2025-07-15",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "0.009863013698630",
+          "opening_balance": "59754.52",
+          "interest": "589.36",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "51461.32"
+        },
+        {
+          "date": "2025-08-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "51461.32",
+          "interest": "524.48",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "43103.24"
+        },
+        {
+          "date": "2025-09-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "43103.24",
+          "interest": "439.30",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "34659.98"
+        },
+        {
+          "date": "2025-10-15",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "0.009863013698630",
+          "opening_balance": "34659.98",
+          "interest": "341.85",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "26119.27"
+        },
+        {
+          "date": "2025-11-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "26119.27",
+          "interest": "266.20",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "17502.91"
+        },
+        {
+          "date": "2025-12-15",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "0.009863013698630",
+          "opening_balance": "17502.91",
+          "interest": "172.63",
+          "payment": "-8882.56",
+          "balloon_payment": "0.00",
+          "closing_balance": "8792.98"
+        },
+        {
+          "date": "2026-01-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "0.010191780821918",
+          "opening_balance": "8792.98",
+          "interest": "89.62",
+          "payment": "-8882.60",
+          "balloon_payment": "0.00",
+          "closing_balance": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "negative_apr",
+      "principal": "5000.00",
+      "apr": "-0.12",
+      "start_date": "2025-01-15",
+      "maturity_date": "2025-07-15",
+      "balloon": "0.00",
+      "scheduled_payment": "-804.71",
+      "periods": [
+        {
+          "date": "2025-02-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "-0.010191780821918",
+          "opening_balance": "5000.00",
+          "interest": "-50.96",
+          "payment": "-804.71",
+          "balloon_payment": "0.00",
+          "closing_balance": "4144.33"
+        },
+        {
+          "date": "2025-03-15",
+          "actual_days": 28,
+          "year_fraction": "0.076712328767123",
+          "period_rate": "-0.009205479452055",
+          "opening_balance": "4144.33",
+          "interest": "-38.15",
+          "payment": "-804.71",
+          "balloon_payment": "0.00",
+          "closing_balance": "3301.47"
+        },
+        {
+          "date": "2025-04-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "-0.010191780821918",
+          "opening_balance": "3301.47",
+          "interest": "-33.65",
+          "payment": "-804.71",
+          "balloon_payment": "0.00",
+          "closing_balance": "2463.11"
+        },
+        {
+          "date": "2025-05-15",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "-0.009863013698630",
+          "opening_balance": "2463.11",
+          "interest": "-24.29",
+          "payment": "-804.71",
+          "balloon_payment": "0.00",
+          "closing_balance": "1634.11"
+        },
+        {
+          "date": "2025-06-15",
+          "actual_days": 31,
+          "year_fraction": "0.084931506849315",
+          "period_rate": "-0.010191780821918",
+          "opening_balance": "1634.11",
+          "interest": "-16.65",
+          "payment": "-804.71",
+          "balloon_payment": "0.00",
+          "closing_balance": "812.75"
+        },
+        {
+          "date": "2025-07-15",
+          "actual_days": 30,
+          "year_fraction": "0.082191780821918",
+          "period_rate": "-0.009863013698630",
+          "opening_balance": "812.75",
+          "interest": "-8.02",
+          "payment": "-804.73",
+          "balloon_payment": "0.00",
+          "closing_balance": "0.00"
+        }
+      ]
+    }
+  ]
+}

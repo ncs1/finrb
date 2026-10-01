@@ -95,7 +95,7 @@ module Finrb
 
   class Amortization
     class Entry
-      def initialize: (period: Integer, opening_balance: number, payment: number, interest: number, principal: number, additional_payment: number, balloon_payment: number, interest_only: bool, closing_balance: number) -> void
+      def initialize: (period: Integer, opening_balance: number, payment: number, interest: number, principal: number, additional_payment: number, balloon_payment: number, interest_only: bool, closing_balance: number, ?date: Date?) -> void
       def period: () -> Integer
       def opening_balance: () -> decimal
       def payment: () -> decimal
@@ -106,15 +106,16 @@ module Finrb
       def interest_only: () -> bool
       def interest_only?: () -> bool
       def closing_balance: () -> decimal
+      def date: () -> Date?
       def ==: (untyped) -> bool
       def eql?: (untyped) -> bool
       def hash: () -> Integer
-      def to_h: () -> Hash[Symbol, Integer | decimal]
+      def to_h: () -> Hash[Symbol, Integer | decimal | bool | Date]
     end
 
     def self.payment: (number, number, Integer, ?balloon: number) -> decimal
 
-    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool) ?{ (Transaction) -> number } -> void
+    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date) ?{ (Transaction) -> number } -> void
     def ==: (untyped) -> bool
     def balance: () -> decimal
     def balloon: () -> decimal
@@ -128,6 +129,7 @@ module Finrb
     def principal: () -> decimal
     def rates: () -> Array[Rate]
     def schedule: () -> Array[Entry]
+    def start_date: () -> Date?
     def additional_payments: () -> Array[decimal]
     def duration: () -> Integer
     def inspect: () -> String

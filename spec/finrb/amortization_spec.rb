@@ -41,9 +41,98 @@ describe(Finrb::Amortization) do
         .to(raise_error(ArgumentError, /positive integer/))
     end
 
+    it('requires a date-only start_date when dated amortization is requested') do
+      rate = Rate.new(0.05, :apr, duration: 12)
+
+      expect { Amortization.new(1000, rate, start_date: '2026-01-01') }
+        .to(raise_error(ArgumentError, /start_date must be a Date or nil/))
+    end
+
+    it('rejects dated rates whose period growth factor would not be positive') do
+      rate = Rate.new(-11.99, :apr, duration: 12)
+
+      expect { Amortization.new(1000, rate, start_date: Date.new(2025, 1, 1)) }
+        .to(raise_error(ArgumentError, /dated periodic rate must be greater than -1/))
+    end
+
     it('rejects payment modifications that do not pay down the balance') do
       expect { Amortization.new(1000, rate) { 10 } }
         .to(raise_error(ArgumentError, /must produce a negative amount/))
+    end
+  end
+
+  describe('dated amortization') do
+    it('generates monthly dates anchored to the original month-end') do
+      rate = Rate.new(0.05, :apr, duration: 4)
+      amortization = Amortization.new(100_000, rate, start_date: Date.new(2024, 1, 31))
+
+      expect(amortization.schedule.map(&:date)).to(eq([Date.new(2024, 2, 29), Date.new(2024, 3, 31), Date.new(2024, 4, 30), Date.new(2024, 5, 31)]))
+      expect(amortization.schedule.first.interest).to(eq(D('397.26')))
+      expect(amortization.schedule.last.closing_balance).to(be_zero)
+    end
+
+    it('clamps a non-month-end anchor independently for each month') do
+      rate = Rate.new(0, :apr, duration: 3)
+      amortization = Amortization.new(1000, rate, start_date: Date.new(2024, 1, 30))
+
+      expect(amortization.schedule.map(&:date)).to(eq([Date.new(2024, 2, 29), Date.new(2024, 3, 30), Date.new(2024, 4, 30)]))
+    end
+
+    it('uses dated period rates for the payment and interest calculations') do
+      rate = Rate.new(0.12, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, start_date: Date.new(2025, 1, 15))
+      first = amortization.schedule.first
+
+      expect(amortization.payment).to(eq(D('-8882.56')))
+      expect(first.interest).to(eq(D('1019.18')))
+      expect(first.opening_balance + first.interest + first.payment).to(eq(first.closing_balance))
+      expect(amortization.schedule.last.closing_balance).to(be_zero)
+    end
+
+    it('supports a negative APR') do
+      negative_rate = Rate.new(-0.12, :apr, duration: 2)
+      negative = Amortization.new(1000, negative_rate, start_date: Date.new(2025, 1, 15))
+
+      expect(negative.schedule.map(&:interest)).to(all(be_negative))
+      expect(negative.balance).to(be_zero)
+    end
+
+    it('changes accrual when a rate segment changes') do
+      first_rate = Rate.new(0.12, :apr, duration: 2)
+      second_rate = Rate.new(0.24, :apr, duration: 2)
+      adjustable = Amortization.new(1000, first_rate, second_rate, start_date: Date.new(2025, 1, 15))
+
+      expect(adjustable.schedule.first.interest).to(eq(D('10.19')))
+      expect(adjustable.schedule[1].interest).to(eq(D('6.94')))
+      expect(adjustable.schedule[2].interest).to(eq(D('10.29')))
+    end
+
+    it('preserves the undated entry hash and includes dates only for dated schedules') do
+      rate = Rate.new(0.05, :apr, duration: 12)
+      undated = Amortization.new(1000, rate).schedule.first
+      dated = Amortization.new(1000, rate, start_date: Date.new(2026, 1, 1)).schedule.first
+
+      expect(undated.to_h).not_to(have_key(:date))
+      expect(dated.to_h[:date]).to(eq(Date.new(2026, 2, 1)))
+      expect(dated.date).to(eq(Date.new(2026, 2, 1)))
+    end
+
+    it('includes the start date when comparing amortizations') do
+      rate = Rate.new(0.05, :apr, duration: 12)
+      january = Amortization.new(1000, rate, start_date: Date.new(2026, 1, 1))
+      february = Amortization.new(1000, rate, start_date: Date.new(2026, 2, 1))
+
+      expect(january).not_to(eq(february))
+    end
+
+    it('composes dated accrual with interest-only periods, a balloon, and a financed fee') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, start_date: Date.new(2024, 1, 31), balloon: 20_000, interest_only_periods: 2, origination_fee: 2_000, finance_origination_fee: true)
+
+      expect(amortization.schedule.first(2)).to(all(be_interest_only))
+      expect(amortization.schedule.sum(&:principal)).to(eq(D('102000')))
+      expect(amortization.schedule.last.balloon_payment).to(be_within(D('0.05')).of(D('20000')))
+      expect(amortization.balance).to(be_zero)
     end
   end
 

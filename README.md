@@ -131,6 +131,25 @@ first.interest_only?
 first.closing_balance
 ```
 
+Pass a Ruby `Date` as `start_date:` to opt into an actual/365 dated schedule.
+The start date is the accrual boundary; the first payment date is one month
+later. Month-end anchors stay at month end, while other day numbers are clamped
+to shorter months and recovered from the original anchor in the following
+month. Dated periods accrue simple nominal APR for their actual number of days
+(`APR * days / 365`); this is a specific convention, not a universal loan
+standard. Dates are not adjusted for weekends or holidays.
+
+```ruby
+require 'date'
+
+dated = Finrb::Amortization.new(
+  100_000,
+  Finrb::Rate.new(0.05, :apr, duration: 3),
+  start_date: Date.new(2024, 1, 31)
+)
+dated.schedule.first.date # => #<Date: 2024-02-29 ...>
+```
+
 Pass several duration-bearing rates for an adjustable-rate schedule. A block
 can modify each scheduled payment, for example to add a $150 principal payment:
 

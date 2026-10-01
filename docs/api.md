@@ -156,6 +156,31 @@ raise unless loan.schedule.first.interest_only?
 raise unless loan.schedule.sum(&:principal) == loan.amount_financed
 ```
 
+`cashflow_yield` is available for dated schedules. It runs finrb's XIRR over
+the borrower's net proceeds at origination and each scheduled payment at its
+due date. The final payment includes any balloon, which is therefore counted
+once. The returned `Finrb::Rate` expresses the effective annual
+cashflow-equivalent borrowing cost; it is not a jurisdiction-specific legal
+APR and follows the current `Finrb::Cashflow.xirr` configuration. Undated
+amortizations do not have enough timing information and are rejected.
+
+<!-- verify-example -->
+```ruby
+require 'date'
+
+rate = Finrb::Rate.new(0.06, :apr, duration: 12)
+loan = Finrb::Amortization.new(
+  100_000,
+  rate,
+  start_date: Date.new(2025, 1, 15),
+  origination_fee: 2_000
+)
+borrower_yield = loan.cashflow_yield
+
+raise unless borrower_yield.is_a?(Finrb::Rate)
+raise unless borrower_yield.apy > rate.apy
+```
+
 A block can modify the scheduled payment template, commonly for a constant
 extra payment. It is not yet a general period-indexed prepayment strategy.
 

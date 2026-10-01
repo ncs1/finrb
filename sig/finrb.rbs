@@ -131,6 +131,7 @@ module Finrb
     def schedule: () -> Array[Entry]
     def start_date: () -> Date?
     def additional_payments: () -> Array[decimal]
+    def cashflow_yield: (?number) -> Rate
     def duration: () -> Integer
     def inspect: () -> String
     def interest: () -> Array[decimal]

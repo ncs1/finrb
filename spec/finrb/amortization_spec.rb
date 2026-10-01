@@ -134,6 +134,36 @@ describe(Finrb::Amortization) do
       expect(amortization.schedule.last.balloon_payment).to(be_within(D('0.05')).of(D('20000')))
       expect(amortization.balance).to(be_zero)
     end
+
+    it('calculates borrower yield from net proceeds and each dated payment once') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, start_date: Date.new(2024, 1, 31), balloon: 20_000, interest_only_periods: 2, origination_fee: 2_000, finance_origination_fee: true)
+      cashflows = [Transaction.new(amortization.net_proceeds, date: amortization.start_date)]
+      cashflows.concat(amortization.schedule.map { |entry| Transaction.new(entry.payment, date: entry.date) })
+
+      borrower_yield = amortization.cashflow_yield
+
+      expect(borrower_yield).to(be_a(Rate))
+      expect(borrower_yield).to(eq(Finrb::Cashflow.xirr(cashflows)))
+    end
+
+    it('reflects upfront and financed fees in borrower cost') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+      options = { start_date: Date.new(2025, 1, 15) }
+      no_fee = Amortization.new(100_000, rate, **options)
+      upfront_fee = Amortization.new(100_000, rate, origination_fee: 1000, **options)
+      financed_fee = Amortization.new(100_000, rate, origination_fee: 1000, finance_origination_fee: true, **options)
+
+      expect(upfront_fee.cashflow_yield.effective).to(be > no_fee.cashflow_yield.effective)
+      expect(financed_fee.cashflow_yield.effective).to(be > no_fee.cashflow_yield.effective)
+    end
+
+    it('requires a start date to calculate borrower yield') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+
+      expect { Amortization.new(100_000, rate).cashflow_yield }
+        .to(raise_error(ArgumentError, /cashflow_yield requires a start_date/))
+    end
   end
 
   describe('a fixed-rate amortization of 200000 at 3.75% over 30 years') do

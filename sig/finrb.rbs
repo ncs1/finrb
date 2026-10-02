@@ -78,6 +78,14 @@ module Finrb
     end
   end
 
+  module DayCount
+    type convention = :actual_365_fixed | :actual_360
+    CONVENTIONS: Array[convention]
+    DEFAULT: convention
+
+    def self.year_fraction: (Date, Date, ?convention: convention) -> decimal
+  end
+
   class InvalidCashflowError < Error
   end
 
@@ -151,7 +159,7 @@ module Finrb
 
     def self.payment: (number, number, Integer, ?balloon: number) -> decimal
 
-    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date?, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?) ?{ (Transaction) -> number } -> void
+    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date?, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?, ?day_count: DayCount::convention) ?{ (Transaction) -> number } -> void
     def ==: (untyped) -> bool
     def balance: () -> decimal
     def balloon: () -> decimal
@@ -168,6 +176,7 @@ module Finrb
     def start_date: () -> Date?
     def calendar: () -> Calendars::Base?
     def business_day_convention: () -> Calendars::convention?
+    def day_count: () -> DayCount::convention
     def additional_payments: () -> Array[decimal]
     def cashflow_yield: (?number) -> Rate
     def duration: () -> Integer

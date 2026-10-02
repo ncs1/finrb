@@ -96,11 +96,14 @@ QuantLib receives the constructed root as its guess because its linear auto-brac
 The profiles intentionally bound their ranges to 1950–2065 (US) and
 2000–2050 (TASE); date-only status is compared for every day, not just named
 holiday examples. The US profile agrees across 42,369 dates. TASE has 75
-classified differences, all fixed in the verifier as known reference
-divergences and described in the Business calendars section of `docs/api.md`.
-The exact TASE difference dates are fingerprinted as well as category-counted;
-new or shifted mismatches fail verification. The same check runs in CI. Install
-its optional reference dependency with:
+classified differences: eight festival-eve dates are confirmed by annual TASE
+schedules, while 57 are projections of the recurring rule. The remaining ten
+are the 2001 Hebrew-date shift, the 2026 trading-week transition, and the 2038
+statutory Independence Day adjustment. The verifier explicitly asserts the
+dates and status directions of those ten researched differences; all 75 exact
+rows are also fingerprinted and category-counted, so new or shifted mismatches
+fail. The evidence and limits are described in [`docs/calendars.md`](../../docs/calendars.md).
+The same check runs in CI. Install its optional reference dependency with:
 
 ```shell
 python3 -m pip install --requirement script/requirements-calendar-verification.txt
@@ -110,3 +113,16 @@ bundle exec rake calendar:verify
 This is an exhaustive comparison to QuantLib's implementation, not a claim
 that QuantLib overrides an official TASE calendar or that annual schedules
 have been published for every year in the supported future range.
+
+`israel_2001_calendar_reference.json` records the independently corroborated
+Hebrew holiday dates used to check the 2001 QuantLib date-table discrepancy.
+The calendar specs assert the matching named closures and the four dates that
+QuantLib closes one day early.
+
+`tase_verified_festival_eves.json` records 11 festival-eve trading closures
+explicitly listed in TASE annual schedules for 2015, 2019, and 2021–2024. The
+calendar specs assert the holiday label and closed status for each recorded
+date. These source-backed examples support the recurring rule but do not
+establish it for every year through 2050. The 2022 schedule incorrectly lists
+May 16 as Shavuot Eve; the actual eve was June 4. The fixture records this
+source error and the specs ensure finrb does not encode it.

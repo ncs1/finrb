@@ -92,13 +92,13 @@ days. `holiday?` includes weekends, while `holiday_names` returns names for
 market-specific closures. Dates use Ruby's `Date`; no network lookup or
 external holiday dataset is used.
 
-The profiles reject dates outside their declared validation windows with
-`RangeError`: `USFederalReserve` supports 1950-01-01 through 2065-12-31, and
-`IsraelTase` supports 2000-01-01 through 2050-12-31. These limits are part of
-the public contract, not Ruby `Date` limits. The TASE window is bounded to
-2000–2050 to include the QuantLib 1.43 comparison span; US dates before 1950
-are intentionally not modeled by this Federal Reserve profile. Neither
-calendar silently extrapolates beyond its checked range.
+`USFederalReserve` supports 1950-01-01 through 2065-12-31; `IsraelTase`
+supports 2000-01-01 through 2050-12-31. Dates outside either range raise
+`RangeError` rather than silently extrapolating. The US profile represents
+Federal Reserve Bank payment days, not NYSE sessions or federal employee
+leave. TASE models full-day closures only; short sessions are still business
+days. Immutable per-instance `additional_holidays:` and `removed_holidays:`
+overrides add or reopen named closures; weekly weekends remain closed.
 
 <!-- verify-example -->
 ```ruby
@@ -115,64 +115,9 @@ raise unless tase.business_day?(Date.new(2026, 1, 5))
 raise unless tase.holiday_names(Date.new(2026, 1, 4)).include?('TASE trading-week transition')
 ```
 
-The US profile models Federal Reserve Bank payment-business days, not NYSE
-trading or federal employee leave. Fixed-date holidays that fall on Sunday
-are observed on Monday; when they fall on Saturday, Federal Reserve Banks
-remain open on the preceding Friday. The rules include the effective dates of
-Juneteenth, Martin Luther King Jr. Day, and the modern Monday holidays. For
-dates before 1971, Washington's Birthday and Memorial Day use their then-fixed
-dates with the pre-1971 Friday/Monday observance rules; Veterans Day uses the
-fourth Monday in October from 1971 through 1977. This history is explicitly
-covered by the date range and cross-validation.
-
-The Israel profile models full-day TASE trading closures. Its workweek is
-Sunday–Thursday through January 4, 2026, and Monday–Friday from January 5,
-2026. Jewish holidays are calculated from the fixed Hebrew calendar, with
-Israel's Independence Day adjustment and TASE-specific closure dates. Short
-sessions during intermediate festival days are still business days; market
-hours and settlement-specific calendars are outside this API. For announced
-one-off closures, pass `additional_holidays:`; `removed_holidays:` can reopen
-a named date from the recurring profile. Weekly weekends remain closed even
-when listed in `removed_holidays:`. These overrides are immutable and scoped
-to that calendar instance.
-
-The recurring US rules follow the Federal Reserve's published [K.8 holiday
-schedule](https://www.federalreserve.gov/aboutthefed/k8.htm). The TASE closure
-set is characterized against its published [2024 vacation schedule](https://content.tase.co.il/media/33xjyi00/file_0010_vacation_schedule_2024_eng.pdf);
-the weekday transition follows the Israel Securities Authority's [trading-day
-guide](https://www.new.isa.gov.il/images/Fittings/isa/asset_library_pic/al_lobby/al_lobby-65d5b849b3af3/Modification_TradingDays.pdf),
-and Independence Day adjustments follow the [Knesset's English translation
-of the law](https://m.knesset.gov.il/EN/About/Documents/IndependenceDayLawEng.pdf).
-The library owns the calculations and will need maintenance when a market
-changes its rules or announces exceptional closures.
-
-An optional exhaustive oracle check is available with QuantLib 1.43. It checks
-every date in the declared ranges (60,997 daily business/holiday classifications
-in total) against QuantLib's `UnitedStates::FederalReserve` and `Israel::TASE`
-calendars. The US profile agrees on all dates. The verifier records 75 known
-TASE differences rather than changing finrb to match QuantLib where better
-evidence disagrees: eight 2001 dates where QuantLib's static dates differ
-from the independent Hebrew calendar; 65 post-2020 festival-eve dates where
-QuantLib treats the date as open, while the 2024 TASE schedule confirms no
-trading on Passover Eve, Shavuot Eve, and Jewish New Year Eve; the officially
-closed 2026-01-04 transition day; and the statutory 2038 Independence Day
-adjustment. Applying the 2024 eve-closure policy throughout the supported
-range is an explicit assumption, not annual official confirmation for every
-year through 2050. QuantLib is a cross-check, not the authority when it
-conflicts with TASE publications or the governing law.
-
-To run the cross-check, install its maintainer-only dependency and invoke the
-Rake wrapper:
-
-```shell
-python3 -m pip install --requirement script/requirements-calendar-verification.txt
-bundle exec rake calendar:verify
-```
-
-This does not add a finrb runtime dependency. The verifier fails if any other
-date differs, if the date windows change without updating the oracle contract,
-or if the count or exact dates of the documented TASE differences change.
-The same comparison runs in the `QuantLib calendar cross-validation` CI job.
+For the full market-rule history, sources, validation ranges, QuantLib
+comparison, and evidence behind known disagreements, see the
+[business calendars reference](calendars.md).
 
 Supported date adjustments are `:following`, `:modified_following`,
 `:preceding`, `:modified_preceding`, `:half_month_modified_following`,

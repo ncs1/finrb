@@ -1,0 +1,31 @@
+{
+  "source_schedules": {
+    "2015": "https://content.tase.co.il/media/dp0kghj1/file_0010_vacation_schedule_2015_eng.pdf",
+    "2019": "https://content.tase.co.il/media/n2hl3q50/file_0010_vacation_schedule_2019_eng.pdf",
+    "2021": "https://content.tase.co.il/media/hh2ilipi/file_0010_vacation_schedule_2021_eng.pdf",
+    "2022": "https://content.tase.co.il/media/vyolzrvu/file_0010_vacation_schedule_2022_eng.pdf",
+    "2023": "https://content.tase.co.il/media/iqcijli2/file_0010_vacation_schedule_2023_eng.pdf",
+    "2024": "https://content.tase.co.il/media/33xjyi00/file_0010_vacation_schedule_2024_eng.pdf"
+  },
+  "known_source_errors": [
+    {
+      "date": "2022-05-16",
+      "incorrect_label": "Shavuot Eve",
+      "actual_holiday_date": "2022-06-04",
+      "actual_holiday": "Shavuot Eve"
+    }
+  ],
+  "closures": [
+    { "date": "2015-09-13", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2019-09-29", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2021-05-16", "holiday": "Shavuot Eve" },
+    { "date": "2021-09-06", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2022-09-25", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2023-04-05", "holiday": "Passover Eve I" },
+    { "date": "2023-05-25", "holiday": "Shavuot Eve" },
+    { "date": "2023-09-15", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2024-04-22", "holiday": "Passover Eve I" },
+    { "date": "2024-06-11", "holiday": "Shavuot Eve" },
+    { "date": "2024-10-02", "holiday": "Rosh Hashanah Eve" }
+  ]
+}

@@ -38,8 +38,9 @@ EXPECTED_2001_ISRAEL_DIFFERENCES = {
 }
 EXPECTED_DIFFERENCE_COUNTS = {
     "QuantLib's 2001 Hebrew-date table differs": 8,
-    "TASE festival-eve closure (confirmed by an annual TASE schedule)": 8,
-    "TASE festival-eve closure (projected by the recurring rule)": 57,
+    "TASE festival-eve closure (confirmed by an annual TASE schedule)": 10,
+    "TASE festival-eve closure (maintainer-confirmed for 2026)": 3,
+    "TASE festival-eve closure (projected by the recurring rule)": 52,
     "TASE's Sunday-to-Friday transition closure": 1,
     "Israel Independence Day statutory weekday adjustment": 1,
 }
@@ -83,11 +84,14 @@ def load_finrb_calendar_data():
     return masks, names
 
 
-def source_confirmed_festival_eve_dates():
+def festival_eve_evidence_by_date():
     repository = Path(__file__).resolve().parents[1]
     fixture_path = repository / "spec" / "fixtures" / "tase_verified_festival_eves.json"
     fixture = json.loads(fixture_path.read_text())
-    return {closure["date"] for closure in fixture["closures"]}
+    return {
+        closure["date"]: closure.get("evidence", "annual_tase_schedule")
+        for closure in fixture["closures"]
+    }
 
 
 def quantlib_calendars():
@@ -97,7 +101,7 @@ def quantlib_calendars():
     }
 
 
-def known_difference(profile, iso_date, ours_open, quantlib_open, names, sourced_eve_dates):
+def known_difference(profile, iso_date, ours_open, quantlib_open, names, festival_eve_evidence):
     if profile == "israel" and iso_date in EXPECTED_2001_ISRAEL_DIFFERENCES:
         return "QuantLib's 2001 Hebrew-date table differs"
 
@@ -112,14 +116,17 @@ def known_difference(profile, iso_date, ours_open, quantlib_open, names, sourced
 
     recurring_eves = {"Rosh Hashanah Eve", "Passover Eve I", "Shavuot Eve"}
     if set(names).intersection(recurring_eves) and iso_date >= "2021-01-01":
-        if iso_date in sourced_eve_dates:
+        evidence = festival_eve_evidence.get(iso_date)
+        if evidence == "annual_tase_schedule":
             return "TASE festival-eve closure (confirmed by an annual TASE schedule)"
+        if evidence == "maintainer_confirmed_2026":
+            return "TASE festival-eve closure (maintainer-confirmed for 2026)"
         return "TASE festival-eve closure (projected by the recurring rule)"
 
     return None
 
 
-def compare_calendar(profile, calendar, masks, names, sourced_eve_dates):
+def compare_calendar(profile, calendar, masks, names, festival_eve_evidence):
     start = date.fromisoformat(EXPECTED_RANGES[profile][0])
     end = date.fromisoformat(EXPECTED_RANGES[profile][1])
     mismatches = []
@@ -141,7 +148,7 @@ def compare_calendar(profile, calendar, masks, names, sourced_eve_dates):
                 ours_open,
                 quantlib_open,
                 names[profile].get(iso_date, []),
-                sourced_eve_dates,
+                festival_eve_evidence,
             )
             mismatches.append((iso_date, ours_open, quantlib_open, reason))
 
@@ -155,13 +162,13 @@ def main():
         raise RuntimeError(f"expected QuantLib {EXPECTED_VERSION}, found {ql.__version__}")
 
     masks, names = load_finrb_calendar_data()
-    sourced_eve_dates = source_confirmed_festival_eve_dates()
+    festival_eve_evidence = festival_eve_evidence_by_date()
     calendars = quantlib_calendars()
     all_mismatches = {}
     total_compared = 0
 
     for profile, calendar in calendars.items():
-        compared, mismatches = compare_calendar(profile, calendar, masks, names, sourced_eve_dates)
+        compared, mismatches = compare_calendar(profile, calendar, masks, names, festival_eve_evidence)
         total_compared += compared
         all_mismatches[profile] = mismatches
         print(f"{profile}: compared {compared:,} dates against {calendar.name()}; {len(mismatches)} differences")
@@ -191,8 +198,14 @@ def main():
             f"{observed_special_differences!r}; expected {EXPECTED_SPECIAL_ISRAEL_DIFFERENCES!r}"
         )
 
+    legacy_confirmed_eve_dates = {
+        iso_date for iso_date in festival_eve_evidence if iso_date[:4] < "2025"
+    }
+    # Preserve the original date/status fingerprint; current evidence-tier
+    # counts separately pin the newly researched 2025 and 2026 sources.
     known_differences = sorted(
-        f"{item[0]}|{item[1]}|{item[2]}|{item[3]}" for item in all_mismatches["israel"]
+        f"{item[0]}|{item[1]}|{item[2]}|{fingerprint_reason(item, legacy_confirmed_eve_dates)}"
+        for item in all_mismatches["israel"]
     )
     difference_digest = hashlib.sha256("\n".join(known_differences).encode()).hexdigest()
     if difference_digest != EXPECTED_ISRAEL_DIFFERENCE_SHA256:
@@ -205,6 +218,21 @@ def main():
     print("The listed TASE/QuantLib differences match the documented evidence/projection profile; all other dates agree.")
     for reason, count in difference_counts.items():
         print(f"  {count} known Israel differences: {reason}")
+
+
+def fingerprint_reason(item, legacy_confirmed_eve_dates):
+    """Preserve the original mismatch fingerprint while asserting newer evidence separately."""
+    iso_date, _, _, reason = item
+    eve_reasons = {
+        "TASE festival-eve closure (confirmed by an annual TASE schedule)",
+        "TASE festival-eve closure (maintainer-confirmed for 2026)",
+        "TASE festival-eve closure (projected by the recurring rule)",
+    }
+    if reason not in eve_reasons:
+        return reason
+    if iso_date in legacy_confirmed_eve_dates:
+        return "TASE festival-eve closure (confirmed by an annual TASE schedule)"
+    return "TASE festival-eve closure (projected by the recurring rule)"
 
 
 if __name__ == "__main__":

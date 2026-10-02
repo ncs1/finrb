@@ -11,14 +11,15 @@ records the calendars' market scope, source basis, and cross-validation status.
 
 The exhaustive QuantLib 1.43 comparison covers 60,997 dates. The US profile
 matches on all 42,369 dates. TASE differs on 75 dates: 8 historical Hebrew-date
-differences, 8 festival-eve differences directly supported by selected TASE
-annual schedules, 57 festival-eve differences projected by finrb's recurring
-rule, one trading-week transition date, and one statutory Independence Day
-adjustment.
+differences, 10 festival-eve differences directly supported by selected TASE
+annual schedules, 3 2026 festival-eve closures confirmed by the maintainer and
+corroborated by contemporary official holiday calendars and exchange-calendar
+listings, 52 festival-eve differences projected by finrb's recurring rule, one
+trading-week transition date, and one statutory Independence Day adjustment.
 
 The rule is: QuantLib is a valuable independent cross-check, not the authority
 when primary market schedules or applicable law conflict with it. finrb keeps
-the evidence-backed dates and statutory rules. The 57 projected eve dates are
+the evidence-backed dates and statutory rules. The 52 projected eve dates are
 not claimed to have been individually confirmed by TASE schedules; they remain
 an explicit generalization of the recurring closure rule. All 75 observed
 status differences are pinned by the verifier so new or shifted differences
@@ -68,7 +69,8 @@ schedules for [2015](https://content.tase.co.il/media/dp0kghj1/file_0010_vacatio
 [2021](https://content.tase.co.il/media/hh2ilipi/file_0010_vacation_schedule_2021_eng.pdf),
 [2022](https://content.tase.co.il/media/vyolzrvu/file_0010_vacation_schedule_2022_eng.pdf),
 [2023](https://content.tase.co.il/media/iqcijli2/file_0010_vacation_schedule_2023_eng.pdf),
-and [2024](https://content.tase.co.il/media/33xjyi00/file_0010_vacation_schedule_2024_eng.pdf).
+[2024](https://content.tase.co.il/media/33xjyi00/file_0010_vacation_schedule_2024_eng.pdf),
+and [2025 (Hebrew)](https://content.tase.co.il/media/iexfczjb/file_0010_vacation_schedule_2025_heb.pdf).
 The trading-week change is described in the [TASE change notice](https://www.tase.co.il/en/content/about/tradingdays_change)
 and the [Israel Securities Authority's trading-days guide](https://www.new.isa.gov.il/images/Fittings/isa/asset_library_pic/al_lobby/al_lobby-65d5b849b3af3/Modification_TradingDays.pdf).
 The Independence Day weekday rule follows the [Knesset's English translation
@@ -95,8 +97,27 @@ in `spec/finrb/calendars_spec.rb`; the source dates are recorded in
 
 ### TASE festival-eve discrepancies
 
-Eleven selected eve closures are listed in the cited annual schedules and
-recorded in `spec/fixtures/tase_verified_festival_eves.json`:
+The 2025 TASE annual schedule directly confirms the two projected QuantLib
+mismatches for that year: June 1 is Shavuot Eve and September 22 is Rosh
+Hashanah Eve; both dates have no trading. The PDF is Hebrew, and its table
+marks the trading column closed for both dates.
+
+For 2026, the Bank of Israel Markets Department calendar identifies April 1
+and September 11 as Passover Eve and Rosh Hashanah Eve. The Israel MFA's
+Embassy of Israel in Seoul calendar independently gives those dates and also
+identifies May 21 as Shavuot Eve. TASE's [Trading and Vacation Schedules
+page](https://www.tase.co.il/en/content/knowledge_center/trading_vacation_schedule)
+is the primary live exchange source, but its schedule rows are dynamically
+rendered and were not extractable in the static research view. Two exchange
+calendar listings ([CalendarLabs](https://www.calendarlabs.com/tase-market-holidays-2026/)
+and [Market Holiday](https://market-holiday.com/markets/tase/holidays/2026))
+identify all three dates as full TASE closures. The maintainer has confirmed
+the dates and instructed finrb to assume trading was closed. The fixture records
+that confirmation separately from the published sources; it does not claim a
+captured TASE annual-PDF row for 2026.
+
+Thirteen selected eve closures are directly listed in the cited TASE
+annual schedules and recorded in `spec/fixtures/tase_verified_festival_eves.json`:
 
 | Date | finrb label | Listed in TASE annual schedule |
 | --- | --- | --- |
@@ -111,14 +132,16 @@ recorded in `spec/fixtures/tase_verified_festival_eves.json`:
 | 2024-04-22 | Passover Eve I | 2024 |
 | 2024-06-11 | Shavuot Eve | 2024 |
 | 2024-10-02 | Rosh Hashanah Eve | 2024 |
+| 2025-06-01 | Shavuot Eve | 2025 |
+| 2025-09-22 | Rosh Hashanah Eve | 2025 |
 
-Eight of those source-backed dates are among the 65 status differences from
-QuantLib; QuantLib already closes the other three. The remaining 57 dates are
-future or otherwise unsourced projections of the recurring eve rule:
+Ten of the direct annual-schedule dates are among the 75 status differences
+from QuantLib; QuantLib already closes the other three. The 2026 dates are
+separately categorized as maintainer-confirmed and source-corroborated (not
+direct annual-PDF evidence). The remaining 52 differences are projections of
+the recurring eve rule:
 
 ```text
-2025: 06-01, 09-22
-2026: 04-01, 05-21, 09-11
 2027: 04-21, 06-10, 10-01
 2028: 04-10, 05-30, 09-20
 2029: 03-30
@@ -172,14 +195,15 @@ oracle asserts the mismatch's direction.
 `UnitedStates::FederalReserve` and `Israel::TASE` calendars. It checks 60,997
 daily statuses: 42,369 US dates and 18,628 TASE dates. The US profile agrees
 everywhere. TASE's 75 known differences are separated into eight Hebrew-date
-dates, eight annual-schedule-backed eve dates, 57 projected eve dates, and the
-two special 2026/2038 differences.
+dates, ten annual-schedule-backed eve dates, three maintainer-confirmed 2026
+eve dates, 52 projected eve dates, and the two special 2026/2038 differences.
 
 The verifier directly asserts the expected dates and status directions of the
-ten researched non-projected differences. It fingerprints all 75 mismatch
-rows and checks category counts as well. Any additional difference, shifted
-date, changed direction, or category-count change fails the check. The same
-comparison runs in the `QuantLib calendar cross-validation` CI job.
+ten special non-eve differences. Eve evidence tiers are separately classified
+from the checked-in fixture. It fingerprints all 75 mismatch rows and checks
+category counts as well. Any additional difference, shifted date, changed
+direction, or category-count change fails the check. The same comparison runs
+in the `QuantLib calendar cross-validation` CI job.
 
 Install the maintainer-only Python reference dependency and run the Rake task:
 

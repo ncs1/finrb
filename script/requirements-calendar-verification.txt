@@ -1,0 +1,3 @@
+# Optional calendar reference used by script/verify_calendars.py.
+# Maintainer-only verification dependency; not part of finrb's runtime.
+QuantLib==1.43

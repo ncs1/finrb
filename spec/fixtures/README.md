@@ -88,3 +88,25 @@ Wall-clock timings are secondary diagnostics: they include different process
 startup and concurrency costs and are not direct solver microbenchmarks.
 
 QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. The versions used by the maintained fixtures are pinned in `script/requirements-solver-verification.txt`. Neither Python package is a finrb runtime dependency.
+
+## Business calendars
+
+`script/verify_calendars.py` compares every supported date against QuantLib
+1.43's `UnitedStates::FederalReserve` and `Israel::TASE` business-day results.
+The profiles intentionally bound their ranges to 1950–2065 (US) and
+2000–2050 (TASE); date-only status is compared for every day, not just named
+holiday examples. The US profile agrees across 42,369 dates. TASE has 75
+classified differences, all fixed in the verifier as known reference
+divergences and described in the Business calendars section of `docs/api.md`.
+The exact TASE difference dates are fingerprinted as well as category-counted;
+new or shifted mismatches fail verification. The same check runs in CI. Install
+its optional reference dependency with:
+
+```shell
+python3 -m pip install --requirement script/requirements-calendar-verification.txt
+bundle exec rake calendar:verify
+```
+
+This is an exhaustive comparison to QuantLib's implementation, not a claim
+that QuantLib overrides an official TASE calendar or that annual schedules
+have been published for every year in the supported future range.

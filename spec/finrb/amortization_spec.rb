@@ -48,6 +48,17 @@ describe(Finrb::Amortization) do
         .to(raise_error(ArgumentError, /start_date must be a Date or nil/))
     end
 
+    it('requires an explicit calendar and convention for calendar-adjusted dated payments') do
+      calendar = Finrb::Calendars::USFederalReserve.new
+
+      expect { Amortization.new(1000, rate, business_day_convention: :following) }
+        .to(raise_error(ArgumentError, /requires a calendar/))
+      expect { Amortization.new(1000, rate, start_date: Date.new(2026, 1, 1), calendar:) }
+        .to(raise_error(ArgumentError, /business_day_convention must be one of/))
+      expect { Amortization.new(1000, rate, calendar:, business_day_convention: :following) }
+        .to(raise_error(ArgumentError, /requires a start_date/))
+    end
+
     it('rejects dated rates whose period growth factor would not be positive') do
       rate = Rate.new(-11.99, :apr, duration: 12)
 
@@ -87,6 +98,17 @@ describe(Finrb::Amortization) do
       expect(first.interest).to(eq(D('1019.18')))
       expect(first.opening_balance + first.interest + first.payment).to(eq(first.closing_balance))
       expect(amortization.schedule.last.closing_balance).to(be_zero)
+    end
+
+    it('adjusts payment dates before accruing dated interest when a calendar is supplied') do
+      rate = Rate.new(0.12, :apr, duration: 2)
+      calendar = Finrb::Calendars::USFederalReserve.new
+      amortization = Amortization.new(100_000, rate, start_date: Date.new(2026, 1, 31), calendar:, business_day_convention: :modified_following)
+
+      expect(amortization.schedule.map(&:date)).to(eq([Date.new(2026, 2, 27), Date.new(2026, 3, 31)]))
+      expect(amortization.schedule.first.interest).to(eq(D('887.67')))
+      expect(amortization.calendar).to(eq(calendar))
+      expect(amortization.business_day_convention).to(eq(:modified_following))
     end
 
     it('supports a negative APR') do

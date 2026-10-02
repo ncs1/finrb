@@ -14,6 +14,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  calendar_oracle:
+    name: QuantLib calendar cross-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install calendar oracle
+        run: python -m pip install --requirement script/requirements-calendar-verification.txt
+      - name: Compare every supported date
+        run: bundle exec rake calendar:verify
+
   mri:
     name: Ruby ${{ matrix.ruby_version }} / ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}

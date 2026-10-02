@@ -5,7 +5,15 @@
     "2021": "https://content.tase.co.il/media/hh2ilipi/file_0010_vacation_schedule_2021_eng.pdf",
     "2022": "https://content.tase.co.il/media/vyolzrvu/file_0010_vacation_schedule_2022_eng.pdf",
     "2023": "https://content.tase.co.il/media/iqcijli2/file_0010_vacation_schedule_2023_eng.pdf",
-    "2024": "https://content.tase.co.il/media/33xjyi00/file_0010_vacation_schedule_2024_eng.pdf"
+    "2024": "https://content.tase.co.il/media/33xjyi00/file_0010_vacation_schedule_2024_eng.pdf",
+    "2025": "https://content.tase.co.il/media/iexfczjb/file_0010_vacation_schedule_2025_heb.pdf"
+  },
+  "2026_confirmation": {
+    "tase_schedule": "https://www.tase.co.il/en/content/knowledge_center/trading_vacation_schedule",
+    "bank_of_israel": "https://www.boi.org.il/media/d1anvu5a/markets-department-business-days-for-2026.pdf",
+    "israel_mfa_embassy": "https://embassies.gov.il/seoul/en/events/2026-holidays-and-operating-hours",
+    "maintainer_confirmation": "The maintainer confirms these dates and instructs finrb to treat TASE trading as closed.",
+    "note": "The official TASE source is a dynamic live schedule page; its 2026 rows were not extractable in the static research view. Bank of Israel and MFA sources confirm the eve dates. The trading-closure status is maintainer-confirmed; exchange-calendar listings are supplemental corroboration."
   },
   "known_source_errors": [
     {
@@ -26,6 +34,11 @@
     { "date": "2023-09-15", "holiday": "Rosh Hashanah Eve" },
     { "date": "2024-04-22", "holiday": "Passover Eve I" },
     { "date": "2024-06-11", "holiday": "Shavuot Eve" },
-    { "date": "2024-10-02", "holiday": "Rosh Hashanah Eve" }
+    { "date": "2024-10-02", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2025-06-01", "holiday": "Shavuot Eve", "evidence": "annual_tase_schedule" },
+    { "date": "2025-09-22", "holiday": "Rosh Hashanah Eve", "evidence": "annual_tase_schedule" },
+    { "date": "2026-04-01", "holiday": "Passover Eve I", "evidence": "maintainer_confirmed_2026" },
+    { "date": "2026-05-21", "holiday": "Shavuot Eve", "evidence": "maintainer_confirmed_2026" },
+    { "date": "2026-09-11", "holiday": "Rosh Hashanah Eve", "evidence": "maintainer_confirmed_2026" }
   ]
 }

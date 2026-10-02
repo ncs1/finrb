@@ -119,10 +119,14 @@ Hebrew holiday dates used to check the 2001 QuantLib date-table discrepancy.
 The calendar specs assert the matching named closures and the four dates that
 QuantLib closes one day early.
 
-`tase_verified_festival_eves.json` records 11 festival-eve trading closures
-explicitly listed in TASE annual schedules for 2015, 2019, and 2021–2024. The
-calendar specs assert the holiday label and closed status for each recorded
-date. These source-backed examples support the recurring rule but do not
-establish it for every year through 2050. The 2022 schedule incorrectly lists
-May 16 as Shavuot Eve; the actual eve was June 4. The fixture records this
-source error and the specs ensure finrb does not encode it.
+`tase_verified_festival_eves.json` records festival-eve closures from TASE
+annual schedules for 2015, 2019, and 2021–2025. The 2025 Hebrew schedule
+confirms June 1 and September 22 as no-trading eves. The three 2026 dates are
+separate: official Bank of Israel and MFA calendars corroborate the eve dates,
+and exchange-calendar listings corroborate the TASE closures. The maintainer
+confirmed the dates and instructed finrb to assume trading was closed; the
+TASE live page's dynamic rows were not captured directly. The calendar specs
+preserve that evidence distinction. These examples do not establish the
+recurring rule for every year through 2050. The 2022 schedule incorrectly lists May 16 as
+Shavuot Eve; the actual eve was June 4. The fixture records this source error
+and the specs ensure finrb does not encode it.

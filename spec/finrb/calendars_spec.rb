@@ -113,9 +113,28 @@ describe(Finrb::Calendars) do
       expect(calendar.holiday_names(Date.new(2024, 10, 12))).to(include('Yom Kippur'))
     end
 
-    it('matches festival-eve closures in published TASE annual schedules') do
-      expect(festival_eve_fixture.fetch('source_schedules').keys).to(eq(%w[2015 2019 2021 2022 2023 2024]))
+    it('matches festival-eve closures recorded in the calendar evidence fixture') do
+      expect(festival_eve_fixture.fetch('source_schedules').keys).to(eq(%w[2015 2019 2021 2022 2023 2024 2025]))
       festival_eve_fixture.fetch('closures').each do |closure|
+        date = Date.iso8601(closure.fetch('date'))
+
+        expect(calendar.holiday_names(date)).to(include(closure.fetch('holiday')), closure.fetch('date'))
+        expect(calendar.business_day?(date)).to(be(false), closure.fetch('date'))
+      end
+    end
+
+    it('records the maintainer confirmation and source limits for 2026') do
+      confirmation = festival_eve_fixture.fetch('2026_confirmation')
+
+      expect(confirmation.fetch('tase_schedule')).to(include('trading_vacation_schedule'))
+      expect(confirmation.fetch('maintainer_confirmation')).to(include('treat TASE trading as closed'))
+    end
+
+    it('records the maintainer-confirmed 2026 festival-eve closures') do
+      closures = festival_eve_fixture.fetch('closures').select { |closure| closure['evidence'] == 'maintainer_confirmed_2026' }
+
+      expect(closures.map { |closure| closure.fetch('date') }).to(eq(%w[2026-04-01 2026-05-21 2026-09-11]))
+      closures.each do |closure|
         date = Date.iso8601(closure.fetch('date'))
 
         expect(calendar.holiday_names(date)).to(include(closure.fetch('holiday')), closure.fetch('date'))

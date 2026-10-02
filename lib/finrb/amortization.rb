@@ -5,6 +5,7 @@ require_relative 'cashflows'
 require_relative 'day_count'
 require_relative 'decimal'
 require_relative 'precision'
+require_relative 'schedule'
 require_relative 'transaction'
 require_relative 'validation'
 require 'date'
@@ -22,8 +23,8 @@ module Finrb
   #   rate = Rate.new(0.0425, :apr, :duration => (5 * 12))
   #   extra_payments = Finrb::Amortization.new(250000, rate){ |period| period.payment - 150 }
   class Amortization
-    FREQUENCY_MONTHS = { monthly: 1, quarterly: 3, semiannual: 6, annual: 12 }.freeze
-    STUB_CONVENTIONS = %i[none short_final].freeze
+    FREQUENCY_MONTHS = Schedule::FREQUENCY_MONTHS
+    STUB_CONVENTIONS = Schedule::STUB_CONVENTIONS
     public_constant :FREQUENCY_MONTHS, :STUB_CONVENTIONS
 
     # Immutable breakdown of one amortization period. Payments retain finrb's
@@ -166,7 +167,7 @@ module Finrb
       @rates     = rates
       @block     = block
 
-      initialize_schedule(start_date, frequency, stub, rates)
+      initialize_schedule(start_date, frequency, stub, rates, calendar, business_day_convention)
 
       valid_interest_only = interest_only_periods.is_a?(Integer) && interest_only_periods.between?(0, @periods - 1)
       raise(ArgumentError, 'interest_only_periods must be a non-negative integer shorter than the loan term.') unless valid_interest_only
@@ -176,15 +177,6 @@ module Finrb
       @calendar = calendar
       @business_day_convention = business_day_convention
       @day_count = day_count
-      if @calendar
-        @payment_dates.map! { |date| @calendar.adjust(date, convention: @business_day_convention) }
-        previous_date = @start_date
-        @payment_dates.each do |date|
-          raise(ArgumentError, 'calendar adjustment must produce dates strictly after the prior payment date.') if date <= previous_date
-
-          previous_date = date
-        end
-      end
       @period = 0
 
       compute
@@ -350,51 +342,36 @@ module Finrb
       raise(ArgumentError, 'a non-default day_count requires a start_date.') if start_date.nil? && day_count != DayCount::DEFAULT
     end
 
-    def validate_schedule_options!(start_date, frequency, stub, term_months)
+    def validate_schedule_options!(start_date, frequency, stub)
       raise(ArgumentError, "frequency must be one of #{FREQUENCY_MONTHS.keys.join(', ')}.") unless FREQUENCY_MONTHS.key?(frequency)
       raise(ArgumentError, "stub must be one of #{STUB_CONVENTIONS.join(', ')}.") unless STUB_CONVENTIONS.include?(stub)
       raise(ArgumentError, 'a non-monthly frequency requires a start_date.') if start_date.nil? && frequency != :monthly
       raise(ArgumentError, 'a non-default stub requires a start_date.') if start_date.nil? && stub != :none
-      return if (term_months % FREQUENCY_MONTHS.fetch(frequency)).zero? || stub == :short_final
-
-      raise(ArgumentError, 'loan term does not align with frequency; pass stub: :short_final to allow a short final period.')
     end
 
-    def initialize_schedule(start_date, frequency, stub, rates)
+    def initialize_schedule(start_date, frequency, stub, rates, calendar, business_day_convention)
       @term_months = rates.sum(&:duration)
-      validate_schedule_options!(start_date, frequency, stub, @term_months)
+      validate_schedule_options!(start_date, frequency, stub)
       @frequency = frequency
       @stub = stub
-      @period_month_offsets = start_date && payment_month_offsets(@term_months, frequency)
-      @payment_dates = @period_month_offsets&.map { |month_offset| anchored_date(start_date, month_offset) }
-      @rate_period_counts = start_date ? periods_per_rate(rates, @period_month_offsets) : rates.map(&:duration)
+      @dated_schedule = start_date && Schedule.from_months(start_date:, term_months: @term_months, frequency:, stub:, calendar:, business_day_convention:)
+      @payment_dates = @dated_schedule&.payment_dates
       @periods = @payment_dates ? @payment_dates.length : @term_months
+      @rate_period_counts = start_date ? periods_per_rate(rates, frequency, @periods) : rates.map(&:duration)
     end
 
-    def payment_month_offsets(term_months, frequency)
+    def periods_per_rate(rates, frequency, total_periods)
       interval = FREQUENCY_MONTHS.fetch(frequency)
-      offsets = []
-      month_offset = interval
-      while month_offset < term_months
-        offsets << month_offset
-        month_offset += interval
-      end
-      offsets << term_months
-      offsets
-    end
-
-    def periods_per_rate(rates, month_offsets)
       cumulative_months = 0
       previous_period_count = 0
       rates.each_with_index.map do |rate, index|
         cumulative_months += rate.duration
         if index == rates.length - 1
-          month_offsets.length - previous_period_count
+          total_periods - previous_period_count
         else
-          boundary_index = month_offsets.index(cumulative_months)
-          raise(ArgumentError, 'rate changes must align with a payment date for dated non-monthly schedules.') unless boundary_index
+          raise(ArgumentError, 'rate changes must align with a payment date for dated non-monthly schedules.') if (cumulative_months % interval).nonzero?
 
-          period_count = boundary_index + 1
+          period_count = cumulative_months / interval
           periods_in_segment = period_count - previous_period_count
           previous_period_count = period_count
           periods_in_segment
@@ -442,23 +419,9 @@ module Finrb
       raise(ArgumentError, "payment modification #{requirement}.")
     end
 
-    def anchored_date(anchor, month_offset)
-      month_start = Date.new(anchor.year, anchor.month, 1) >> month_offset
-      next_month_start = month_start >> 1
-      month_end = next_month_start - 1
-      anchor_month_end = (Date.new(anchor.year, anchor.month, 1) >> 1) - 1
-      day =
-        if anchor.day == anchor_month_end.day
-          month_end.day
-        else
-          [anchor.day, month_end.day].min
-        end
-      Date.new(month_start.year, month_start.month, day)
-    end
-
     def dated_period_rate(rate, period_index)
-      previous_date = period_index.zero? ? @start_date : @payment_dates.fetch(period_index - 1)
-      year_fraction = DayCount.year_fraction(previous_date, @payment_dates.fetch(period_index), convention: @day_count)
+      period = @dated_schedule.periods.fetch(period_index)
+      year_fraction = DayCount.year_fraction(period.accrual_start_date, period.payment_date, convention: @day_count)
       periodic_rate = Precision.rate(rate.apr * year_fraction)
       Validation.decimal_greater_than(periodic_rate, minimum: -1, name: 'dated periodic rate')
     end

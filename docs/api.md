@@ -178,6 +178,47 @@ end_date = Date.new(2025, 2, 15)
 raise unless Finrb::DayCount.year_fraction(start_date, end_date, convention: :actual_360) == Flt::DecNum(31) / Flt::DecNum(360)
 ```
 
+## Payment schedules
+
+`Finrb::Schedule` is a reusable, immutable date schedule for monthly,
+quarterly, semiannual, or annual payment dates. It is date infrastructure,
+not an amortization or bond calculator: it does not calculate accrual amounts,
+cashflows, principal, or yields. Both `start_date:` and `maturity_date:` are
+date-only `Date` values, and maturity must be later than the start date.
+
+Regular dates are generated from the original start-date anchor, preserving
+month-end or clamping the original day in shorter months. `:none` requires
+maturity to fall on a regular date. `stub: :short_final` explicitly permits a
+short final period; long or front stubs are not supported. If a calendar is
+provided, a business-day convention is required, and each period retains both
+its unadjusted date and adjusted payment date. Accrual starts at the previous
+adjusted payment boundary (the first period starts on `start_date`). Calendars
+may reject dates outside their documented support range.
+
+`Schedule.from_months` is a convenience constructor for callers whose term is
+expressed in months, including `Amortization`, where `Rate#duration` remains a
+month count. The `Period` records have zero-based `index`,
+`accrual_start_date`, `unadjusted_payment_date`, `payment_date`, and `stub`;
+`stub` is `:short_final` on the shortened last period and `nil` otherwise;
+`short_final_stub?` identifies the shortened last period. The schedule,
+period records, and returned date arrays are frozen.
+
+<!-- verify-example -->
+```ruby
+schedule = Finrb::Schedule.new(
+  start_date: Date.new(2025, 1, 31),
+  maturity_date: Date.new(2026, 3, 31),
+  frequency: :quarterly,
+  stub: :short_final
+)
+
+raise unless schedule.payment_dates == [
+  Date.new(2025, 4, 30), Date.new(2025, 7, 31), Date.new(2025, 10, 31),
+  Date.new(2026, 1, 31), Date.new(2026, 3, 31)
+]
+raise unless schedule.periods.last.short_final_stub?
+```
+
 ## Amortization
 
 Rates used in amortization require a duration in months. Payments are negative
@@ -206,10 +247,11 @@ Each frozen `Finrb::Amortization::Entry` exposes:
 Supplying `start_date: Date` opts into a dated schedule. Payment frequency is
 monthly by default; `:quarterly`, `:semiannual`, and `:annual` are also
 supported. `Rate#duration` remains a month count and the sum of rate durations
-defines the loan term. Each payment date is generated from the original start
-date anchor, preserving month-end or clamping the original day in shorter
-months without date drift. A term not divisible by its payment frequency is
-rejected unless `stub: :short_final` explicitly allows a shorter final period;
+defines the loan term. Its dates are generated through `Finrb::Schedule` from
+the original start-date anchor, preserving month-end or clamping the original
+day in shorter months without date drift. A term not divisible by its payment
+frequency is rejected unless `stub: :short_final` explicitly allows a shorter
+final period;
 `:none` is the default. Rate changes in a dated non-monthly schedule must land
 on a payment date. `interest_only_periods` counts schedule periods.
 

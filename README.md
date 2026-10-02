@@ -58,6 +58,7 @@ API explicitly returns another financial object, such as `Finrb::Rate`.
 | `Finrb::Cashflow` | NPV, XNPV, IRR, and XIRR |
 | `Finrb::Rate` | Nominal APR, effective APY, and compounding conversions |
 | `Finrb::Amortization` | Fixed and adjustable-rate loan amortization |
+| `Finrb::Schedule` | Immutable dated payment periods with optional calendar adjustment |
 | `Finrb::Calendars` | US Federal Reserve and Israel TASE business calendars |
 | `Finrb::TVM` | Present value, future value, payments, periods, and perpetuities |
 | `Finrb::Returns` | Holding-period, time-weighted, portfolio, and risk-adjusted returns |

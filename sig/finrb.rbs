@@ -86,6 +86,36 @@ module Finrb
     def self.year_fraction: (Date, Date, ?convention: convention) -> decimal
   end
 
+  class Schedule
+    type frequency = :monthly | :quarterly | :semiannual | :annual
+    type stub = :none | :short_final
+
+    FREQUENCY_MONTHS: Hash[frequency, Integer]
+    STUB_CONVENTIONS: Array[stub]
+
+    class Period
+      def initialize: (index: Integer, accrual_start_date: Date, unadjusted_payment_date: Date, payment_date: Date, ?stub: stub?) -> void
+      def index: () -> Integer
+      def accrual_start_date: () -> Date
+      def unadjusted_payment_date: () -> Date
+      def payment_date: () -> Date
+      def stub: () -> stub?
+      def short_final_stub?: () -> bool
+    end
+
+    def self.from_months: (start_date: Date, term_months: Integer, ?frequency: frequency, ?stub: stub, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?) -> Schedule
+    def initialize: (start_date: Date, maturity_date: Date, ?frequency: frequency, ?stub: stub, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?) -> void
+    def start_date: () -> Date
+    def maturity_date: () -> Date
+    def frequency: () -> frequency
+    def stub: () -> stub
+    def calendar: () -> Calendars::Base?
+    def business_day_convention: () -> Calendars::convention?
+    def periods: () -> Array[Period]
+    def payment_dates: () -> Array[Date]
+    def unadjusted_payment_dates: () -> Array[Date]
+  end
+
   class InvalidCashflowError < Error
   end
 

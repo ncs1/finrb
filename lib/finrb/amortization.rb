@@ -2,6 +2,7 @@
 
 require_relative 'calendars'
 require_relative 'cashflows'
+require_relative 'day_count'
 require_relative 'decimal'
 require_relative 'precision'
 require_relative 'transaction'
@@ -91,6 +92,8 @@ module Finrb
     attr_reader :calendar
     # @return [Symbol, nil] business-day convention used when adjusting dated payments
     attr_reader :business_day_convention
+    # @return [Symbol] day-count convention used for dated interest accrual
+    attr_reader :day_count
 
     # @return [Flt::DecNum] the periodic payment due on a loan
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
@@ -128,9 +131,11 @@ module Finrb
     # @param [Proc] block
     # @param [Finrb::Calendars::Base, nil] calendar optional market calendar for dated payment adjustment
     # @param [Symbol, nil] business_day_convention required when calendar is supplied
-    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, calendar: nil, business_day_convention: nil, &block)
+    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, calendar: nil, business_day_convention: nil, day_count: DayCount::DEFAULT, &block)
       @principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
       raise(ArgumentError, 'start_date must be a Date or nil.') unless start_date.nil? || start_date.instance_of?(Date)
+
+      validate_day_count!(start_date, day_count)
 
       validate_calendar_options!(start_date, calendar, business_day_convention)
 
@@ -160,6 +165,7 @@ module Finrb
       @start_date = start_date
       @calendar = calendar
       @business_day_convention = business_day_convention
+      @day_count = day_count
       @payment_dates = start_date && Array.new(@periods) { |index| monthly_date(start_date, index + 1) }
       if @calendar
         @payment_dates.map! { |date| @calendar.adjust(date, convention: @business_day_convention) }
@@ -179,7 +185,7 @@ module Finrb
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
     def ==(other)
-      (principal == other.principal) && (start_date == other.start_date) && (calendar == other.calendar) && (business_day_convention == other.business_day_convention) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
+      (principal == other.principal) && (start_date == other.start_date) && (calendar == other.calendar) && (business_day_convention == other.business_day_convention) && (day_count == other.day_count) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
     end
 
     attr_reader :finance_origination_fee
@@ -330,6 +336,11 @@ module Finrb
       raise(ArgumentError, "business_day_convention must be one of #{Calendars::Base::CONVENTIONS.join(', ')}.") unless Calendars::Base::CONVENTIONS.include?(convention)
     end
 
+    def validate_day_count!(start_date, day_count)
+      raise(ArgumentError, "day_count must be one of #{DayCount::CONVENTIONS.join(', ')}.") unless DayCount::CONVENTIONS.include?(day_count)
+      raise(ArgumentError, 'a non-default day_count requires a start_date.') if start_date.nil? && day_count != DayCount::DEFAULT
+    end
+
     def build_schedule
       opening_balance = @amount_financed
       @transactions.each_slice(2).with_index.map do |(interest, payment), index|
@@ -386,8 +397,8 @@ module Finrb
 
     def dated_period_rate(rate, period_index)
       previous_date = period_index.zero? ? @start_date : @payment_dates.fetch(period_index - 1)
-      actual_days = (@payment_dates.fetch(period_index) - previous_date).to_i
-      periodic_rate = Precision.rate(rate.apr * Flt::DecNum(actual_days.to_s) / Flt::DecNum('365'))
+      year_fraction = DayCount.year_fraction(previous_date, @payment_dates.fetch(period_index), convention: @day_count)
+      periodic_rate = Precision.rate(rate.apr * year_fraction)
       Validation.decimal_greater_than(periodic_rate, minimum: -1, name: 'dated periodic rate')
     end
 

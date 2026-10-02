@@ -48,6 +48,13 @@ describe(Finrb::Amortization) do
         .to(raise_error(ArgumentError, /start_date must be a Date or nil/))
     end
 
+    it('requires a start date to use a non-default day-count convention') do
+      expect { Amortization.new(1000, rate, day_count: :actual_360) }
+        .to(raise_error(ArgumentError, /non-default day_count requires a start_date/))
+      expect { Amortization.new(1000, rate, start_date: Date.new(2026, 1, 1), day_count: :thirty_360) }
+        .to(raise_error(ArgumentError, /day_count must be one of/))
+    end
+
     it('requires an explicit calendar and convention for calendar-adjusted dated payments') do
       calendar = Finrb::Calendars::USFederalReserve.new
 
@@ -98,6 +105,14 @@ describe(Finrb::Amortization) do
       expect(first.interest).to(eq(D('1019.18')))
       expect(first.opening_balance + first.interest + first.payment).to(eq(first.closing_balance))
       expect(amortization.schedule.last.closing_balance).to(be_zero)
+    end
+
+    it('uses the selected day-count convention for dated accrual') do
+      rate = Rate.new(0.12, :apr, duration: 12)
+      amortization = Amortization.new(100_000, rate, start_date: Date.new(2025, 1, 15), day_count: :actual_360)
+
+      expect(amortization.day_count).to(eq(:actual_360))
+      expect(amortization.schedule.first.interest).to(eq(D('1033.33')))
     end
 
     it('adjusts payment dates before accruing dated interest when a calendar is supplied') do

@@ -135,9 +135,9 @@ raise unless calendar.advance(Date.new(2026, 10, 9), business_days: 1) == Date.n
 
 Calendar-aware amortization is opt-in. Supply both a calendar and an explicit
 business-day convention with `start_date:`; finrb adjusts each generated
-monthly payment date before calculating actual/365 interest. The origination
-date remains unchanged. Without a calendar, dated schedules remain unadjusted
-as before.
+monthly payment date before calculating interest under the selected day-count
+convention (Actual/365 Fixed by default). The origination date remains
+unchanged. Without a calendar, dated schedules remain unadjusted as before.
 
 <!-- verify-example -->
 ```ruby
@@ -152,6 +152,30 @@ loan = Finrb::Amortization.new(
 
 raise unless loan.schedule.map(&:date) == [Date.new(2026, 2, 27), Date.new(2026, 3, 31)]
 raise unless loan.schedule.first.interest == Flt::DecNum('887.67')
+```
+
+## Day counts
+
+`Finrb::DayCount.year_fraction(start_date, end_date, convention:)` returns a
+decimal year fraction. The initial supported conventions are
+`:actual_365_fixed` (the default) and `:actual_360`; both divide the signed
+actual elapsed calendar days by a fixed denominator. Inputs are date-only
+`Date` instances interpreted on the proleptic Gregorian calendar. Reversed
+dates produce a negative fraction. This API does not imply support for
+30/360 or Actual/Actual variants, which have multiple distinct definitions.
+
+The same convention can be selected for dated amortization with `day_count:`.
+Its default preserves existing Actual/365 Fixed results. A non-default
+convention requires `start_date:`; undated amortization continues using its
+existing monthly-rate behavior. This option affects loan accrual only; XIRR
+and XNPV continue using their existing actual-days/365 convention.
+
+<!-- verify-example -->
+```ruby
+start_date = Date.new(2025, 1, 15)
+end_date = Date.new(2025, 2, 15)
+
+raise unless Finrb::DayCount.year_fraction(start_date, end_date, convention: :actual_360) == Flt::DecNum(31) / Flt::DecNum(360)
 ```
 
 ## Amortization
@@ -183,13 +207,14 @@ Supplying `start_date: Date` opts into a dated monthly schedule. The start date
 is the initial accrual boundary, with the first payment one month later.
 Generated dates are anchored to the original start date: month-end starts stay
 at month end, and other day numbers are clamped in shorter months without
-drifting in later months. Each period accrues simple nominal APR on actual days
-over a fixed 365-day denominator (`APR * actual_days / 365`), with interest
-posted to cents. This is the dated-mode convention, not a universal loan
-standard. Dates are unadjusted: weekends and holidays are not shifted, and no
-business calendar is consulted unless a calendar and explicit rolling
-convention are supplied. Without `start_date:`, the existing monthly rate
-calculation and schedule-entry hash shape are unchanged.
+drifting in later months. Each period accrues simple nominal APR times the
+selected day-count year fraction, with interest posted to cents. The default
+is Actual/365 Fixed (`APR * actual_days / 365`); `day_count: :actual_360` uses
+`APR * actual_days / 360`. These are explicit dated-mode conventions, not a
+universal loan standard. Dates are unadjusted: weekends and holidays are not
+shifted, and no business calendar is consulted unless a calendar and explicit
+rolling convention are supplied. Without `start_date:`, the existing monthly
+rate calculation and schedule-entry hash shape are unchanged.
 
 <!-- verify-example -->
 ```ruby

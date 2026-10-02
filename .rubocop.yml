@@ -42,6 +42,9 @@ Style/Documentation:
 Naming/MethodParameterName:
   Enabled: false
 
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
+
 Layout/LineLength:
   Enabled: false
 

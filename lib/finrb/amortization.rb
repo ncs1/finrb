@@ -22,6 +22,10 @@ module Finrb
   #   rate = Rate.new(0.0425, :apr, :duration => (5 * 12))
   #   extra_payments = Finrb::Amortization.new(250000, rate){ |period| period.payment - 150 }
   class Amortization
+    FREQUENCY_MONTHS = { monthly: 1, quarterly: 3, semiannual: 6, annual: 12 }.freeze
+    STUB_CONVENTIONS = %i[none short_final].freeze
+    public_constant :FREQUENCY_MONTHS, :STUB_CONVENTIONS
+
     # Immutable breakdown of one amortization period. Payments retain finrb's
     # cashflow sign convention and are negative; the other monetary fields are
     # non-negative.
@@ -78,7 +82,7 @@ module Finrb
     attr_reader :origination_fee
     # @return [Integer] number of leading periods that pay interest but no scheduled principal
     attr_reader :interest_only_periods
-    # @return [Flt::DecNum] the required monthly payment.  For loans with more than one rate, returns nil
+    # @return [Flt::DecNum] the required regular payment. For loans with more than one rate, returns nil
     attr_reader :payment
     # @return [Flt::DecNum] the principal amount of the loan
     attr_reader :principal
@@ -86,7 +90,7 @@ module Finrb
     attr_reader :rates
     # @return [Array<Entry>] immutable period-by-period loan breakdown
     attr_reader :schedule
-    # @return [Date, nil] the date from which monthly payment dates are generated
+    # @return [Date, nil] the date from which payment dates are generated
     attr_reader :start_date
     # @return [Finrb::Calendars::Base, nil] the calendar used to adjust dated payments
     attr_reader :calendar
@@ -94,6 +98,10 @@ module Finrb
     attr_reader :business_day_convention
     # @return [Symbol] day-count convention used for dated interest accrual
     attr_reader :day_count
+    # @return [Symbol] interval between dated payments
+    attr_reader :frequency
+    # @return [Symbol] final partial-period handling
+    attr_reader :stub
 
     # @return [Flt::DecNum] the periodic payment due on a loan
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
@@ -131,7 +139,9 @@ module Finrb
     # @param [Proc] block
     # @param [Finrb::Calendars::Base, nil] calendar optional market calendar for dated payment adjustment
     # @param [Symbol, nil] business_day_convention required when calendar is supplied
-    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, calendar: nil, business_day_convention: nil, day_count: DayCount::DEFAULT, &block)
+    # @param [Symbol] frequency dated payment interval; rate durations remain in months
+    # @param [Symbol] stub explicit handling for a final partial dated period
+    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, calendar: nil, business_day_convention: nil, day_count: DayCount::DEFAULT, frequency: :monthly, stub: :none, &block)
       @principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
       raise(ArgumentError, 'start_date must be a Date or nil.') unless start_date.nil? || start_date.instance_of?(Date)
 
@@ -156,8 +166,8 @@ module Finrb
       @rates     = rates
       @block     = block
 
-      # compute the total duration from all of the rates.
-      @periods = rates.sum(&:duration)
+      initialize_schedule(start_date, frequency, stub, rates)
+
       valid_interest_only = interest_only_periods.is_a?(Integer) && interest_only_periods.between?(0, @periods - 1)
       raise(ArgumentError, 'interest_only_periods must be a non-negative integer shorter than the loan term.') unless valid_interest_only
 
@@ -166,7 +176,6 @@ module Finrb
       @calendar = calendar
       @business_day_convention = business_day_convention
       @day_count = day_count
-      @payment_dates = start_date && Array.new(@periods) { |index| monthly_date(start_date, index + 1) }
       if @calendar
         @payment_dates.map! { |date| @calendar.adjust(date, convention: @business_day_convention) }
         previous_date = @start_date
@@ -185,7 +194,7 @@ module Finrb
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
     def ==(other)
-      (principal == other.principal) && (start_date == other.start_date) && (calendar == other.calendar) && (business_day_convention == other.business_day_convention) && (day_count == other.day_count) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
+      (principal == other.principal) && (start_date == other.start_date) && (calendar == other.calendar) && (business_day_convention == other.business_day_convention) && (day_count == other.day_count) && (frequency == other.frequency) && (stub == other.stub) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
     end
 
     attr_reader :finance_origination_fee
@@ -221,10 +230,10 @@ module Finrb
     # amortize the balance of loan with the given interest rate
     # @return none
     # @param [Rate] rate the interest rate to use in the amortization
-    def amortize(rate)
+    def amortize(rate, periods)
       regular_payment = nil
 
-      rate.duration.to_i.times do
+      periods.times do
         # Do this first in case the balance is zero already.
         break if @balance.zero?
 
@@ -260,8 +269,8 @@ module Finrb
       @additional_by_period = []
       @interest_only_by_period = []
 
-      @rates.each do |rate|
-        amortize(rate)
+      @rates.each_with_index do |rate, index|
+        amortize(rate, @rate_period_counts.fetch(index))
       end
 
       # Add the residual balloon and any rounding remainder to the last payment.
@@ -283,7 +292,7 @@ module Finrb
 
     private :amortize, :compute
 
-    # @return [Integer] the time required to pay off the loan, in months
+    # @return [Integer] number of payments in the amortization schedule
     # @example In most cases, the duration is equal to the total duration of all rates
     #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     #   amt = Finrb::Amortization.new(300000, rate)
@@ -341,6 +350,58 @@ module Finrb
       raise(ArgumentError, 'a non-default day_count requires a start_date.') if start_date.nil? && day_count != DayCount::DEFAULT
     end
 
+    def validate_schedule_options!(start_date, frequency, stub, term_months)
+      raise(ArgumentError, "frequency must be one of #{FREQUENCY_MONTHS.keys.join(', ')}.") unless FREQUENCY_MONTHS.key?(frequency)
+      raise(ArgumentError, "stub must be one of #{STUB_CONVENTIONS.join(', ')}.") unless STUB_CONVENTIONS.include?(stub)
+      raise(ArgumentError, 'a non-monthly frequency requires a start_date.') if start_date.nil? && frequency != :monthly
+      raise(ArgumentError, 'a non-default stub requires a start_date.') if start_date.nil? && stub != :none
+      return if (term_months % FREQUENCY_MONTHS.fetch(frequency)).zero? || stub == :short_final
+
+      raise(ArgumentError, 'loan term does not align with frequency; pass stub: :short_final to allow a short final period.')
+    end
+
+    def initialize_schedule(start_date, frequency, stub, rates)
+      @term_months = rates.sum(&:duration)
+      validate_schedule_options!(start_date, frequency, stub, @term_months)
+      @frequency = frequency
+      @stub = stub
+      @period_month_offsets = start_date && payment_month_offsets(@term_months, frequency)
+      @payment_dates = @period_month_offsets&.map { |month_offset| anchored_date(start_date, month_offset) }
+      @rate_period_counts = start_date ? periods_per_rate(rates, @period_month_offsets) : rates.map(&:duration)
+      @periods = @payment_dates ? @payment_dates.length : @term_months
+    end
+
+    def payment_month_offsets(term_months, frequency)
+      interval = FREQUENCY_MONTHS.fetch(frequency)
+      offsets = []
+      month_offset = interval
+      while month_offset < term_months
+        offsets << month_offset
+        month_offset += interval
+      end
+      offsets << term_months
+      offsets
+    end
+
+    def periods_per_rate(rates, month_offsets)
+      cumulative_months = 0
+      previous_period_count = 0
+      rates.each_with_index.map do |rate, index|
+        cumulative_months += rate.duration
+        if index == rates.length - 1
+          month_offsets.length - previous_period_count
+        else
+          boundary_index = month_offsets.index(cumulative_months)
+          raise(ArgumentError, 'rate changes must align with a payment date for dated non-monthly schedules.') unless boundary_index
+
+          period_count = boundary_index + 1
+          periods_in_segment = period_count - previous_period_count
+          previous_period_count = period_count
+          periods_in_segment
+        end
+      end
+    end
+
     def build_schedule
       opening_balance = @amount_financed
       @transactions.each_slice(2).with_index.map do |(interest, payment), index|
@@ -381,7 +442,7 @@ module Finrb
       raise(ArgumentError, "payment modification #{requirement}.")
     end
 
-    def monthly_date(anchor, month_offset)
+    def anchored_date(anchor, month_offset)
       month_start = Date.new(anchor.year, anchor.month, 1) >> month_offset
       next_month_start = month_start >> 1
       month_end = next_month_start - 1

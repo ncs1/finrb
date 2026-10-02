@@ -138,6 +138,12 @@ module Finrb
   end
 
   class Amortization
+    type frequency = :monthly | :quarterly | :semiannual | :annual
+    type stub = :none | :short_final
+
+    FREQUENCY_MONTHS: Hash[frequency, Integer]
+    STUB_CONVENTIONS: Array[stub]
+
     class Entry
       def initialize: (period: Integer, opening_balance: number, payment: number, interest: number, principal: number, additional_payment: number, balloon_payment: number, interest_only: bool, closing_balance: number, ?date: Date?) -> void
       def period: () -> Integer
@@ -159,7 +165,7 @@ module Finrb
 
     def self.payment: (number, number, Integer, ?balloon: number) -> decimal
 
-    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date?, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?, ?day_count: DayCount::convention) ?{ (Transaction) -> number } -> void
+    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date?, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?, ?day_count: DayCount::convention, ?frequency: frequency, ?stub: stub) ?{ (Transaction) -> number } -> void
     def ==: (untyped) -> bool
     def balance: () -> decimal
     def balloon: () -> decimal
@@ -177,6 +183,8 @@ module Finrb
     def calendar: () -> Calendars::Base?
     def business_day_convention: () -> Calendars::convention?
     def day_count: () -> DayCount::convention
+    def frequency: () -> frequency
+    def stub: () -> stub
     def additional_payments: () -> Array[decimal]
     def cashflow_yield: (?number) -> Rate
     def duration: () -> Integer

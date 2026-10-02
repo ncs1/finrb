@@ -135,7 +135,7 @@ raise unless calendar.advance(Date.new(2026, 10, 9), business_days: 1) == Date.n
 
 Calendar-aware amortization is opt-in. Supply both a calendar and an explicit
 business-day convention with `start_date:`; finrb adjusts each generated
-monthly payment date before calculating interest under the selected day-count
+payment date before calculating interest under the selected day-count
 convention (Actual/365 Fixed by default). The origination date remains
 unchanged. Without a calendar, dated schedules remain unadjusted as before.
 
@@ -203,18 +203,25 @@ Each frozen `Finrb::Amortization::Entry` exposes:
 - `additional_payment` and `balloon_payment`;
 - `interest_only?`.
 
-Supplying `start_date: Date` opts into a dated monthly schedule. The start date
-is the initial accrual boundary, with the first payment one month later.
-Generated dates are anchored to the original start date: month-end starts stay
-at month end, and other day numbers are clamped in shorter months without
-drifting in later months. Each period accrues simple nominal APR times the
-selected day-count year fraction, with interest posted to cents. The default
-is Actual/365 Fixed (`APR * actual_days / 365`); `day_count: :actual_360` uses
+Supplying `start_date: Date` opts into a dated schedule. Payment frequency is
+monthly by default; `:quarterly`, `:semiannual`, and `:annual` are also
+supported. `Rate#duration` remains a month count and the sum of rate durations
+defines the loan term. Each payment date is generated from the original start
+date anchor, preserving month-end or clamping the original day in shorter
+months without date drift. A term not divisible by its payment frequency is
+rejected unless `stub: :short_final` explicitly allows a shorter final period;
+`:none` is the default. Rate changes in a dated non-monthly schedule must land
+on a payment date. `interest_only_periods` counts schedule periods.
+
+Each period accrues simple nominal APR times the selected day-count year
+fraction, with interest posted to cents. The default is Actual/365 Fixed
+(`APR * actual_days / 365`); `day_count: :actual_360` uses
 `APR * actual_days / 360`. These are explicit dated-mode conventions, not a
 universal loan standard. Dates are unadjusted: weekends and holidays are not
 shifted, and no business calendar is consulted unless a calendar and explicit
 rolling convention are supplied. Without `start_date:`, the existing monthly
-rate calculation and schedule-entry hash shape are unchanged.
+rate calculation and schedule-entry hash shape are unchanged; non-monthly
+frequencies and non-default stub handling require a start date.
 
 <!-- verify-example -->
 ```ruby
@@ -227,6 +234,27 @@ raise unless loan.schedule.map(&:date) == [
   Date.new(2024, 2, 29), Date.new(2024, 3, 31), Date.new(2024, 4, 30)
 ]
 raise unless loan.schedule.first.interest == Flt::DecNum('3.97')
+raise unless loan.schedule.last.closing_balance.zero?
+```
+
+For a term that ends between regular quarterly dates, select the short final
+stub explicitly. Rate durations still specify the total term in months.
+
+<!-- verify-example -->
+```ruby
+rate = Finrb::Rate.new(0.06, :apr, duration: 14)
+loan = Finrb::Amortization.new(
+  1_000,
+  rate,
+  start_date: Date.new(2025, 1, 31),
+  frequency: :quarterly,
+  stub: :short_final
+)
+
+raise unless loan.schedule.map(&:date) == [
+  Date.new(2025, 4, 30), Date.new(2025, 7, 31), Date.new(2025, 10, 31),
+  Date.new(2026, 1, 31), Date.new(2026, 3, 31)
+]
 raise unless loan.schedule.last.closing_balance.zero?
 ```
 

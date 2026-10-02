@@ -55,6 +55,15 @@ describe(Finrb::Amortization) do
         .to(raise_error(ArgumentError, /day_count must be one of/))
     end
 
+    it('requires dated input for non-monthly frequencies and explicit short final stubs') do
+      expect { Amortization.new(1000, Rate.new(0.05, :apr, duration: 12), frequency: :quarterly) }
+        .to(raise_error(ArgumentError, /non-monthly frequency requires a start_date/))
+      expect { Amortization.new(1000, Rate.new(0.05, :apr, duration: 14), start_date: Date.new(2025, 1, 31), frequency: :quarterly) }
+        .to(raise_error(ArgumentError, /pass stub: :short_final/))
+      expect { Amortization.new(1000, Rate.new(0.05, :apr, duration: 12), start_date: Date.new(2025, 1, 31), frequency: :weekly) }
+        .to(raise_error(ArgumentError, /frequency must be one of/))
+    end
+
     it('requires an explicit calendar and convention for calendar-adjusted dated payments') do
       calendar = Finrb::Calendars::USFederalReserve.new
 
@@ -80,6 +89,45 @@ describe(Finrb::Amortization) do
   end
 
   describe('dated amortization') do
+    it('generates quarterly payment dates from the original date anchor') do
+      rate = Rate.new(0.06, :apr, duration: 12)
+      amortization = Amortization.new(1000, rate, start_date: Date.new(2025, 1, 31), frequency: :quarterly)
+
+      expect(amortization.frequency).to(eq(:quarterly))
+      expect(amortization.schedule.map(&:date)).to(eq([Date.new(2025, 4, 30), Date.new(2025, 7, 31), Date.new(2025, 10, 31), Date.new(2026, 1, 31)]))
+      expect(amortization.schedule.map(&:interest)).to(eq([D('14.63'), D('11.42'), D('7.67'), D('3.86')]))
+      expect(amortization.payments).to(eq([D('-259.40'), D('-259.40'), D('-259.40'), D('-259.38')]))
+      expect(amortization.duration).to(eq(4))
+      expect(amortization.balance).to(be_zero)
+    end
+
+    it('requires an explicit short-final stub for a non-aligned loan term') do
+      rate = Rate.new(0.06, :apr, duration: 14)
+      amortization = Amortization.new(1000, rate, start_date: Date.new(2025, 1, 31), frequency: :quarterly, stub: :short_final)
+
+      expect(amortization.schedule.map(&:date)).to(eq([Date.new(2025, 4, 30), Date.new(2025, 7, 31), Date.new(2025, 10, 31), Date.new(2026, 1, 31), Date.new(2026, 3, 31)]))
+      expect(amortization.schedule.last.interest).to(be_positive)
+      expect(amortization.balance).to(be_zero)
+    end
+
+    it('requires rate changes to align with dated payment boundaries') do
+      first_rate = Rate.new(0.05, :apr, duration: 5)
+      second_rate = Rate.new(0.06, :apr, duration: 9)
+
+      expect { Amortization.new(1000, first_rate, second_rate, start_date: Date.new(2025, 1, 1), frequency: :quarterly, stub: :short_final) }
+        .to(raise_error(ArgumentError, /rate changes must align with a payment date/))
+    end
+
+    it('starts each aligned rate segment at its dated payment boundary') do
+      first_rate = Rate.new(0.05, :apr, duration: 6)
+      second_rate = Rate.new(0.06, :apr, duration: 8)
+      amortization = Amortization.new(1000, first_rate, second_rate, start_date: Date.new(2025, 1, 1), frequency: :quarterly, stub: :short_final)
+
+      expect(amortization.schedule.map(&:date)).to(eq([Date.new(2025, 4, 1), Date.new(2025, 7, 1), Date.new(2025, 10, 1), Date.new(2026, 1, 1), Date.new(2026, 3, 1)]))
+      expect(amortization.schedule.length).to(eq(5))
+      expect(amortization.schedule.last.closing_balance).to(be_zero)
+    end
+
     it('generates monthly dates anchored to the original month-end') do
       rate = Rate.new(0.05, :apr, duration: 4)
       amortization = Amortization.new(100_000, rate, start_date: Date.new(2024, 1, 31))

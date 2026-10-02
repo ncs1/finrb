@@ -19,23 +19,31 @@ EXPECTED_RANGES = {
     "us": ("1950-01-01", "2065-12-31"),
     "israel": ("2000-01-01", "2050-12-31"),
 }
+EXPECTED_SPECIAL_ISRAEL_DIFFERENCES = {
+    # QuantLib 1.43's 2001 Rosh Hashanah anchor is one day early. Its derived
+    # Yom Kippur, Sukkot, and Simchat Torah dates then inherit that shift.
+    "2001-09-16": (True, False, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-09-19": (False, True, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-09-25": (True, False, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-09-27": (False, True, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-09-30": (True, False, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-10-02": (False, True, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-10-07": (True, False, "QuantLib's 2001 Hebrew-date table differs"),
+    "2001-10-09": (False, True, "QuantLib's 2001 Hebrew-date table differs"),
+    "2026-01-04": (False, True, "TASE's Sunday-to-Friday transition closure"),
+    "2038-05-11": (False, True, "Israel Independence Day statutory weekday adjustment"),
+}
 EXPECTED_2001_ISRAEL_DIFFERENCES = {
-    "2001-09-16",
-    "2001-09-19",
-    "2001-09-25",
-    "2001-09-27",
-    "2001-09-30",
-    "2001-10-02",
-    "2001-10-07",
-    "2001-10-09",
+    iso_date for iso_date in EXPECTED_SPECIAL_ISRAEL_DIFFERENCES if iso_date.startswith("2001-")
 }
 EXPECTED_DIFFERENCE_COUNTS = {
     "QuantLib's 2001 Hebrew-date table differs": 8,
-    "TASE eve closures retained from the official 2024 schedule": 65,
+    "TASE festival-eve closure (confirmed by an annual TASE schedule)": 8,
+    "TASE festival-eve closure (projected by the recurring rule)": 57,
     "TASE's Sunday-to-Friday transition closure": 1,
     "Israel Independence Day statutory weekday adjustment": 1,
 }
-EXPECTED_ISRAEL_DIFFERENCE_SHA256 = "2dbdb1025943041621e0d3f69a7dd83ffbb70ea80752f24300acc68ebae6fed8"
+EXPECTED_ISRAEL_DIFFERENCE_SHA256 = "fb5feffccc31b1c25d4e0e691138a715999de061d4cb1dca36d3d8b814fa860d"
 
 
 def load_finrb_calendar_data():
@@ -75,6 +83,13 @@ def load_finrb_calendar_data():
     return masks, names
 
 
+def source_confirmed_festival_eve_dates():
+    repository = Path(__file__).resolve().parents[1]
+    fixture_path = repository / "spec" / "fixtures" / "tase_verified_festival_eves.json"
+    fixture = json.loads(fixture_path.read_text())
+    return {closure["date"] for closure in fixture["closures"]}
+
+
 def quantlib_calendars():
     return {
         "us": ql.UnitedStates(ql.UnitedStates.FederalReserve),
@@ -82,7 +97,7 @@ def quantlib_calendars():
     }
 
 
-def known_difference(profile, iso_date, ours_open, quantlib_open, names):
+def known_difference(profile, iso_date, ours_open, quantlib_open, names, sourced_eve_dates):
     if profile == "israel" and iso_date in EXPECTED_2001_ISRAEL_DIFFERENCES:
         return "QuantLib's 2001 Hebrew-date table differs"
 
@@ -97,12 +112,14 @@ def known_difference(profile, iso_date, ours_open, quantlib_open, names):
 
     recurring_eves = {"Rosh Hashanah Eve", "Passover Eve I", "Shavuot Eve"}
     if set(names).intersection(recurring_eves) and iso_date >= "2021-01-01":
-        return "TASE eve closures retained from the official 2024 schedule"
+        if iso_date in sourced_eve_dates:
+            return "TASE festival-eve closure (confirmed by an annual TASE schedule)"
+        return "TASE festival-eve closure (projected by the recurring rule)"
 
     return None
 
 
-def compare_calendar(profile, calendar, masks, names):
+def compare_calendar(profile, calendar, masks, names, sourced_eve_dates):
     start = date.fromisoformat(EXPECTED_RANGES[profile][0])
     end = date.fromisoformat(EXPECTED_RANGES[profile][1])
     mismatches = []
@@ -118,7 +135,14 @@ def compare_calendar(profile, calendar, masks, names):
 
         if ours_open != quantlib_open:
             iso_date = current.isoformat()
-            reason = known_difference(profile, iso_date, ours_open, quantlib_open, names[profile].get(iso_date, []))
+            reason = known_difference(
+                profile,
+                iso_date,
+                ours_open,
+                quantlib_open,
+                names[profile].get(iso_date, []),
+                sourced_eve_dates,
+            )
             mismatches.append((iso_date, ours_open, quantlib_open, reason))
 
         current += timedelta(days=1)
@@ -131,12 +155,13 @@ def main():
         raise RuntimeError(f"expected QuantLib {EXPECTED_VERSION}, found {ql.__version__}")
 
     masks, names = load_finrb_calendar_data()
+    sourced_eve_dates = source_confirmed_festival_eve_dates()
     calendars = quantlib_calendars()
     all_mismatches = {}
     total_compared = 0
 
     for profile, calendar in calendars.items():
-        compared, mismatches = compare_calendar(profile, calendar, masks, names)
+        compared, mismatches = compare_calendar(profile, calendar, masks, names, sourced_eve_dates)
         total_compared += compared
         all_mismatches[profile] = mismatches
         print(f"{profile}: compared {compared:,} dates against {calendar.name()}; {len(mismatches)} differences")
@@ -155,6 +180,17 @@ def main():
             f"expected {EXPECTED_DIFFERENCE_COUNTS!r}"
         )
 
+    observed_special_differences = {
+        item[0]: (item[1], item[2], item[3])
+        for item in all_mismatches["israel"]
+        if item[0] in EXPECTED_SPECIAL_ISRAEL_DIFFERENCES
+    }
+    if observed_special_differences != EXPECTED_SPECIAL_ISRAEL_DIFFERENCES:
+        raise AssertionError(
+            "independently researched Israel differences changed: "
+            f"{observed_special_differences!r}; expected {EXPECTED_SPECIAL_ISRAEL_DIFFERENCES!r}"
+        )
+
     known_differences = sorted(
         f"{item[0]}|{item[1]}|{item[2]}|{item[3]}" for item in all_mismatches["israel"]
     )
@@ -166,7 +202,7 @@ def main():
         )
 
     print(f"PASS: {total_compared:,} daily classifications checked with QuantLib {ql.__version__}.")
-    print("The listed TASE/QuantLib differences are deliberate and documented; all other dates match.")
+    print("The listed TASE/QuantLib differences match the documented evidence/projection profile; all other dates agree.")
     for reason, count in difference_counts.items():
         print(f"  {count} known Israel differences: {reason}")
 

@@ -1,0 +1,21 @@
+{
+  "source": "https://www.hebcal.com/holidays/hebcal-2001.pdf?i=on",
+  "corroborating_source": "https://www.timeanddate.com/holidays/israel/2001",
+  "closures": [
+    { "date": "2001-09-17", "holiday": "Rosh Hashanah Eve" },
+    { "date": "2001-09-18", "holiday": "Rosh Hashanah I" },
+    { "date": "2001-09-19", "holiday": "Rosh Hashanah II" },
+    { "date": "2001-09-26", "holiday": "Yom Kippur Eve" },
+    { "date": "2001-09-27", "holiday": "Yom Kippur" },
+    { "date": "2001-10-01", "holiday": "Sukkot Eve" },
+    { "date": "2001-10-02", "holiday": "Sukkot" },
+    { "date": "2001-10-08", "holiday": "Shemini Atzeret Eve" },
+    { "date": "2001-10-09", "holiday": "Shemini Atzeret / Simchat Torah" }
+  ],
+  "quantlib_only_closures": [
+    "2001-09-16",
+    "2001-09-25",
+    "2001-09-30",
+    "2001-10-07"
+  ]
+}

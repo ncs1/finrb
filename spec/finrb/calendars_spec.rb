@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'finrb'
+require 'json'
 
 describe(Finrb::Calendars) do
   describe(Finrb::Calendars::USFederalReserve) do
@@ -73,6 +74,16 @@ describe(Finrb::Calendars) do
   describe(Finrb::Calendars::IsraelTase) do
     subject(:calendar) { described_class.new }
 
+    let(:festival_eve_fixture) do
+      fixture_path = File.expand_path('../fixtures/tase_verified_festival_eves.json', __dir__)
+      JSON.parse(File.read(fixture_path))
+    end
+
+    let(:historical_reference_fixture) do
+      fixture_path = File.expand_path('../fixtures/israel_2001_calendar_reference.json', __dir__)
+      JSON.parse(File.read(fixture_path))
+    end
+
     it('distinguishes Purim from Shushan Purim') do
       expect(calendar.holiday_names(Date.new(2024, 3, 24))).to(include('Purim'))
       expect(calendar.business_day?(Date.new(2024, 3, 25))).to(be(true))
@@ -100,6 +111,26 @@ describe(Finrb::Calendars) do
       expect(calendar.holiday_names(Date.new(2024, 10, 4))).to(include('Rosh Hashanah II'))
       expect(calendar.holiday_names(Date.new(2024, 10, 11))).to(include('Yom Kippur Eve'))
       expect(calendar.holiday_names(Date.new(2024, 10, 12))).to(include('Yom Kippur'))
+    end
+
+    it('matches festival-eve closures in published TASE annual schedules') do
+      expect(festival_eve_fixture.fetch('source_schedules').keys).to(eq(%w[2015 2019 2021 2022 2023 2024]))
+      festival_eve_fixture.fetch('closures').each do |closure|
+        date = Date.iso8601(closure.fetch('date'))
+
+        expect(calendar.holiday_names(date)).to(include(closure.fetch('holiday')), closure.fetch('date'))
+        expect(calendar.business_day?(date)).to(be(false), closure.fetch('date'))
+      end
+    end
+
+    it('does not adopt the incorrect Shavuot Eve date in TASE’s 2022 schedule') do
+      source_error = festival_eve_fixture.fetch('known_source_errors').fetch(0)
+      listed_date = Date.iso8601(source_error.fetch('date'))
+      actual_holiday_date = Date.iso8601(source_error.fetch('actual_holiday_date'))
+
+      expect(calendar.business_day?(listed_date)).to(be(true), source_error.fetch('date'))
+      expect(calendar.holiday_names(listed_date)).not_to(include(source_error.fetch('incorrect_label')))
+      expect(calendar.holiday_names(actual_holiday_date)).to(include(source_error.fetch('actual_holiday')))
     end
 
     it('includes Sukkot and Shemini Atzeret closures') do
@@ -131,14 +162,28 @@ describe(Finrb::Calendars) do
     it('applies statutory Independence Day weekday adjustments') do
       expect(calendar.holiday_names(Date.new(2025, 4, 30))).to(include('Memorial Day'))
       expect(calendar.holiday_names(Date.new(2025, 5, 1))).to(include('Independence Day'))
+      expect(calendar.holiday_names(Date.new(2038, 5, 10))).to(include('Memorial Day'))
       expect(calendar.holiday_names(Date.new(2038, 5, 11))).to(include('Independence Day'))
+      expect(calendar.business_day?(Date.new(2038, 5, 10))).to(be(false))
+      expect(calendar.business_day?(Date.new(2038, 5, 11))).to(be(false))
     end
 
-    it('uses the fixed Hebrew calendar dates for the 2001 autumn holidays') do
-      expect(calendar.holiday_names(Date.new(2001, 9, 17))).to(include('Rosh Hashanah Eve'))
-      expect(calendar.holiday_names(Date.new(2001, 9, 18))).to(include('Rosh Hashanah I'))
-      expect(calendar.holiday_names(Date.new(2001, 9, 19))).to(include('Rosh Hashanah II'))
-      expect(calendar.holiday_names(Date.new(2001, 9, 27))).to(include('Yom Kippur'))
+    it('uses independently verified 2001 Hebrew dates where QuantLib is one day early') do
+      historical_reference_fixture.fetch('closures').each do |closure|
+        date = Date.iso8601(closure.fetch('date'))
+
+        expect(calendar.holiday_names(date)).to(include(closure.fetch('holiday')), date.to_s)
+        expect(calendar.business_day?(date)).to(be(false), date.to_s)
+      end
+    end
+
+    it('remains open on the four dates QuantLib closes early in its 2001 table') do
+      historical_reference_fixture.fetch('quantlib_only_closures').each do |iso_date|
+        date = Date.iso8601(iso_date)
+
+        expect(calendar.business_day?(date)).to(be(true), iso_date)
+        expect(calendar.holiday_names(date)).to(be_empty, iso_date)
+      end
     end
 
     it('postpones Tisha B’Av when its Hebrew date falls on Saturday') do

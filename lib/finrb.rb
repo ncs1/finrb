@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'finrb/accounting'
+require 'finrb/calendars'
 require 'finrb/cashflows'
 require 'finrb/config'
 require 'finrb/decimal'

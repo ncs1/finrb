@@ -42,6 +42,42 @@ module Finrb
   class DomainError < Error
   end
 
+  module Calendars
+    type convention = :following | :modified_following | :preceding | :modified_preceding | :half_month_modified_following | :nearest | :unadjusted
+
+    class Base
+      CONVENTIONS: Array[Symbol]
+
+      def initialize: (?additional_holidays: Array[Date], ?removed_holidays: Array[Date]) -> void
+      def additional_holidays: () -> Array[Date]
+      def removed_holidays: () -> Array[Date]
+      def business_day?: (Date) -> bool
+      def holiday?: (Date) -> bool
+      def holiday_names: (Date) -> Array[String]
+      def holidays_between: (Date, Date, ?include_weekends: bool) -> Hash[Date, Array[String]]
+      def adjust: (Date, convention: convention) -> Date
+      def advance: (Date, business_days: Integer, ?convention: convention) -> Date
+      def ==: (untyped) -> bool
+      def eql?: (untyped) -> bool
+      def hash: () -> Integer
+    end
+
+    class USFederalReserve < Base
+      SUPPORTED_START_DATE: Date
+      SUPPORTED_END_DATE: Date
+      SUPPORTED_DATE_RANGE: Range[Date]
+      def name: () -> String
+    end
+
+    class IsraelTase < Base
+      SUPPORTED_START_DATE: Date
+      SUPPORTED_END_DATE: Date
+      SUPPORTED_DATE_RANGE: Range[Date]
+      TRADING_WEEK_CHANGE: Date
+      def name: () -> String
+    end
+  end
+
   class InvalidCashflowError < Error
   end
 
@@ -115,7 +151,7 @@ module Finrb
 
     def self.payment: (number, number, Integer, ?balloon: number) -> decimal
 
-    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date) ?{ (Transaction) -> number } -> void
+    def initialize: (number, *Rate, ?balloon: number, ?interest_only_periods: Integer, ?origination_fee: number, ?finance_origination_fee: bool, ?start_date: Date?, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?) ?{ (Transaction) -> number } -> void
     def ==: (untyped) -> bool
     def balance: () -> decimal
     def balloon: () -> decimal
@@ -130,6 +166,8 @@ module Finrb
     def rates: () -> Array[Rate]
     def schedule: () -> Array[Entry]
     def start_date: () -> Date?
+    def calendar: () -> Calendars::Base?
+    def business_day_convention: () -> Calendars::convention?
     def additional_payments: () -> Array[decimal]
     def cashflow_yield: (?number) -> Rate
     def duration: () -> Integer

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'calendars'
 require_relative 'cashflows'
 require_relative 'decimal'
 require_relative 'precision'
@@ -86,6 +87,10 @@ module Finrb
     attr_reader :schedule
     # @return [Date, nil] the date from which monthly payment dates are generated
     attr_reader :start_date
+    # @return [Finrb::Calendars::Base, nil] the calendar used to adjust dated payments
+    attr_reader :calendar
+    # @return [Symbol, nil] business-day convention used when adjusting dated payments
+    attr_reader :business_day_convention
 
     # @return [Flt::DecNum] the periodic payment due on a loan
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
@@ -121,9 +126,13 @@ module Finrb
     # @param [Flt::DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
-    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, &block)
+    # @param [Finrb::Calendars::Base, nil] calendar optional market calendar for dated payment adjustment
+    # @param [Symbol, nil] business_day_convention required when calendar is supplied
+    def initialize(principal, *rates, balloon: 0, interest_only_periods: 0, origination_fee: 0, finance_origination_fee: false, start_date: nil, calendar: nil, business_day_convention: nil, &block)
       @principal = Validation.positive_decimal(principal, name: 'principal', message: 'principal must be positive.')
       raise(ArgumentError, 'start_date must be a Date or nil.') unless start_date.nil? || start_date.instance_of?(Date)
+
+      validate_calendar_options!(start_date, calendar, business_day_convention)
 
       @origination_fee = Validation.non_negative_decimal(origination_fee, name: 'origination fee')
       raise(ArgumentError, 'finance_origination_fee must be true or false.') unless [true, false].include?(finance_origination_fee)
@@ -149,7 +158,18 @@ module Finrb
 
       @interest_only_periods = interest_only_periods
       @start_date = start_date
+      @calendar = calendar
+      @business_day_convention = business_day_convention
       @payment_dates = start_date && Array.new(@periods) { |index| monthly_date(start_date, index + 1) }
+      if @calendar
+        @payment_dates.map! { |date| @calendar.adjust(date, convention: @business_day_convention) }
+        previous_date = @start_date
+        @payment_dates.each do |date|
+          raise(ArgumentError, 'calendar adjustment must produce dates strictly after the prior payment date.') if date <= previous_date
+
+          previous_date = date
+        end
+      end
       @period = 0
 
       compute
@@ -159,7 +179,7 @@ module Finrb
     # @return [Numeric] -1, 0, or +1
     # @param [Amortization] other
     def ==(other)
-      (principal == other.principal) && (start_date == other.start_date) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
+      (principal == other.principal) && (start_date == other.start_date) && (calendar == other.calendar) && (business_day_convention == other.business_day_convention) && (origination_fee == other.origination_fee) && (finance_origination_fee? == other.finance_origination_fee?) && (balloon == other.balloon) && (interest_only_periods == other.interest_only_periods) && (rates == other.rates) && (payments == other.payments)
     end
 
     attr_reader :finance_origination_fee
@@ -297,6 +317,18 @@ module Finrb
     end
 
     private
+
+    def validate_calendar_options!(start_date, calendar, convention)
+      if calendar.nil?
+        raise(ArgumentError, 'business_day_convention requires a calendar.') unless convention.nil?
+
+        return
+      end
+
+      raise(ArgumentError, 'calendar must be a Finrb::Calendars::Base instance.') unless calendar.is_a?(Calendars::Base)
+      raise(ArgumentError, 'calendar adjustment requires a start_date.') unless start_date
+      raise(ArgumentError, "business_day_convention must be one of #{Calendars::Base::CONVENTIONS.join(', ')}.") unless Calendars::Base::CONVENTIONS.include?(convention)
+    end
 
     def build_schedule
       opening_balance = @amount_financed

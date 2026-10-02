@@ -37,6 +37,13 @@ namespace :rbs do
   end
 end
 
+namespace :calendar do
+  desc 'Compare finrb US and TASE business days with QuantLib 1.43 over supported date ranges'
+  task :verify do
+    sh(ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'verify_calendars.py'))
+  end
+end
+
 namespace :security do
   desc 'Update ruby-advisory-db and audit locked dependencies'
   task :audit do

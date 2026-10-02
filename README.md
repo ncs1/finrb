@@ -58,6 +58,7 @@ API explicitly returns another financial object, such as `Finrb::Rate`.
 | `Finrb::Cashflow` | NPV, XNPV, IRR, and XIRR |
 | `Finrb::Rate` | Nominal APR, effective APY, and compounding conversions |
 | `Finrb::Amortization` | Fixed and adjustable-rate loan amortization |
+| `Finrb::Calendars` | US Federal Reserve and Israel TASE business calendars |
 | `Finrb::TVM` | Present value, future value, payments, periods, and perpetuities |
 | `Finrb::Returns` | Holding-period, time-weighted, portfolio, and risk-adjusted returns |
 | `Finrb::Yields` | Money-market, bond-equivalent, effective, and continuous yield conversions |
@@ -137,7 +138,13 @@ later. Month-end anchors stay at month end, while other day numbers are clamped
 to shorter months and recovered from the original anchor in the following
 month. Dated periods accrue simple nominal APR for their actual number of days
 (`APR * days / 365`); this is a specific convention, not a universal loan
-standard. Dates are not adjusted for weekends or holidays.
+standard. Dates stay unadjusted by default. To opt in, supply a finrb market
+calendar and explicit business-day convention; the adjusted payment dates then
+drive the actual/365 accrual. finrb includes US Federal Reserve and Israel
+TASE full-day calendars, with no runtime holiday-data dependency.
+The profiles intentionally support US dates from 1950 through 2065 and TASE
+dates from 2000 through 2050; querying or configuring dates outside those
+windows raises `RangeError` rather than extrapolating silently.
 
 ```ruby
 require 'date'
@@ -148,7 +155,20 @@ dated = Finrb::Amortization.new(
   start_date: Date.new(2024, 1, 31)
 )
 dated.schedule.first.date # => #<Date: 2024-02-29 ...>
+
+bank_calendar = Finrb::Calendars::USFederalReserve.new
+calendar_adjusted = Finrb::Amortization.new(
+  100_000,
+  Finrb::Rate.new(0.05, :apr, duration: 3),
+  start_date: Date.new(2026, 1, 31),
+  calendar: bank_calendar,
+  business_day_convention: :modified_following
+)
+calendar_adjusted.schedule.first.date # => #<Date: 2026-02-27 ...>
 ```
+
+See the [calendar API guide](docs/api.md#business-calendars) for market scope,
+holiday overrides, and supported date-adjustment conventions.
 
 Pass several duration-bearing rates for an adjustable-rate schedule. A block
 can modify each scheduled payment, for example to add a $150 principal payment:

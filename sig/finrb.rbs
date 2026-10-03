@@ -79,11 +79,11 @@ module Finrb
   end
 
   module DayCount
-    type convention = :actual_365_fixed | :actual_360
+    type convention = :actual_365_fixed | :actual_360 | :actual_actual_icma
     CONVENTIONS: Array[convention]
     DEFAULT: convention
 
-    def self.year_fraction: (Date, Date, ?convention: convention) -> decimal
+    def self.year_fraction: (Date, Date, ?convention: convention, ?reference_period_start: Date?, ?reference_period_end: Date?, ?frequency: Integer?) -> decimal
   end
 
   class Schedule
@@ -117,6 +117,27 @@ module Finrb
   end
 
   class InvalidCashflowError < Error
+  end
+
+  class FixedRateBond
+    type price_type = :clean | :dirty
+    PRICE_TYPES: Array[price_type]
+
+    def initialize: (face_value: number, coupon_rate: number, issue_date: Date, maturity_date: Date, ?frequency: Schedule::frequency, ?calendar: Calendars::Base?, ?business_day_convention: Calendars::convention?) -> void
+    def face_value: () -> decimal
+    def coupon_rate: () -> decimal
+    def issue_date: () -> Date
+    def maturity_date: () -> Date
+    def frequency: () -> Schedule::frequency
+    def schedule: () -> Schedule
+    def calendar: () -> Calendars::Base?
+    def business_day_convention: () -> Calendars::convention?
+    def day_count: () -> :actual_actual_icma
+    def cashflows: (settlement_date: Date) -> Array[Transaction]
+    def accrued_interest: (settlement_date: Date) -> decimal
+    def dirty_price: (settlement_date: Date, yield_rate: number) -> decimal
+    def clean_price: (settlement_date: Date, yield_rate: number) -> decimal
+    def yield_to_maturity: (settlement_date: Date, price: number, ?price_type: price_type, ?guess: number) -> decimal
   end
 
   module Precision

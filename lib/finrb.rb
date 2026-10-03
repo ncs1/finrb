@@ -26,6 +26,7 @@ FinrbError = Finrb::Error
 #  * *rate* represents the interest rate _per period_.
 module Finrb
   autoload :Amortization, 'finrb/amortization'
+  autoload :FixedRateBond, 'finrb/fixed_rate_bond'
   autoload :Rate,         'finrb/rates'
   autoload :Transaction,  'finrb/transaction'
 end

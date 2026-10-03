@@ -157,12 +157,18 @@ raise unless loan.schedule.first.interest == Flt::DecNum('887.67')
 ## Day counts
 
 `Finrb::DayCount.year_fraction(start_date, end_date, convention:)` returns a
-decimal year fraction. The initial supported conventions are
-`:actual_365_fixed` (the default) and `:actual_360`; both divide the signed
-actual elapsed calendar days by a fixed denominator. Inputs are date-only
+decimal year fraction. `:actual_365_fixed` (the default) and `:actual_360`
+divide signed actual elapsed calendar days by a fixed denominator. The
+`:actual_actual_icma` convention additionally requires the containing regular
+coupon reference period and coupon frequency via `reference_period_start:`,
+`reference_period_end:`, and `frequency:`. It calculates actual elapsed days
+divided by reference-period days and coupon frequency. Callers with schedules
+spanning multiple coupon periods must split the interval at each reference
+period; finrb does not infer a schedule from two dates. Inputs are date-only
 `Date` instances interpreted on the proleptic Gregorian calendar. Reversed
 dates produce a negative fraction. This API does not imply support for
-30/360 or Actual/Actual variants, which have multiple distinct definitions.
+30/360 or other Actual/Actual variants, which have multiple distinct
+definitions.
 
 The same convention can be selected for dated amortization with `day_count:`.
 Its default preserves existing Actual/365 Fixed results. A non-default
@@ -176,6 +182,22 @@ start_date = Date.new(2025, 1, 15)
 end_date = Date.new(2025, 2, 15)
 
 raise unless Finrb::DayCount.year_fraction(start_date, end_date, convention: :actual_360) == Flt::DecNum(31) / Flt::DecNum(360)
+```
+
+Actual/Actual ICMA requires explicit reference-period context:
+
+<!-- verify-example -->
+```ruby
+fraction = Finrb::DayCount.year_fraction(
+  Date.new(2024, 1, 31),
+  Date.new(2024, 4, 30),
+  convention: :actual_actual_icma,
+  reference_period_start: Date.new(2024, 1, 31),
+  reference_period_end: Date.new(2024, 7, 31),
+  frequency: 2
+)
+
+raise unless fraction == Flt::DecNum(90) / (Flt::DecNum(182) * 2)
 ```
 
 ## Payment schedules
@@ -217,6 +239,49 @@ raise unless schedule.payment_dates == [
   Date.new(2026, 1, 31), Date.new(2026, 3, 31)
 ]
 raise unless schedule.periods.last.short_final_stub?
+```
+
+## Fixed-rate bonds
+
+`Finrb::FixedRateBond` models a regular, fixed-coupon bullet bond. It requires
+positive `face_value`, non-negative annual `coupon_rate`, `issue_date`, and
+`maturity_date`; `frequency:` defaults to `:semiannual` and accepts the four
+`Finrb::Schedule` frequencies. Maturity must align to a regular schedule.
+Irregular stubs, amortizing principal, floating rates, ex-coupon periods,
+curves, spreads, and settlement lags are not modeled.
+
+Coupons accrue under Actual/Actual ICMA using unadjusted regular coupon
+boundaries. Each complete coupon is `face_value * coupon_rate / frequency`;
+`accrued_interest` applies the same reference-period fraction from the current
+coupon start to settlement, so it reconciles to the coupon amount at the
+unadjusted period end. If a calendar and business-day convention are supplied,
+they adjust payment dates only, not accrual boundaries. Settlement is passed
+to each valuation method, must be on or after issue, and must precede maturity;
+cashflows on settlement are excluded.
+
+Bond price arguments and results are cash amounts in the same units as
+`face_value` (not a per-100 quote). Dirty price is the present value of future
+cashflows using a nominal annual yield compounded at the coupon frequency and
+schedule-aware Actual/Actual ICMA time. Clean price is dirty price minus
+accrued interest. `yield_to_maturity` accepts a clean price by default or
+`price_type: :dirty`, and inverts that same price convention using finrb's
+existing rate solver. The supported yield domain is greater than -100%.
+
+<!-- verify-example -->
+```ruby
+bond = Finrb::FixedRateBond.new(
+  face_value: 1_000,
+  coupon_rate: 0.05,
+  issue_date: Date.new(2024, 1, 31),
+  maturity_date: Date.new(2026, 1, 31),
+  frequency: :semiannual
+)
+settlement_date = Date.new(2024, 4, 30)
+dirty = bond.dirty_price(settlement_date:, yield_rate: 0.0475)
+clean = bond.clean_price(settlement_date:, yield_rate: 0.0475)
+
+raise unless (dirty - clean - bond.accrued_interest(settlement_date:)).abs < Flt::DecNum('1e-20')
+raise unless bond.yield_to_maturity(settlement_date:, price: clean).round(8) == Flt::DecNum('0.0475').round(8)
 ```
 
 ## Amortization

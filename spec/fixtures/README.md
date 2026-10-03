@@ -39,6 +39,26 @@ python3 script/generate_amortization_reference.py
 This reference does not validate business-day adjustment, holiday calendars,
 alternate day counts, or an effective-APY accrual convention.
 
+`quantlib_fixed_rate_bonds.json` was generated with QuantLib-Python 1.43
+`FixedRateBond`, schedule-aware Actual/Actual ICMA, and nominal annual yield
+compounded at coupon frequency. It compares regular semiannual, annual, and
+quarterly bonds; leap-year anchors; a US Federal Reserve calendar with adjusted
+payment dates; mid-period and coupon-date settlements; and a negative yield.
+Prices are converted from QuantLib's per-100 quote to cash amounts in the
+fixture's face-value units. The Ruby specs consume only this committed fixture.
+
+The optional generator dependency is isolated from finrb runtime and test
+dependencies:
+
+```shell
+python3 -m pip install --requirement script/requirements-bond-verification.txt
+python3 script/generate_bond_reference.py
+```
+
+This is a deliberately narrow conventional bond comparison. It does not cover
+stubs, ex-coupon dates, settlement lags, floating rates, curves, spreads, or
+markets outside the selected calendar case.
+
 ## Live randomized comparison
 
 Install the optional dependencies into a Python environment of your choice:

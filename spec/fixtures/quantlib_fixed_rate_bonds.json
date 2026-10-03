@@ -1,0 +1,240 @@
+{
+  "quantlib_version": "1.43",
+  "day_count": "Actual/Actual ICMA (ISMA)",
+  "yield_compounding": "nominal annual, compounded at coupon frequency",
+  "price_units": "cash amount in face_value units",
+  "cases": [
+    {
+      "name": "semiannual_leap_year_mid_period",
+      "face_value": "1000.00",
+      "coupon_rate": "0.05",
+      "issue_date": "2024-01-31",
+      "maturity_date": "2027-01-31",
+      "settlement_date": "2024-04-30",
+      "frequency": "semiannual",
+      "yield_rate": "0.0475",
+      "calendar": "null",
+      "payment_convention": "unadjusted",
+      "payment_dates": [
+        "2024-07-31",
+        "2025-01-31",
+        "2025-07-31",
+        "2026-01-31",
+        "2026-07-31",
+        "2027-01-31"
+      ],
+      "adjusted_payment_dates": [
+        "2024-07-31",
+        "2025-01-31",
+        "2025-07-31",
+        "2026-01-31",
+        "2026-07-31",
+        "2027-01-31"
+      ],
+      "future_cashflows": [
+        {
+          "date": "2024-07-31",
+          "amount": "24.9999999999999"
+        },
+        {
+          "date": "2025-01-31",
+          "amount": "24.9999999999999"
+        },
+        {
+          "date": "2025-07-31",
+          "amount": "24.9999999999999"
+        },
+        {
+          "date": "2026-01-31",
+          "amount": "24.9999999999999"
+        },
+        {
+          "date": "2026-07-31",
+          "amount": "24.9999999999999"
+        },
+        {
+          "date": "2027-01-31",
+          "amount": "1025"
+        }
+      ],
+      "accrued_interest": "12.3626373626373",
+      "dirty_price": "1018.66958729329",
+      "clean_price": "1006.30694993065",
+      "yield_from_clean_price": "0.0475",
+      "yield_from_dirty_price": "0.0475"
+    },
+    {
+      "name": "annual_coupon_leap_day_anchor",
+      "face_value": "100.00",
+      "coupon_rate": "0.04",
+      "issue_date": "2024-02-29",
+      "maturity_date": "2028-02-29",
+      "settlement_date": "2026-02-28",
+      "frequency": "annual",
+      "yield_rate": "0.035",
+      "calendar": "null",
+      "payment_convention": "unadjusted",
+      "payment_dates": [
+        "2025-02-28",
+        "2026-02-28",
+        "2027-02-28",
+        "2028-02-29"
+      ],
+      "adjusted_payment_dates": [
+        "2025-02-28",
+        "2026-02-28",
+        "2027-02-28",
+        "2028-02-29"
+      ],
+      "future_cashflows": [
+        {
+          "date": "2027-02-28",
+          "amount": "4"
+        },
+        {
+          "date": "2028-02-29",
+          "amount": "104"
+        }
+      ],
+      "accrued_interest": "0",
+      "dirty_price": "100.949847137623",
+      "clean_price": "100.949847137623",
+      "yield_from_clean_price": "0.035",
+      "yield_from_dirty_price": "0.035"
+    },
+    {
+      "name": "quarterly_calendar_adjusted_payments",
+      "face_value": "1000.00",
+      "coupon_rate": "0.06",
+      "issue_date": "2025-08-31",
+      "maturity_date": "2027-08-31",
+      "settlement_date": "2026-01-15",
+      "frequency": "quarterly",
+      "yield_rate": "0.055",
+      "calendar": "us_federal_reserve",
+      "payment_convention": "modified_following",
+      "payment_dates": [
+        "2025-11-30",
+        "2026-02-28",
+        "2026-05-31",
+        "2026-08-31",
+        "2026-11-30",
+        "2027-02-28",
+        "2027-05-31",
+        "2027-08-31"
+      ],
+      "adjusted_payment_dates": [
+        "2025-11-28",
+        "2026-02-27",
+        "2026-05-29",
+        "2026-08-31",
+        "2026-11-30",
+        "2027-02-26",
+        "2027-05-28",
+        "2027-08-31"
+      ],
+      "future_cashflows": [
+        {
+          "date": "2026-02-27",
+          "amount": "14.9999999999999"
+        },
+        {
+          "date": "2026-05-29",
+          "amount": "14.9999999999999"
+        },
+        {
+          "date": "2026-08-31",
+          "amount": "14.9999999999999"
+        },
+        {
+          "date": "2026-11-30",
+          "amount": "14.9999999999999"
+        },
+        {
+          "date": "2027-02-26",
+          "amount": "14.9999999999999"
+        },
+        {
+          "date": "2027-05-28",
+          "amount": "14.9999999999999"
+        },
+        {
+          "date": "2027-08-31",
+          "amount": "1015"
+        }
+      ],
+      "accrued_interest": "7.66666666666671",
+      "dirty_price": "1015.36741311221",
+      "clean_price": "1007.70074644554",
+      "yield_from_clean_price": "0.0549999999999999",
+      "yield_from_dirty_price": "0.0549999999999999"
+    },
+    {
+      "name": "semiannual_negative_yield",
+      "face_value": "500.00",
+      "coupon_rate": "0.01",
+      "issue_date": "2023-03-15",
+      "maturity_date": "2028-03-15",
+      "settlement_date": "2025-08-20",
+      "frequency": "semiannual",
+      "yield_rate": "-0.005",
+      "calendar": "null",
+      "payment_convention": "unadjusted",
+      "payment_dates": [
+        "2023-09-15",
+        "2024-03-15",
+        "2024-09-15",
+        "2025-03-15",
+        "2025-09-15",
+        "2026-03-15",
+        "2026-09-15",
+        "2027-03-15",
+        "2027-09-15",
+        "2028-03-15"
+      ],
+      "adjusted_payment_dates": [
+        "2023-09-15",
+        "2024-03-15",
+        "2024-09-15",
+        "2025-03-15",
+        "2025-09-15",
+        "2026-03-15",
+        "2026-09-15",
+        "2027-03-15",
+        "2027-09-15",
+        "2028-03-15"
+      ],
+      "future_cashflows": [
+        {
+          "date": "2025-09-15",
+          "amount": "2.49999999999995"
+        },
+        {
+          "date": "2026-03-15",
+          "amount": "2.49999999999995"
+        },
+        {
+          "date": "2026-09-15",
+          "amount": "2.49999999999995"
+        },
+        {
+          "date": "2027-03-15",
+          "amount": "2.49999999999995"
+        },
+        {
+          "date": "2027-09-15",
+          "amount": "2.49999999999995"
+        },
+        {
+          "date": "2028-03-15",
+          "amount": "502.5"
+        }
+      ],
+      "accrued_interest": "2.14673913043484",
+      "dirty_price": "521.575899866277",
+      "clean_price": "519.429160735842",
+      "yield_from_clean_price": "-0.00499999999999959",
+      "yield_from_dirty_price": "-0.00499999999999959"
+    }
+  ]
+}

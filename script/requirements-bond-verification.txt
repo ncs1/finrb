@@ -1,0 +1,3 @@
+# Optional QuantLib reference used only to regenerate fixed-rate bond fixtures.
+# This is not a finrb runtime dependency.
+QuantLib==1.43

@@ -381,17 +381,28 @@ only finrb's runtime dependencies and RSpec; MRI-only development tooling such
 as RBS, RuboCop, and coverage is deliberately excluded from engine
 compatibility runs.
 
-Maintainers with the optional Python environment can run the larger seeded
-solver verification campaign:
+Maintainers with the optional Python environment can run seeded randomized
+cross-validation campaigns for solvers and fixed-rate bonds:
 
 ```shell
-python3 -m pip install --requirement script/requirements-solver-verification.txt
+python3 -m pip install --requirement script/verification/requirements-solver.txt
 bundle exec rake solver:verify
 ```
 
+The bond campaign needs only QuantLib-Python 1.43:
+
+```shell
+python3 -m pip install --requirement script/verification/requirements-bonds.txt
+bundle exec rake bond:verify
+```
+
+The same bond campaign can run in the isolated Docker target with
+`bundle exec rake docker:verify_bond`.
+
 The Python packages are verification references, not gem dependencies. See
 [the fixture documentation](spec/fixtures/README.md) for reproducibility,
-Docker, batching, and tolerance details.
+Docker, batching, and tolerance details. Verification and maintainer utilities
+are grouped by purpose under `script/`.
 
 ## Project links
 

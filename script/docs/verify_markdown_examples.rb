@@ -3,7 +3,7 @@
 require 'open3'
 require 'rbconfig'
 
-root = File.expand_path('..', __dir__)
+root = File.expand_path('../..', __dir__)
 paths = ARGV.empty? ? [File.join(root, 'docs', 'api.md')] : ARGV.map { |path| File.expand_path(path, root) }
 marker = '<!-- verify-example -->'
 pattern = /#{Regexp.escape(marker)}\s*```ruby\s*\n(.*?)^```/m

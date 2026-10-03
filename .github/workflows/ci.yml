@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   calendar_oracle:
-    name: QuantLib calendar cross-validation
+    name: QuantLib calendar and bond cross-validation
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -30,9 +30,11 @@ jobs:
         with:
           python-version: "3.13"
       - name: Install calendar oracle
-        run: python -m pip install --requirement script/requirements-calendar-verification.txt
+        run: python -m pip install --requirement script/verification/requirements-calendar.txt
       - name: Compare every supported date
         run: bundle exec rake calendar:verify
+      - name: Randomly cross-validate bond schedules and valuations
+        run: bundle exec rake bond:verify
 
   mri:
     name: Ruby ${{ matrix.ruby_version }} / ${{ matrix.target }}
@@ -131,7 +133,7 @@ jobs:
         run: |
           FINRB_PACKAGE="$RUNNER_TEMP/finrb.gem"
           gem build finrb.gemspec --output "$FINRB_PACKAGE"
-          ruby script/verify_gem.rb "$FINRB_PACKAGE"
+          ruby script/package/verify_gem.rb "$FINRB_PACKAGE"
       - name: Install and smoke-test gem
         run: |
           FINRB_PACKAGE="$RUNNER_TEMP/finrb.gem"
@@ -139,7 +141,7 @@ jobs:
           mkdir -p "$FINRB_GEM_HOME"
           GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" gem install "$FINRB_PACKAGE" --no-document
           cd "$RUNNER_TEMP"
-          GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" ruby "$GITHUB_WORKSPACE/script/smoke_gem.rb"
+          GEM_HOME="$FINRB_GEM_HOME" GEM_PATH="$FINRB_GEM_HOME" ruby "$GITHUB_WORKSPACE/script/package/smoke_gem.rb"
 
   dependency_audit:
     name: Ruby dependency audit

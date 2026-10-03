@@ -252,12 +252,15 @@ curves, spreads, and settlement lags are not modeled.
 
 Coupons accrue under Actual/Actual ICMA using unadjusted regular coupon
 boundaries. Each complete coupon is `face_value * coupon_rate / frequency`;
-`accrued_interest` applies the same reference-period fraction from the current
-coupon start to settlement, so it reconciles to the coupon amount at the
-unadjusted period end. If a calendar and business-day convention are supplied,
-they adjust payment dates only, not accrual boundaries. Settlement is passed
-to each valuation method, must be on or after issue, and must precede maturity;
-cashflows on settlement are excluded.
+`accrued_interest` uses the coupon period associated with the next unpaid
+cashflow, applying its reference-period fraction from the unadjusted coupon
+start through settlement, capped at the unadjusted period end. If a calendar
+adjusts a payment later than its unadjusted date, accrual for the next coupon
+does not begin until that delayed prior coupon has been paid; this avoids
+double-counting accrual while both cashflows remain outstanding. Calendar
+adjustment changes payment dates only, not coupon boundaries. Settlement is
+passed to each valuation method, must be on or after issue, and must precede
+maturity; cashflows on settlement are excluded.
 
 Bond price arguments and results are cash amounts in the same units as
 `face_value` (not a per-100 quote). Dirty price is the present value of future

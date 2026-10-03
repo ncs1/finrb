@@ -57,6 +57,15 @@ describe(Finrb::FixedRateBond) do
     expect(adjusted_bond.accrued_interest(settlement_date:)).to(eq(D(1000) * D('0.10') * D(179) / (D(181) * 2)))
   end
 
+  it('does not accrue the next coupon before a delayed prior payment settles') do
+    calendar = Finrb::Calendars::USFederalReserve.new
+    adjusted_bond = described_class.new(face_value: 1000, coupon_rate: 0.12, issue_date: Date.new(2053, 1, 15), maturity_date: Date.new(2053, 4, 15), frequency: :monthly, calendar:, business_day_convention: :modified_following)
+
+    expect(adjusted_bond.schedule.payment_dates.first(2)).to(eq([Date.new(2053, 2, 18), Date.new(2053, 3, 17)]))
+    expect(adjusted_bond.accrued_interest(settlement_date: Date.new(2053, 3, 16))).to(eq(D(10)))
+    expect(adjusted_bond.accrued_interest(settlement_date: Date.new(2053, 3, 17))).to(eq(D(10) * D(2) / D(31)))
+  end
+
   it('rejects maturity dates that do not align with coupon frequency') do
     expect { irregular_bond }
       .to(raise_error(ArgumentError, /does not align with frequency/))

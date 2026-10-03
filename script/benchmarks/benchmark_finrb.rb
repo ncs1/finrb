@@ -3,7 +3,7 @@
 require('benchmark/ips')
 require('date')
 require('optparse')
-require_relative('../lib/finrb')
+require_relative('../../lib/finrb')
 
 # Deterministic benchmark scenarios and correctness preflight for finrb.
 module FinrbBenchmark

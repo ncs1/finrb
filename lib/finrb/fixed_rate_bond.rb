@@ -56,15 +56,14 @@ module Finrb
 
     def accrued_interest(settlement_date:)
       settlement_date = validate_settlement_date!(settlement_date)
-      @coupon_periods.sum do |period|
-        next Flt::DecNum(0) if period.payment_date <= settlement_date
+      period = @coupon_periods.find { |coupon_period| coupon_period.payment_date > settlement_date }
+      return Flt::DecNum(0) if period.nil?
 
-        accrual_end = [settlement_date, period.accrual_end_date].min
-        next Flt::DecNum(0) if accrual_end <= period.accrual_start_date
+      accrual_end = [settlement_date, period.accrual_end_date].min
+      return Flt::DecNum(0) if accrual_end <= period.accrual_start_date
 
-        fraction = icma_fraction(period.accrual_start_date, accrual_end, period.accrual_start_date, period.accrual_end_date)
-        face_value * coupon_rate * fraction
-      end
+      fraction = icma_fraction(period.accrual_start_date, accrual_end, period.accrual_start_date, period.accrual_end_date)
+      face_value * coupon_rate * fraction
     end
 
     def dirty_price(settlement_date:, yield_rate:)

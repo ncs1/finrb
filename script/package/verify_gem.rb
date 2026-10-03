@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rubygems/package'
-require_relative '../lib/finrb/version'
+require_relative '../../lib/finrb/version'
 
 package_path = ARGV.fetch(0)
 package = Gem::Package.new(package_path)

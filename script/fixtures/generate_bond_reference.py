@@ -2,6 +2,7 @@
 """Generate fixed-rate bond reference fixtures with QuantLib-Python 1.43."""
 
 import json
+from calendar import monthrange
 from pathlib import Path
 
 import QuantLib as ql
@@ -11,7 +12,7 @@ if ql.__version__ != "1.43":
     raise RuntimeError(f"expected QuantLib-Python 1.43, found {ql.__version__}")
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "spec" / "fixtures" / "quantlib_fixed_rate_bonds.json"
 
 FREQUENCIES = {
@@ -111,7 +112,7 @@ def build_case(case):
         ql.Unadjusted,
         ql.Unadjusted,
         ql.DateGeneration.Forward,
-        False,
+        issue_date.dayOfMonth() == monthrange(issue_date.year(), issue_date.month())[1],
     )
     day_counter = ql.ActualActual(ql.ActualActual.ISMA, schedule)
     face_value = float(case["face_value"])

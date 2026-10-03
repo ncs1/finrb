@@ -48,9 +48,9 @@ EXPECTED_ISRAEL_DIFFERENCE_SHA256 = "fb5feffccc31b1c25d4e0e691138a715999de061d4c
 
 
 def load_finrb_calendar_data():
-    repository = Path(__file__).resolve().parents[1]
+    repository = Path(__file__).resolve().parents[2]
     ruby_command = shlex.split(os.environ.get("RUBY", "bundle exec ruby"))
-    adapter = repository / "script" / "calendar_validation_adapter.rb"
+    adapter = repository / "script" / "verification" / "adapters" / "calendar_validation_adapter.rb"
     command = [*ruby_command, str(adapter)]
     process = subprocess.Popen(
         command,
@@ -85,7 +85,7 @@ def load_finrb_calendar_data():
 
 
 def festival_eve_evidence_by_date():
-    repository = Path(__file__).resolve().parents[1]
+    repository = Path(__file__).resolve().parents[2]
     fixture_path = repository / "spec" / "fixtures" / "tase_verified_festival_eves.json"
     fixture = json.loads(fixture_path.read_text())
     return {

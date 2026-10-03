@@ -1,0 +1,3 @@
+# Optional QuantLib reference used by the randomized bond verifier and fixtures.
+# This is not a finrb runtime dependency.
+QuantLib==1.43

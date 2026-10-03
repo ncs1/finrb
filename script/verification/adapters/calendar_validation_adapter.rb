@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'date'
-require 'finrb'
 require 'json'
+require_relative '../../../lib/finrb'
 
 CALENDARS = { us: Finrb::Calendars::USFederalReserve.new, israel: Finrb::Calendars::IsraelTase.new }.freeze
 

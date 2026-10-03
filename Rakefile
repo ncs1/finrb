@@ -26,7 +26,7 @@ task quality: %i[coverage docs:verify rbs:validate]
 namespace :docs do
   desc 'Execute marked Ruby examples from the API guide'
   task :verify do
-    sh(RbConfig.ruby, File.join(__dir__, 'script', 'verify_markdown_examples.rb'), 'docs/api.md')
+    sh(RbConfig.ruby, File.join(__dir__, 'script', 'docs', 'verify_markdown_examples.rb'), 'docs/api.md')
   end
 end
 
@@ -40,7 +40,7 @@ end
 namespace :calendar do
   desc 'Compare finrb US and TASE business days with QuantLib 1.43 over supported date ranges'
   task :verify do
-    sh(ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'verify_calendars.py'))
+    sh(ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'verification', 'verify_calendars.py'))
   end
 end
 
@@ -67,12 +67,12 @@ namespace :package do
     FileUtils.mkdir_p(gem_home)
 
     sh('gem', 'build', 'finrb.gemspec', '--output', artifact)
-    sh(RbConfig.ruby, File.join(__dir__, 'script', 'verify_gem.rb'), artifact)
+    sh(RbConfig.ruby, File.join(__dir__, 'script', 'package', 'verify_gem.rb'), artifact)
     Bundler.with_unbundled_env do
       sh(gem_environment, 'gem', 'install', artifact, '--no-document')
 
       Dir.chdir(scratch_dir) do
-        sh(gem_environment, RbConfig.ruby, File.join(__dir__, 'script', 'smoke_gem.rb'))
+        sh(gem_environment, RbConfig.ruby, File.join(__dir__, 'script', 'package', 'smoke_gem.rb'))
       end
     end
   ensure
@@ -85,7 +85,16 @@ namespace :solver do
   task :verify do
     options = { count: ENV.fetch('COUNT', '100'), seed: ENV.fetch('SEED', '20260825'), workers: ENV.fetch('WORKERS', '4'), batch_size: ENV.fetch('BATCH_SIZE', '50') }
     arguments = options.flat_map { |name, value| ["--#{name.to_s.tr('_', '-')}", value] }
-    sh ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'verify_solver.py'), *arguments
+    sh ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'verification', 'verify_solver.py'), *arguments
+  end
+end
+
+namespace :bond do
+  desc 'Cross-validate randomized fixed-rate bonds against QuantLib 1.43'
+  task :verify do
+    options = { count: ENV.fetch('COUNT', '100'), seed: ENV.fetch('SEED', '20261003'), workers: ENV.fetch('WORKERS', '4'), batch_size: ENV.fetch('BATCH_SIZE', '10') }
+    arguments = options.flat_map { |name, value| ["--#{name.to_s.tr('_', '-')}", value] }
+    sh ENV.fetch('PYTHON', 'python3'), File.join(__dir__, 'script', 'verification', 'verify_bonds.py'), *arguments
   end
 end
 
@@ -93,7 +102,7 @@ namespace :benchmark do
   desc 'Benchmark IRR, XIRR, and amortization with correctness diagnostics'
   task :run do
     arguments = ['--time', ENV.fetch('TIME', '2'), '--warmup', ENV.fetch('WARMUP', '1'), '--seed', ENV.fetch('SEED', '20260826')]
-    sh(RbConfig.ruby, File.join(__dir__, 'script', 'benchmark_finrb.rb'), *arguments)
+    sh(RbConfig.ruby, File.join(__dir__, 'script', 'benchmarks', 'benchmark_finrb.rb'), *arguments)
   end
 end
 
@@ -121,7 +130,7 @@ namespace :docker do
     end
   end
 
-  namespace :arm64 do
+  namespace('arm64') do
     desc 'Build an ARM64 development image with Docker Buildx'
     task :build do
       sh('docker', 'buildx', 'build', '--platform', 'linux/arm64', '--target', 'development', '--tag', 'finrb:1.0-arm64', '--load', '--file', 'Dockerfile', '.')
@@ -182,6 +191,18 @@ namespace :docker do
       command.push('--env', "#{name}=#{ENV.fetch(name)}") if ENV.key?(name)
     end
     sh(*command, image)
+  end
+
+  desc 'Build and run randomized bond verification in Docker'
+  task :verify_bond do
+    image = 'finrb:solver-verification'
+    sh 'docker', 'build', '--target', 'solver-verification', '--tag', image, '--file', 'Dockerfile', '.'
+
+    command = ['docker', 'run', '--rm']
+    %w[COUNT SEED WORKERS BATCH_SIZE].each do |name|
+      command.push('--env', "#{name}=#{ENV.fetch(name)}") if ENV.key?(name)
+    end
+    sh(*command, image, 'bundle', 'exec', 'rake', 'bond:verify')
   end
 
   desc 'Run dev docker instance'

@@ -45,7 +45,7 @@ RUN apt update -yqq && \
 
 RUN python3 -m venv /opt/finrb-solver-verification && \
   /opt/finrb-solver-verification/bin/python -m pip install --no-cache-dir \
-    --requirement script/requirements-solver-verification.txt
+    --requirement script/verification/requirements-solver.txt
 
 ENV PATH="/opt/finrb-solver-verification/bin:${PATH}"
 ENV PYTHON="/opt/finrb-solver-verification/bin/python"

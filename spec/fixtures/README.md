@@ -18,7 +18,7 @@ These fixtures validate finrb against independent implementations. They are test
 QuantLib's cached bond-yield fixtures are not copied here. Those values incorporate coupon schedules, accrued interest, clean/dirty prices, market calendars, and bond-specific day-count conventions that finrb XIRR does not currently model. Treating them as plain XIRR fixtures would compare different financial contracts.
 
 `quantlib_dated_amortization.json` was generated with QuantLib-Python 1.43 by
-`script/generate_amortization_reference.py`. The fixtures use monthly forward
+`script/fixtures/generate_amortization_reference.py`. The fixtures use monthly forward
 schedules with a null calendar and unadjusted dates, Actual/365 Fixed, and
 nominal APR with simple compounding over each individual period. QuantLib
 provides the schedule dates and period growth factors; an independent Python
@@ -33,7 +33,7 @@ reference package installed:
 
 ```shell
 python3 -m pip install QuantLib==1.43
-python3 script/generate_amortization_reference.py
+python3 script/fixtures/generate_amortization_reference.py
 ```
 
 This reference does not validate business-day adjustment, holiday calendars,
@@ -51,8 +51,8 @@ The optional generator dependency is isolated from finrb runtime and test
 dependencies:
 
 ```shell
-python3 -m pip install --requirement script/requirements-bond-verification.txt
-python3 script/generate_bond_reference.py
+python3 -m pip install --requirement script/verification/requirements-bonds.txt
+python3 script/fixtures/generate_bond_reference.py
 ```
 
 This is a deliberately narrow conventional bond comparison. It does not cover
@@ -64,7 +64,7 @@ markets outside the selected calendar case.
 Install the optional dependencies into a Python environment of your choice:
 
 ```shell
-python3 -m pip install --requirement script/requirements-solver-verification.txt
+python3 -m pip install --requirement script/verification/requirements-solver.txt
 ```
 
 Run the randomized comparison with that environment active:
@@ -98,7 +98,7 @@ The Docker wrapper accepts the same environment-variable overrides:
 COUNT=500 SEED=17 WORKERS=8 BATCH_SIZE=25 bundle exec rake docker:verify_solver
 ```
 
-The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/solver_adapter.rb`, and compares each result with both external reference implementations. It sends bounded newline-delimited JSON batches through persistent Ruby worker processes instead of constructing one unbounded stdin payload. Ruby workers and SciPy comparisons run concurrently; QuantLib comparisons stay sequential because its Python binding returned invalid results under concurrent access.
+The harness generates both periodic and irregularly dated conventional cashflows, selects finrb guesses independently from the constructed root, calls finrb through `script/verification/adapters/finrb_reference_adapter.rb`, and compares each result with both external reference implementations. Shared seeded configuration and bounded newline-delimited JSON batching live in `script/verification/common.py`; the domain-specific generators and oracles remain separate. It sends batches through persistent Ruby worker processes instead of constructing one unbounded stdin payload. Ruby workers and SciPy comparisons run concurrently; QuantLib comparisons stay sequential because its Python binding returned invalid results under concurrent access.
 
 Verification reports finrb's convergence count and worst normalized NPV
 residual before the differences from the external references. A run fails when
@@ -107,11 +107,48 @@ exceeds `1e-12`, or its rate differs from a reference by more than `2e-11`.
 Wall-clock timings are secondary diagnostics: they include different process
 startup and concurrency costs and are not direct solver microbenchmarks.
 
-QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. The versions used by the maintained fixtures are pinned in `script/requirements-solver-verification.txt`. Neither Python package is a finrb runtime dependency.
+QuantLib receives the constructed root as its guess because its linear auto-bracketing can cross invalid yield domains from poor guesses; the comparison still independently evaluates its NPV, derivative, and safeguarded Newton implementation. The versions used by the maintained fixtures are pinned in `script/verification/requirements-solver.txt`. Neither Python package is a finrb runtime dependency.
+
+## Randomized bond cross-validation
+
+`bundle exec rake bond:verify` generates regular fixed-coupon bullet bonds with
+a deterministic seed and compares finrb against QuantLib-Python 1.43. Cases
+vary coupon frequency, term, end-of-month and mid-month anchors, face value,
+coupon and yield rates (including negative yields), settlement dates, and
+unadjusted/US Federal Reserve-adjusted payment dates. For each case the checker
+compares unadjusted and adjusted schedules, future cashflow dates and amounts,
+accrued interest, clean and dirty prices, and yield recovered from both price
+types. QuantLib is evaluated sequentially; the finrb adapter uses the shared
+persistent Ruby workers. This complements the four committed fixed bond
+fixtures with repeatable randomized coverage; it is not exhaustive proof of
+all dates, markets, or bond structures.
+
+Cashflow, accrued-interest, and price comparisons accept the larger of
+`1e-9` cash units or `1e-12` of the QuantLib value; recovered yields use an
+absolute tolerance of `2e-10`. Schedule and payment dates must match exactly.
+
+QuantLib 1.43's schedule-bound ISMA day counter cannot value cases where a
+following payment adjustment moves the final cashflow beyond the last date in
+the reference schedule. The generator skips and reports those boundary cases
+instead of treating an oracle limitation as a finrb failure. This verifier
+therefore covers adjusted intermediate payments, but does not cross-validate a
+rolled-forward final maturity payment. It also skips and reports a settlement
+on or after the final adjusted cashflow date because QuantLib treats that bond
+as non-tradable for price valuation.
+
+Install the optional oracle and run a larger campaign by setting environment
+variables (defaults: 100 cases, seed `20261003`, four workers, batches of 10):
+
+```shell
+python3 -m pip install --requirement script/verification/requirements-bonds.txt
+COUNT=500 SEED=17 WORKERS=8 BATCH_SIZE=25 bundle exec rake bond:verify
+```
+
+The equivalent isolated Docker run is `bundle exec rake docker:verify_bond`.
 
 ## Business calendars
 
-`script/verify_calendars.py` compares every supported date against QuantLib
+`script/verification/verify_calendars.py` compares every supported date against QuantLib
 1.43's `UnitedStates::FederalReserve` and `Israel::TASE` business-day results.
 The profiles intentionally bound their ranges to 1950–2065 (US) and
 2000–2050 (TASE); date-only status is compared for every day, not just named
@@ -126,7 +163,7 @@ fail. The evidence and limits are described in [`docs/calendars.md`](../../docs/
 The same check runs in CI. Install its optional reference dependency with:
 
 ```shell
-python3 -m pip install --requirement script/requirements-calendar-verification.txt
+python3 -m pip install --requirement script/verification/requirements-calendar.txt
 bundle exec rake calendar:verify
 ```
 

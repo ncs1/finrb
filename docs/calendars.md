@@ -191,7 +191,7 @@ oracle asserts the mismatch's direction.
 
 ## Exhaustive QuantLib check
 
-`script/verify_calendars.py` compares every supported date with QuantLib 1.43's
+`script/verification/verify_calendars.py` compares every supported date with QuantLib 1.43's
 `UnitedStates::FederalReserve` and `Israel::TASE` calendars. It checks 60,997
 daily statuses: 42,369 US dates and 18,628 TASE dates. The US profile agrees
 everywhere. TASE's 75 known differences are separated into eight Hebrew-date
@@ -208,7 +208,7 @@ in the `QuantLib calendar cross-validation` CI job.
 Install the maintainer-only Python reference dependency and run the Rake task:
 
 ```shell
-python3 -m pip install --requirement script/requirements-calendar-verification.txt
+python3 -m pip install --requirement script/verification/requirements-calendar.txt
 bundle exec rake calendar:verify
 ```
 

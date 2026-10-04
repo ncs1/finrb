@@ -1,5 +1,36 @@
 # finrb changelog
 
+## 1.3.0
+
+### Dated lending and calendars
+
+- Add opt-in dated amortization with monthly, quarterly, semiannual, and annual
+  payment frequencies, explicit short-final stubs, and Actual/365 Fixed or
+  Actual/360 interest accrual. Rate durations remain expressed in months.
+- Add `Amortization#cashflow_yield` to report the dated borrower's effective
+  annual cashflow-equivalent cost from net proceeds and scheduled payments.
+  This is not a jurisdiction-specific legal APR disclosure.
+- Add dependency-free US Federal Reserve payment-day and Israel TASE trading
+  calendars with business-day adjustment conventions. Supported ranges are
+  explicit: US 1950–2065 and TASE 2000–2050.
+- Extract immutable `Finrb::Schedule` payment periods for reuse by dated loans
+  and fixed-rate bonds.
+
+### Fixed income
+
+- Add `Finrb::FixedRateBond` for regular fixed-coupon bullet bonds, with
+  Actual/Actual ICMA coupon accrual, accrued interest, clean and dirty prices,
+  and yield-to-maturity.
+- Correct accrued-interest selection when settlement falls between an
+  unadjusted coupon boundary and its business-day-adjusted payment date.
+
+### Verification and development
+
+- Add pinned QuantLib reference fixtures and seeded randomized cross-validation
+  for dated amortization, calendar profiles, and fixed-rate bond valuations.
+- Add calendar and randomized bond oracle checks to CI, and organize scripts by
+  verification, fixture generation, packaging, documentation, and benchmarks.
+
 ## 1.2.0
 
 ### Validation and financial correctness

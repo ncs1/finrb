@@ -52,9 +52,9 @@ describe(Finrb::Calendars) do
     end
 
     it('lists named holidays within an inclusive date range') do
-      from = Date.new(2026, 11, 25)
-      through = Date.new(2026, 11, 28)
-      thanksgiving = Date.new(2026, 11, 26)
+      from = Date.new(2026, 11, 25, Date::GREGORIAN)
+      through = Date.new(2026, 11, 28, Date::GREGORIAN)
+      thanksgiving = Date.new(2026, 11, 26, Date::GREGORIAN)
       named_holiday = { thanksgiving => ['Thanksgiving Day'] }
 
       expect(calendar.holidays_between(from, through)).to(eq(named_holiday))
@@ -63,9 +63,9 @@ describe(Finrb::Calendars) do
     end
 
     it('can include weekly weekends in holiday lists') do
-      from = Date.new(2026, 11, 25)
-      through = Date.new(2026, 11, 28)
-      closures = { Date.new(2026, 11, 26) => ['Thanksgiving Day'], Date.new(2026, 11, 28) => ['Weekend'] }
+      from = Date.new(2026, 11, 25, Date::GREGORIAN)
+      through = Date.new(2026, 11, 28, Date::GREGORIAN)
+      closures = { Date.new(2026, 11, 26, Date::GREGORIAN) => ['Thanksgiving Day'], Date.new(2026, 11, 28, Date::GREGORIAN) => ['Weekend'] }
 
       expect(calendar.holidays_between(from, through, include_weekends: true)).to(eq(closures))
     end

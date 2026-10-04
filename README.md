@@ -321,14 +321,14 @@ Install the bundle and run the self-contained quality checks:
 ```shell
 bundle install
 bundle exec rake quality
-bundle exec rubocop
 bundle exec rake security:audit
 bundle exec rake package:verify
 ```
 
-The quality task runs the RSpec suite with line and branch coverage, generated
-IRR/XIRR properties, committed SciPy/QuantLib reference fixtures, and RBS
-validation.
+The quality task runs RuboCop, the RSpec suite with line and branch coverage,
+generated IRR/XIRR properties, committed SciPy/QuantLib reference fixtures,
+verified API examples, and RBS validation. Run `bundle exec rake lint` alone for
+a focused full-repository lint check.
 
 `security:audit` updates ruby-advisory-db and checks the locked dependencies.
 `package:verify` builds the gem, validates its contents and metadata, installs

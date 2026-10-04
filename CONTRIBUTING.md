@@ -13,12 +13,12 @@ and TruffleRuby are tested as informational compatibility targets.
 ```shell
 bundle install
 bundle exec rake quality
-bundle exec rubocop
 ```
 
-`rake quality` runs the RSpec suite with coverage, verifies maintained API
-examples, and validates the packaged RBS declarations. Additional checks are
-available for changes that affect their domains:
+`rake quality` runs RuboCop and the RSpec suite with coverage, verifies
+maintained API examples, and validates the packaged RBS declarations. Run
+`bundle exec rake lint` alone for a focused full-repository lint check.
+Additional checks are available for changes that affect their domains:
 
 ```shell
 bundle exec rake security:audit

@@ -20,8 +20,13 @@ ensure
   ENV['COVERAGE'] = previous_coverage
 end
 
+desc 'Run the full RuboCop lint check'
+task :lint do
+  sh('bundle', 'exec', 'rubocop')
+end
+
 desc 'Run all self-contained quality checks'
-task quality: %i[coverage docs:verify rbs:validate]
+task quality: %i[lint coverage docs:verify rbs:validate]
 
 namespace :docs do
   desc 'Execute marked Ruby examples from the API guide'

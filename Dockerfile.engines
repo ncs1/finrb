@@ -11,12 +11,11 @@ WORKDIR /app
 ENV BUNDLE_GEMFILE=/app/gemfiles/engines.gemfile
 
 RUN gem install bundler
-RUN bundle config --global jobs 16
 
 COPY *.gemspec ./
 COPY gemfiles/engines.gemfile ./gemfiles/engines.gemfile
 COPY lib/finrb/version.rb ./lib/finrb/version.rb
-RUN bundle install
+RUN bundle install --jobs 1
 
 COPY . .
 
